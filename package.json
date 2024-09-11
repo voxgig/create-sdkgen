@@ -1,0 +1,51 @@
+{
+  "name": "@voxgig/sdkgen",
+  "version": "0.0.1",
+  "main": "dist/create-sdkgen.js",
+  "type": "commonjs",
+  "types": "dist/create-sdkgen.d.ts",
+  "description": "Create a Voxgig SDK Generator project",
+  "homepage": "https://github.com/voxgig/create-sdkgen",
+  "keywords": [
+    "voxgig",
+    "sdkgen",
+    "create"
+  ],
+  "author": "Richard Rodger (http://richardrodger.com)",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/voxgig/create-sdkgen.git"
+  },
+  "bin": {
+    "create-sdkgen": "bin/run-create-sdkgen.js"
+  },
+  "scripts": {
+    "test": "node --enable-source-maps --test dist-test",
+    "test-some": "node --enable-source-maps --test-name-pattern=\"$npm_config_pattern\" --test dist-test",
+    "watch": "tsc --build src test -w",
+    "build": "tsc --build src test",
+    "clean": "rm -rf node_modules yarn.lock package-lock.json",
+    "reset": "npm run clean && npm i && npm run build && npm test",
+    "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
+    "repo-publish": "npm run clean && npm i && npm run repo-publish-quick",
+    "repo-publish-quick": "npm run build && npm run test && npm run repo-tag && npm publish --registry https://registry.npmjs.org --access=public"
+  },
+  "license": "MIT",
+  "files": [
+    "src",
+    "dist",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@hapi/code": "^9.0.3",
+    "@types/node": "22.5.4",
+    "esbuild": "^0.23.1",
+    "memfs": "^4.11.1",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "aontu": "^0.22.0",
+    "jostraca": "^0.4.0"
+  }
+}
+
