@@ -1,0 +1,13 @@
+
+
+@'@voxgig/model/model/.model-config/model-config.jsonic'
+
+sys: model: builders: {
+  sdk: load: 'build/sdk.js'
+}
+
+sys: model: watch: {
+  'build': {}
+  'dist': {}
+  'tm': {}
+}

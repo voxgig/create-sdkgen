@@ -1,0 +1,6 @@
+
+title: PHP
+
+module: name: '$ModuleName'
+
+options: $.main.sdk.options

@@ -1,0 +1,56 @@
+
+name: '$Name'
+
+@"api.jsonic"
+@"def.jsonic"
+
+main: sdk: build: &: { name: .$KEY }
+
+main: sdk: build: js: @"js.jsonic"
+
+main: sdk: build: ruby: @"ruby.jsonic"
+
+main: sdk: build: python: @"python.jsonic"
+
+main: sdk: build: php: @"php.jsonic"
+
+main: sdk: build: go: @"go.jsonic"
+
+
+main: sdk: entity: $.main.api.entity
+
+
+main: sdk: entity: &: {
+  name: .$KEY
+  publish: *true | boolean
+}
+
+
+
+main: sdk: options: &: {
+   name: .$KEY
+   publish: *true | boolean
+}
+
+
+main: sdk: options: {
+
+  endpoint: {
+    kind: *String | string
+    short: "$Name API URL"
+  }
+
+  apikey: {
+    kind: *String | string
+    short: "$Name API Key"
+  }
+  
+  fetch: {
+    kind: *Any | string
+    publish: false
+  }
+}
+
+
+
+

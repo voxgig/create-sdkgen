@@ -33,6 +33,7 @@ function CreateSdkGen(opts) {
     const folder = opts.folder || '.';
     const jostraca = Jostraca();
     async function generate(spec) {
+        console.log('CreateSdkGen.generate', spec);
         const { model, root } = spec;
         const ctx$ = { fs, folder, meta: { spec } };
         try {

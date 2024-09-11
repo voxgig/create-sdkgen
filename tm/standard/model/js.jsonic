@@ -1,0 +1,6 @@
+
+title: JavaScript
+
+module: name: '$ModuleName'
+
+options: $.main.sdk.options

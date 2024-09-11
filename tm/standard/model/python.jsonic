@@ -1,0 +1,7 @@
+title: Python
+
+extension: py
+
+module: name: '$ModuleName'
+
+options: $.main.sdk.options
