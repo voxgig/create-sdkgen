@@ -44,8 +44,8 @@ func Test${entity.Name}AcceptLoad(t *testing.T) {
   if err != nil {
     t.Fatal("Error loading .env file for Test${entity.Name}AcceptLoad")
   }
-  endpoint := os.Getenv("${MODEL.NAME}_ENDPOINT")
-  apikey := os.Getenv("${MODEL.NAME}_APIKEY")
+  endpoint := os.Getenv("${model.NAME}_ENDPOINT")
+  apikey := os.Getenv("${model.NAME}_APIKEY")
 
   var options ${model.name}.Options
   options.Apikey = apikey

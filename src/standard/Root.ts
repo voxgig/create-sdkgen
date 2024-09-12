@@ -31,6 +31,8 @@ const Root = cmp(function Root(props: any) {
     Folder({ name: folder }, () => {
 
       console.log('FOLDER', folder)
+
+      Copy({ from: __dirname + '/../../tm/standard', name: folder })
     })
   })
 })

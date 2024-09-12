@@ -26,6 +26,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateSdkGen = CreateSdkGen;
 const Fs = __importStar(require("node:fs"));
+const chokidar_1 = require("chokidar");
 const JostracaModule = __importStar(require("jostraca"));
 const { Jostraca } = JostracaModule;
 function CreateSdkGen(opts) {
@@ -37,15 +38,33 @@ function CreateSdkGen(opts) {
         const { model, root } = spec;
         const ctx$ = { fs, folder, meta: { spec } };
         try {
-            jostraca.generate(ctx$, () => root({ model }));
+            await jostraca.generate(ctx$, () => root({ model }));
         }
         catch (err) {
             console.log('CREATE SDKGEN ERROR: ', err);
             throw err;
         }
     }
+    async function watch(spec) {
+        const fsw = new chokidar_1.FSWatcher();
+        let last_change_time = 0;
+        await generate(spec);
+        fsw.on('change', (args) => {
+            // console.log('CHANGE', args)
+            const dorun = 1111 < Date.now() - last_change_time;
+            if (dorun) {
+                generate(spec);
+            }
+        });
+        spec.watch
+            .map((wf) => (__dirname + '/' + wf))
+            .map((wf) => (console.log(wf), wf))
+            .map((wf) => fsw.add(wf));
+        // generate()
+    }
     return {
         generate,
+        watch,
     };
 }
 //# sourceMappingURL=create-sdkgen.js.map

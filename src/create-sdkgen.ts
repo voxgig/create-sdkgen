@@ -2,6 +2,7 @@
 
 import * as Fs from 'node:fs'
 
+import { FSWatcher } from 'chokidar'
 
 import * as JostracaModule from 'jostraca'
 
@@ -35,7 +36,7 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
     const ctx$ = { fs, folder, meta: { spec } }
 
     try {
-      jostraca.generate(ctx$, () => root({ model }))
+      await jostraca.generate(ctx$, () => root({ model }))
     }
     catch (err: any) {
       console.log('CREATE SDKGEN ERROR: ', err)
@@ -44,8 +45,34 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
   }
 
 
+  async function watch(spec: any) {
+    const fsw = new FSWatcher()
+    let last_change_time = 0
+
+    await generate(spec)
+
+    fsw.on('change', (args: any[]) => {
+      // console.log('CHANGE', args)
+
+      const dorun = 1111 < Date.now() - last_change_time
+
+      if (dorun) {
+        generate(spec)
+      }
+    })
+
+    spec.watch
+      .map((wf: string) => (__dirname + '/' + wf))
+      .map((wf: string) => (console.log(wf), wf))
+      .map((wf: string) => fsw.add(wf))
+
+    // generate()
+  }
+
+
   return {
     generate,
+    watch,
   }
 
 }

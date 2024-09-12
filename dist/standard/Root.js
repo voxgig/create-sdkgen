@@ -12,6 +12,7 @@ const Root = (0, jostraca_1.cmp)(function Root(props) {
     (0, jostraca_1.Project)({}, () => {
         (0, jostraca_1.Folder)({ name: folder }, () => {
             console.log('FOLDER', folder);
+            (0, jostraca_1.Copy)({ from: __dirname + '/../../tm/standard', name: folder });
         });
     });
 });

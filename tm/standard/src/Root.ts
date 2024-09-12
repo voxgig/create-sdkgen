@@ -13,11 +13,8 @@ import {
 
 } from '@voxgig/sdkgen'
 
-// import { Readme } from './Readme'
-// import { Main } from './Main'
-// import { Entity } from './Entity'
 
-
+// 2
 const Root = cmp(function Root(props: any) {
   const { model, ctx$ } = props
 

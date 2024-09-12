@@ -1,5 +1,5 @@
 {
-  "name": "build-$name-sdk",
+  "name": "build-$$name$$-sdk",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
