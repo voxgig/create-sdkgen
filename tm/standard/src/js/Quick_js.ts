@@ -1,14 +1,14 @@
 
-import { cmp, File, Code } from '@voxgig/sdkgen'
+import { cmp, File, Content } from '@voxgig/sdkgen'
 
 
-const Quick = cmp(function Quick_js(props: any) {
+const Quick = cmp(function Quick(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
   File({ name: 'quick.' + build.name }, () => {
 
-    Code(`
+    Content(`
 require('dotenv').config({ path: ['../../.env.local']})
 
 const { ${model.Name}SDK } = require('../')

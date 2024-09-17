@@ -1,13 +1,15 @@
-import { cmp, File, Code, Folder } from '@voxgig/sdkgen'
+import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
 
-const Quick = cmp(function Quick_php(props: any) {
+
+
+const Quick = cmp(function Quick(props: any) {
   const { build, model } = props
 
   Folder({ name: 'src' }, () => {
 
     File({ name: 'QuickStart.' + build.name }, () => {
 
-      Code(`<?php
+      Content(`<?php
 // ${model.Name} QuickStart
 
 require_once __DIR__ . '../../sdk/php/src/PlantquestSDK.php';

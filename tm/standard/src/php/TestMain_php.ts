@@ -1,18 +1,18 @@
 
-import { cmp, each, File, Code } from '@voxgig/sdkgen'
+import { cmp, each, File, Content } from '@voxgig/sdkgen'
 
 
 import { TestEntity } from './TestEntity_php'
 
 
-const TestMain = cmp(function TestMain_php(props: any) {
+const TestMain = cmp(function TestMain(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
 
   File({ name: model.name + 'SDK.test.' + build.name }, () => {
 
-    Code(`
+    Content(`
 const { test, describe } = require('node:test')
 const { equal, deepEqual } = require('node:assert')
 
@@ -34,7 +34,7 @@ describe('${model.Name}SDK', ()=>{
     })
 
 
-    Code(`
+    Content(`
 })
 
 

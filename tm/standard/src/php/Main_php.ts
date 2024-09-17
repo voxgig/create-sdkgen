@@ -1,24 +1,26 @@
-import { cmp, File, Code, Folder } from '@voxgig/sdkgen'
+import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
 
-const Main_php = cmp(function Main_php(props: any) {
+
+
+const Main = cmp(function Main(props: any) {
   const { build, model } = props
 
   Folder({ name: 'src' }, () => {
 
     File({ name: 'Main.' + build.name }, () => {
 
-      Code(`<?php
+      Content(`<?php
 // ${model.Name} Main
 
-require_once __DIR__ . '../../sdk/php/src/${model.Name}SDK.php';
+require_once __DIR__ . '../../sdk/php/src/PlantquestSDK.php';
 require_once __DIR__ . '../../sdk/php/src/Asset.php';
 require_once __DIR__ . '../../sdk/php/src/Geofence.php';
 require_once __DIR__ . '../../sdk/php/src/Room.php';
 
-use ${model.Name}SDK\\${model.Name}SDK;
-use ${model.Name}SDK\\Asset;
-use ${model.Name}SDK\\Geofence;
-use ${model.Name}SDK\\Room;
+use PlantquestSDK\\PlantquestSDK;
+use PlantquestSDK\\Asset;
+use PlantquestSDK\\Geofence;
+use PlantquestSDK\\Room;
 
 // Initialize the SDK
 \$options = [
@@ -26,7 +28,7 @@ use ${model.Name}SDK\\Room;
     'endpoint' => 'https://api.plantquest.com'
 ];
 
-\$sdk = new ${model.Name}SDK(\$options);
+\$sdk = new PlantquestSDK(\$options);
 
 // Example usage
 \$asset = new Asset(\$sdk);
@@ -44,5 +46,5 @@ use ${model.Name}SDK\\Room;
 })
 
 export {
-  Main_php
+  Main
 }

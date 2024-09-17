@@ -1,13 +1,15 @@
-import { cmp, File, Code, Folder } from '@voxgig/sdkgen'
+import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
 
-const TestEntity = cmp(function TestEntity_php(props: any) {
+
+
+const TestEntity = cmp(function TestEntity(props: any) {
   const { build, entity, model } = props
 
   Folder({ name: 'tests' }, () => {
 
     File({ name: entity.Name + 'Test.' + build.name }, () => {
 
-      Code(`<?php
+      Content(`<?php
 // ${model.Name} ${build.Name} ${entity.Name} Test
 
 use PHPUnit\Framework\TestCase;

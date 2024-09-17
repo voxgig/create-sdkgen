@@ -1,4 +1,6 @@
-import { cmp, File, Code, Folder } from '@voxgig/sdkgen'
+import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
+
+
 
 const MainEntity = cmp(function MainEntity(props: any) {
   const { build, entity, model } = props
@@ -7,22 +9,22 @@ const MainEntity = cmp(function MainEntity(props: any) {
 
     File({ name: entity.Name + 'Main.' + build.name }, () => {
 
-      Code(`<?php
+      Content(`<?php
 // ${model.Name} ${build.Name} ${entity.Name} Main
 
-require_once __DIR__ . '../../sdk/php/src/${model.Name}SDK.php';
+require_once __DIR__ . '../../sdk/php/src/PlantquestSDK.php';
 require_once __DIR__ . '../../sdk/php/src/${entity.Name}.php';
 
-use ${model.Name}SDK\\${model.Name}SDK;
-use ${model.Name}SDK\\${entity.Name};
+use PlantquestSDK\\PlantquestSDK;
+use PlantquestSDK\\${entity.Name};
 
 // Initialize the SDK
 \$options = [
     'apikey' => 'your_api_key',
-'endpoint' => '${build.endpoint}'
+    'endpoint' => 'https://api.plantquest.com'
 ];
 
-\$sdk = new ${model.Name}SDK(\$options);
+\$sdk = new PlantquestSDK(\$options);
 
 // Example usage
 \$${entity.Name.toLowerCase()} = new ${entity.Name}(\$sdk);

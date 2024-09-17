@@ -1,18 +1,18 @@
 
-import { cmp, each, File, Code } from '@voxgig/sdkgen'
+import { cmp, each, File, Content } from '@voxgig/sdkgen'
 
 
 import { TestEntity } from './TestEntity_go'
 
 
-const TestMain = cmp(function TestMain_js(props: any) {
+const TestMain = cmp(function TestMain(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
   File({ name: model.name + 'sdk_test.' + build.name }, () => {
 
-    Code(`
-package ${model.name} 
+    Content(`
+package ${model.name}sdk
 
 import (
   "fmt"
@@ -35,7 +35,7 @@ func createHttpClientMock(respData *strings.Reader) *http.Client {
  return &http.Client{
   Transport: fakeService(func(*http.Request) (*http.Response, error) {
     return &http.Response{
-      StatusCode: http.StatusOK,
+      StatusContent: http.StatusOK,
       Header: http.Header{
         "Content-Type": []string{"application/json"},
       },
@@ -48,7 +48,7 @@ func createHttpClientMock(respData *strings.Reader) *http.Client {
     each(model.main.sdk.entity, (entity: any) => {
       TestEntity({ model, build, entity })
     })
-    Code(`
+    Content(`
 `)
 
   })

@@ -1,15 +1,15 @@
 {
-  "name": "$name-sdk",
+  "name": "plantquest-sdk",
   "version": "0.0.1",
   "description": "",
-  "main": "src/$NameSDK.js",
+  "main": "src/PlantquestSDK.js",
   "scripts": {
     "test": "node --test test/*.test.js",
     "test-accept": "node --test test/accept/*.test.js",
     "test-all": "npm run test && npm run test-accept"
   },
-  "author": "$Name",
-  "license": "$License",
+  "author": "PlantQuest Ltd",
+  "license": "MIT",
   "devDependencies": {
     "@hapi/code": "^9.0.3",
     "dotenv": "^16.4.5"

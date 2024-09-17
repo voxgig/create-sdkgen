@@ -1,10 +1,11 @@
 
-import { cmp, each, camelify, File, Code, Copy } from '@voxgig/sdkgen'
+import { cmp, each, camelify, File, Content, Copy } from '@voxgig/sdkgen'
 
 import { MainEntity } from './MainEntity_go'
 import { Test } from './Test_go'
 
-const Main_go = cmp(async function Main_go(props: any) {
+
+const Main = cmp(async function Main(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
@@ -17,16 +18,18 @@ const Main_go = cmp(async function Main_go(props: any) {
   Test({ build })
   File({ name: model.name + 'sdk.' + build.name }, () => {
 
-    Code(`
+    Content(`
 // ${model.Name} ${build.Name} SDK
 
-package ${model.name}
+package ${model.name}sdk
 
 import(
   "bytes"
   "encoding/json"
   "fmt"
   "net/http"
+  "errors"
+  "reflect"
 )
 
 type endpointConfig struct {
@@ -53,11 +56,11 @@ type spec struct {
 type Options struct {`)
     each(options, (option: any) => {
       if (option.kind != "Any") {
-        Code(`
+        Content(`
   ${camelify(option.name)} ${option.kind.toLowerCase()}
 `)
       }
-    }); Code(`
+    }); Content(`
 }
 
 type ${model.name} struct {
@@ -124,12 +127,36 @@ func fetchSpec[T any](config fetchConfig, data T) (spec, error){
       MainEntity({ model, build, entity })
     })
 
-    Code(`
-func NewClient(options Options) *${model.name} {
-  sdk := new (${model.name})
-  sdk.options = options
-  sdk.httpClient = *http.DefaultClient
-  return sdk
+    Content(`
+func validateOptions(options Options) error {
+  e := reflect.ValueOf(&options).Elem()
+
+	for i := 0; i < e.NumField(); i++ {
+    field := e.Field(i)
+		fieldName := e.Type().Field(i).Name
+    fieldValue := field.Interface()
+
+		if field.IsZero() {
+			return errors.New(fmt.Sprintf("${model.Name}SDK: Invalid options: opt: %v value: %v",
+        fieldName, fieldValue))
+		}
+	}
+	return nil
+}
+
+func new${model.Name}SDK(options Options) (*${model.name}, error) {
+	sdk := new(${model.name})
+	sdk.options = options
+	sdk.httpClient = *http.DefaultClient
+	return sdk, nil
+}
+
+func Make(options Options) (*${model.name}, error) {
+  err := validateOptions(options)
+  if err != nil {
+    return nil, err
+  }
+  return new${model.Name}SDK(options)
 }
 `)
   })
@@ -137,5 +164,5 @@ func NewClient(options Options) *${model.name} {
 
 
 export {
-  Main_go
+  Main
 }

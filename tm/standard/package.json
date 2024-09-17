@@ -2,7 +2,7 @@
   "name": "build-$$name$$-sdk",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "QQQindex.js",
   "scripts": {
     "model": "voxgig-model model/sdk.jsonic",
     "watch": "tsc --build src -w",

@@ -1,5 +1,8 @@
 
 
+import Path from 'node:path'
+
+
 import {
   names,
   cmp,
@@ -16,7 +19,10 @@ import {
 const Root = cmp(function Root(props: any) {
   const { model, ctx$ } = props
 
-  const folder = ctx$.folder
+  const { folder, meta } = ctx$
+  const { spec } = meta
+
+  console.log('SPEC', spec)
 
   names(model, model.name)
 
@@ -26,13 +32,19 @@ const Root = cmp(function Root(props: any) {
   ctx$.model = model
 
 
-  Project({}, () => {
+  Project({ folder }, () => {
 
-    Folder({ name: folder }, () => {
+    Folder({ name: Path.basename(folder) }, () => {
 
-      console.log('FOLDER', folder)
-
+      // console.log('FOLDER', folder)
       Copy({ from: __dirname + '/../../tm/standard', name: folder })
+
+      const def = model.def.filepath
+      if (null != def && '' !== def) {
+        Folder({ name: 'def' }, () => {
+          Copy({ from: def, name: Path.basename(def) })
+        })
+      }
     })
   })
 })

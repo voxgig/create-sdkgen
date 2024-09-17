@@ -1,15 +1,15 @@
 
-import { cmp, File, Code } from '@voxgig/sdkgen'
+import { cmp, File, Content } from '@voxgig/sdkgen'
 
 
-const Quick = cmp(function Quick_go(props: any) {
+const Quick = cmp(function Quick(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
   File({ name: 'quick_test.' + build.name }, () => {
 
-    Code(`
-package ${model.name} 
+    Content(`
+package ${model.name}sdk
 
 import (
   "log"
@@ -32,7 +32,10 @@ func TestQuick(t *testing.T) {
   var options Options
   options.Apikey = apikey
   options.Endpoint = endpoint
-  client := NewClient(options)
+  client, err := Make(options)
+  if err != nil {
+    t.Fatalf("Error creating a new client Quick: %q", err)
+  }
 
   data := GeofenceData{
     Id: "CF49B47C-317B-4387-83C3-4A23715B1C45",
@@ -51,6 +54,7 @@ func TestQuick(t *testing.T) {
   log.Print("Geofence.list", out2[0].Data, out2[1].Data)
 
   if strings.Contains(endpoint, "localhost") {
+    //Create Quick Test
     data := GeofenceData{
       Name: "Geofence 1",
       Desc: "Geofence 1 description",
@@ -65,6 +69,7 @@ func TestQuick(t *testing.T) {
     }
     log.Print("Geofence.create", out.Data)
 
+    //Save Quick Test
     data = GeofenceData{
       Id: "CF49B47C-317B-4387-83C3-4A23715B1C45",
       Name: "Geofence 1",
@@ -79,6 +84,16 @@ func TestQuick(t *testing.T) {
       t.Fatalf("Error running Quick save method: %q", err)
     }
     log.Print("Geofence.save", out.Data)
+
+    //Remove Quick Test
+    data = GeofenceData{
+      Id: "CF49B47C-317B-4387-83C3-4A23715B1C45",
+    }
+    out, err = client.Geofence().Remove(data)
+    if err != nil {
+      t.Fatalf("Error running Quick remove method: %q", err)
+    }
+    log.Print("Geofence.remove ", out)
   }
 }
 `)

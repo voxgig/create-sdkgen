@@ -1,15 +1,15 @@
 
-import { cmp, Code } from '@voxgig/sdkgen'
+import { cmp, Content } from '@voxgig/sdkgen'
 
 
 const ReadmeInstall = cmp(function ReadmeInstall(props: any) {
   const { build } = props
 
-  Code('```js')
-  Code(`
+  Content('```js')
+  Content(`
 npm install ${build.module.name}
 `)
-  Code('```')
+  Content('```')
 
 })
 

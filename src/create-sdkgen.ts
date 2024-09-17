@@ -30,7 +30,6 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
   async function generate(spec: any) {
     console.log('CreateSdkGen.generate', spec)
 
-
     const { model, root } = spec
 
     const ctx$ = { fs, folder, meta: { spec } }

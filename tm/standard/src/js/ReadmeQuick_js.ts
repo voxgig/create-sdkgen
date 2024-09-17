@@ -1,12 +1,12 @@
 
-import { cmp, Code } from '@voxgig/sdkgen'
+import { cmp, Content } from '@voxgig/sdkgen'
 
 
 const ReadmeQuick = cmp(function ReadmeQuick(props: any) {
   const { build, ctx$: { model } } = props
 
-  Code('```js')
-  Code(`
+  Content('```js')
+  Content(`
 const { ${model.Name}SDK } = require('${build.module.name}')
 
 const client = ${model.Name}SDK.make({
@@ -17,7 +17,7 @@ const client = ${model.Name}SDK.make({
 let buildings = await client.Building().list()
 console.log('Buildings', buildings) 
 `)
-  Code('```')
+  Content('```')
 
 })
 

@@ -1,6 +1,8 @@
-import { cmp, File, Code, Folder } from '@voxgig/sdkgen'
+import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
 
-const Entity_php = cmp(function Entity_php(props: any) {
+
+
+const Entity = cmp(function Entity(props: any) {
   const { build, entity } = props
   const { model } = props.ctx$
 
@@ -10,7 +12,7 @@ const Entity_php = cmp(function Entity_php(props: any) {
 
     File({ name: entity.Name + '.' + build.name }, () => {
 
-      Code(`<?php
+      Content(`<?php
 // ${model.Name} ${build.Name} ${entity.Name}
 
 class ${entity.Name} {
@@ -23,13 +25,13 @@ class ${entity.Name} {
     }
 
     private function handleResult($op, $response, $handler) {
-        $statusCode = $response['status'];
+        $statusContent = $response['status'];
 
-        if ($statusCode == 200) {
+        if ($statusContent == 200) {
             $json = $response['json'];
             return $handler($json);
         } else {
-            throw new Exception('HTTP-ERROR: ' . $op . ': ${entity.name}: ' . $statusCode);
+            throw new Exception('HTTP-ERROR: ' . $op . ': ${entity.name}: ' . $statusContent);
         }
     }
 
@@ -91,5 +93,5 @@ class ${entity.Name} {
 })
 
 export {
-  Entity_php
+  Entity
 }

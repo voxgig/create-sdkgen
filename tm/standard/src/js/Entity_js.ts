@@ -1,8 +1,8 @@
 
-import { cmp, File, Code, Folder } from '@voxgig/sdkgen'
+import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
 
 
-const Entity_js = cmp(function Entity_js(props: any) {
+const Entity = cmp(function Entity(props: any) {
   const { build, entity } = props
   const { model } = props.ctx$
 
@@ -11,7 +11,7 @@ const Entity_js = cmp(function Entity_js(props: any) {
 
     File({ name: entity.Name + '.' + build.name }, () => {
 
-      Code(`
+      Content(`
 // ${model.Name} ${build.Name} ${entity.Name}
 
 class ${entity.Name} {
@@ -50,6 +50,20 @@ class ${entity.Name} {
 
     const spec = this.sdk().fetchSpec(op,this)
     const res = await this.sdk().options.fetch(spec.url,spec)
+
+    return this.handleResult(op, res, spec, (json)=>{
+      this.data = json
+      return this
+    })
+  }
+
+  async create(data) {
+    const op = 'create'
+    this.data = data
+    // TODO: validate data
+
+    const spec = this.sdk().fetchSpec(op,this)
+    const res = await this.sdk().options.fetch(spec.url,spec) 
 
     return this.handleResult(op, res, spec, (json)=>{
       this.data = json
@@ -115,5 +129,5 @@ module.exports = {
 
 
 export {
-  Entity_js
+  Entity
 }

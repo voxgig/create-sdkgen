@@ -1,18 +1,18 @@
 
-import { cmp, each, File, Code } from '@voxgig/sdkgen'
+import { cmp, each, File, Content } from '@voxgig/sdkgen'
 
 
 import { TestEntity } from './TestEntity_js'
 
 
-const TestMain = cmp(function TestMain_js(props: any) {
+const TestMain = cmp(function TestMain(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
 
   File({ name: model.Name + 'SDK.test.' + build.name }, () => {
 
-    Code(`
+    Content(`
 const { test, describe } = require('node:test')
 const { equal, deepEqual } = require('node:assert')
 
@@ -34,13 +34,13 @@ describe('${model.Name}SDK Unit Tests', ()=>{
     })
 
 
-    Code(`
+    Content(`
 })
 
 
 function makeClient(config) {
   const client = ${model.Name}SDK.make({
-    endpoint: 'https://host/api',
+    endpoint: 'https://host/api/v1/rest/project_id/plant/stage',
     apikey: 'apikey',
     fetch,
     ...config

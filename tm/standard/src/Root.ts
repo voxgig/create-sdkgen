@@ -13,8 +13,11 @@ import {
 
 } from '@voxgig/sdkgen'
 
+// import { Readme } from './Readme'
+// import { Main } from './Main'
+// import { Entity } from './Entity'
 
-// 2
+
 const Root = cmp(function Root(props: any) {
   const { model, ctx$ } = props
 
@@ -27,19 +30,17 @@ const Root = cmp(function Root(props: any) {
   const build = model.main.sdk.build
   const entity = model.main.sdk.entity
 
-  // console.log('PROJECT-b', model.name, ctx$.meta.spec.build.id)
-
   Project({}, () => {
 
     each(build, (build: any) => {
       names(build, build.name)
-      console.log('BUILD', build.name)
+      // console.log('BUILD', build.name)
 
       Folder({ name: build.name }, () => {
 
         each(entity, (entity: any) => {
           names(entity, entity.name)
-          console.log('ENTITY', entity.name)
+          // console.log('ENTITY', entity.name)
 
           Entity({ build, entity })
         })

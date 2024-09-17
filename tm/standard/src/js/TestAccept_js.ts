@@ -1,18 +1,18 @@
 
-import { cmp, each, File, Code } from '@voxgig/sdkgen'
+import { cmp, each, File, Content } from '@voxgig/sdkgen'
 
 
-import { TestAcceptEntity } from "./TestAcceptEntity_js"
+import { TestAcceptEntity } from './TestAcceptEntity_js'
 
 
-const TestAccept = cmp(function TestMain_js(props: any) {
+const TestAccept = cmp(function TestMain(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
 
   File({ name: model.Name + 'SDK.accept.test.' + build.name }, () => {
 
-    Code(`
+    Content(`
 const { test, describe } = require('node:test')
 const { equal, deepEqual } = require('node:assert')
 
@@ -34,7 +34,7 @@ describe('${model.Name}SDK Acceptance Tests', ()=>{
     })
 
 
-    Code(`
+    Content(`
 })
 
 

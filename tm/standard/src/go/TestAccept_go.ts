@@ -1,24 +1,26 @@
 
-import { cmp, each, File, Code } from '@voxgig/sdkgen'
+import { cmp, each, File, Content } from '@voxgig/sdkgen'
 
 import { TestAcceptEntity } from './TestAcceptEntity_go'
 
 
-const TestAccept = cmp(function TestMain_go(props: any) {
-  const { build, ctx$: { model } } = props
+const TestAccept = cmp(function TestAccept(props: any) {
+  const { build } = props
+  const { model } = props.ctx$
 
 
   File({ name: model.name + 'sdk_accept_test.' + build.name }, () => {
 
-    Code(`
-package ${model.name}_test
+    Content(`
+package ${model.name}sdk_test
 
 import (
+  "math/rand"
   "testing"
   "os"
 
   "github.com/joho/godotenv"
-"github.com/${model.name}/${model.name}-sdk"
+  "github.com/plantquest/plantquest-sdk"
 )
          `)
 

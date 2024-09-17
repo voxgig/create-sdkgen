@@ -1,24 +1,37 @@
 
-import { cmp, each, File, Code } from '@voxgig/sdkgen'
+import { cmp, each, File, Content } from '@voxgig/sdkgen'
 
 
-const Entity_go = cmp(function Entity_go(props: any) {
+const Entity = cmp(function Entity(props: any) {
   const { build, entity } = props
   const { model } = props.ctx$
 
   File({ name: entity.name + '.' + build.name }, () => {
-    const valueRelation: Record<string, string> = {
+    const complexTypeMap: Record<string, string> = {
       "custom": "map[string]any",
       "xval": "float64",
       "yval": "float64",
       "zval": "float64",
-      "polygon": "struct{Points [][]float64}"
+      "xlen": "int",
+      "ylen": "int",
+      "parent_xlen": "int",
+      "parent_xval": "float64",
+      "parent_xyangle": "float64",
+      "parent_ylen": "int",
+      "parent_yval": "float64",
+      "parent_zval": "float64",
+      "polygon": "struct{Points [][]float64}",
     }
 
-    Code(`
+    const defaultTypeMap: Record<string, string> = {
+      "boolean": "bool",
+      "string": "string"
+    }
+
+    Content(`
 // ${model.Name} ${build.Name} ${entity.Name}
 
-package ${model.name}
+package ${model.name}sdk
 
 import (
   "fmt"
@@ -30,21 +43,22 @@ import (
 
 type ${entity.Name}Data struct {`)
     each(entity.field, (field: any) => {
-      const type = valueRelation[field.name] ? valueRelation[field.name] : field.type
-      Code(`
+      const type = complexTypeMap[field.name] ? complexTypeMap[field.name]
+        : defaultTypeMap[field.type]
+      Content(`
   ${field.Name} ${type} \`json:"${field.name}"\`
             `)
     })
-    Code(`
+    Content(`
 }
 
-type ${entity.name} struct {
+type ${entity.Name} struct {
   Data ${entity.Name}Data
   def map[string]any
-sdk func () *${model.name}
+  sdk func () *${model.name}
 }
 
-func (e *${entity.name}) reqSetup(op string, data ${entity.Name}Data) (*http.Request, error) {
+func (e *${entity.Name}) reqSetup(op string, data ${entity.Name}Data) (*http.Request, error) {
   e.Data = data
 
   endpointConfig := endpointConfig{
@@ -76,10 +90,10 @@ func (e *${entity.name}) reqSetup(op string, data ${entity.Name}Data) (*http.Req
   return req, nil
 }
 
-func (e *${entity.name}) handleResult(op string, res *http.Response,
-  handler func(${entity.Name}Data) *${entity.name}) (*${entity.name}, error) {
+func (e *${entity.Name}) handleResult(op string, res *http.Response,
+  handler func(${entity.Name}Data) *${entity.Name}) (*${entity.Name}, error) {
   var result ${entity.Name}Data
-  status := res.StatusCode
+  status := res.StatusContent
 
   if status == 200 {
     resBody, err := io.ReadAll(res.Body)
@@ -100,14 +114,14 @@ func (e *${entity.name}) handleResult(op string, res *http.Response,
 `)
     each(entity.op, (op: any) => {
       if (op.name == "list") {
-        Code(`
-func (e *${entity.name}) ${op.Name}() ([]*${entity.name}, error) {
+        Content(`
+func (e *${entity.Name}) ${op.Name}() ([]*${entity.Name}, error) {
   type entity${op.Name} struct {
     ${op.Name} []${entity.Name}Data
   }
 
   op := "${op.name}"
-  var entities []*${entity.name}
+  var entities []*${entity.Name}
 
   endpointConfig := endpointConfig{
     op: op,
@@ -141,7 +155,7 @@ func (e *${entity.name}) ${op.Name}() ([]*${entity.name}, error) {
   }
   defer res.Body.Close()
 
-  status := res.StatusCode
+  status := res.StatusContent
 
   if status == 200 {
     resBody, err := io.ReadAll(res.Body)
@@ -167,9 +181,9 @@ func (e *${entity.name}) ${op.Name}() ([]*${entity.name}, error) {
 }
 `)
         return
-      } else if (op.name == "remove") {
-        Code(`
-func (e *${entity.name}) ${op.Name}(data ${entity.Name}Data) (*${entity.name}, error) {
+      }
+      Content(`
+func (e *${entity.Name}) ${op.Name}(data ${entity.Name}Data) (*${entity.Name}, error) {
   op := "${op.name}"
 
   req, err := e.reqSetup(op, data)
@@ -183,33 +197,19 @@ func (e *${entity.name}) ${op.Name}(data ${entity.Name}Data) (*${entity.name}, e
   }
   defer res.Body.Close()
 
-  handler := func(data ${entity.Name}Data) *${entity.name} {
+  handler := func(data ${entity.Name}Data) *${entity.Name} {
     e.Data = data
+          `)
+      if (op.name == "remove") {
+        Content(`
     return nil
   }
-
   return e.handleResult(op, res, handler)
 }
-`)
+  `)
         return
       }
-      Code(`
-func (e *${entity.name}) ${op.Name}(data ${entity.Name}Data) (*${entity.name}, error) {
-  op := "${op.name}"
-
-  req, err := e.reqSetup(op, data)
-  if err != nil {
-    return nil, err
-  }
-
-  res, err := e.sdk().httpClient.Do(req)
-  if err != nil {
-    return nil, err
-  }
-  defer res.Body.Close()
-
-  handler := func(data ${entity.Name}Data) *${entity.name} {
-    e.Data = data
+      Content(`
     return e
   }
 
@@ -222,5 +222,5 @@ func (e *${entity.name}) ${op.Name}(data ${entity.Name}Data) (*${entity.name}, e
 
 
 export {
-  Entity_go
+  Entity
 }

@@ -1,13 +1,13 @@
 
-import { cmp, camelify, Code } from '@voxgig/sdkgen'
+import { cmp, camelify, Content } from '@voxgig/sdkgen'
 
 
-const TestEntity = cmp(function TestEntity_js(props: any) {
+const TestEntity = cmp(function TestEntity(props: any) {
   const { entity } = props
 
   entity.Name = camelify(entity.name)
 
-  Code(`
+  Content(`
   test('${entity.name}-load', async ()=>{
     const client = makeClient()
     const out = await client.${entity.Name}().load({id:'t01'})

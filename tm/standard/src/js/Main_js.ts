@@ -1,13 +1,13 @@
 
 
-import { cmp, each, camelify, File, Code, Copy, Folder } from '@voxgig/sdkgen'
+import { cmp, each, camelify, File, Content, Copy, Folder } from '@voxgig/sdkgen'
 
 
 import { MainEntity } from './MainEntity_js'
 import { Test } from './Test_js'
 
 
-const Main_js = cmp(async function Main_js(props: any) {
+const Main = cmp(async function Main(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
@@ -21,13 +21,13 @@ const Main_js = cmp(async function Main_js(props: any) {
 
     File({ name: model.Name + 'SDK.' + build.name }, () => {
 
-      Code(`
+      Content(`
 // ${model.Name} ${build.Name} SDK
 `)
 
       each(entity, (entity: any) => {
         entity.Name = camelify(entity.name)
-        Code(`
+        Content(`
 const { ${entity.Name} } = require('./${entity.Name}')
 `)
       })
@@ -39,7 +39,7 @@ const { ${entity.Name} } = require('./${entity.Name}')
             `    required('string','${opt.name}',options)\n` : ''), '')
 
 
-      Code(`
+      Content(`
     
 class ${model.Name}SDK {
   options
@@ -61,7 +61,8 @@ ${validate_options}
   endpoint(op,ent) {
     let data = ent.data || {}
     let def = ent.def
-    return this.options.endpoint+'/'+def.name+(data.id?'/'+data.id:'')
+    // Make this code depend on openapi spec
+    return this.options.endpoint + '/' + def.name + ((op === 'load' || op === 'remove') && data.id ? '/' + data.id : '')
   }
 
   method(op,ent) {
@@ -89,7 +90,7 @@ ${validate_options}
         'content-type': 'application/json',
         'authorization': 'Bearer '+this.options.apikey
       },
-      body: 'GET' === method ? undefined : this.body(op, ent),
+      body: 'GET' === method || 'DELETE' === method ? undefined : this.body(op, ent),
     }
     return spec
   }
@@ -100,7 +101,7 @@ ${validate_options}
         MainEntity({ model, build, entity })
       })
 
-      Code(`
+      Content(`
 }
 
 
@@ -123,5 +124,5 @@ module.exports = {
 
 
 export {
-  Main_js
+  Main
 }

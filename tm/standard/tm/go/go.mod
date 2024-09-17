@@ -1,4 +1,4 @@
-module github.com/$name/$name-sdk
+module github.com/plantquest/plantquest-sdk
 
 go 1.23.0
 

@@ -6,14 +6,14 @@ const { Root } = require('../dist/Root')
 try {
   const config = {
     folder: __dirname+'/../sdk',
-    def: __dirname+'/../def/$DefinitionFile',
+    def: __dirname+'/../def/$$def.filename$$',
     meta: {
-      name: '$ProjectName'
+      name: '$$name$$'
     },
     model: {
-    folder: __dirname+'/../model',
+      folder: __dirname+'/../model',
       
-      entity: $EntityModel
+      entity: {}
     },
   }
 
