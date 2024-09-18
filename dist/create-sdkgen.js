@@ -33,12 +33,15 @@ function CreateSdkGen(opts) {
     const fs = opts.fs || Fs;
     const folder = opts.folder || '.';
     const jostraca = Jostraca();
+    const rootpath = opts.rootpath;
     async function generate(spec) {
-        console.log('CreateSdkGen.generate', spec);
-        const { model, root } = spec;
+        // console.log('CreateSdkGen.generate', spec)
+        const { model } = spec;
         const ctx$ = { fs, folder, meta: { spec } };
+        clear();
+        const { Root } = require(rootpath);
         try {
-            await jostraca.generate(ctx$, () => root({ model }));
+            await jostraca.generate(ctx$, () => Root({ model }));
         }
         catch (err) {
             console.log('CREATE SDKGEN ERROR: ', err);
@@ -53,6 +56,7 @@ function CreateSdkGen(opts) {
             // console.log('CHANGE', args)
             const dorun = 1111 < Date.now() - last_change_time;
             if (dorun) {
+                last_change_time = Date.now();
                 generate(spec);
             }
         });
@@ -62,9 +66,34 @@ function CreateSdkGen(opts) {
             .map((wf) => fsw.add(wf));
         // generate()
     }
+    function clear() {
+        if (rootpath) {
+            clearRequire(rootpath);
+        }
+    }
     return {
         generate,
         watch,
     };
+}
+// Adapted from https://github.com/sindresorhus/import-fresh - Thanks!
+function clearRequire(path) {
+    let filePath = require.resolve(path);
+    if (require.cache[filePath]) {
+        const children = require.cache[filePath].children.map(child => child.id);
+        // Delete module from cache
+        delete require.cache[filePath];
+        for (const id of children) {
+            clearRequire(id);
+        }
+    }
+    if (require.cache[filePath] && require.cache[filePath].parent) {
+        let i = require.cache[filePath].parent.children.length;
+        while (i--) {
+            if (require.cache[filePath].parent.children[i].id === filePath) {
+                require.cache[filePath].parent.children.splice(i, 1);
+            }
+        }
+    }
 }
 //# sourceMappingURL=create-sdkgen.js.map

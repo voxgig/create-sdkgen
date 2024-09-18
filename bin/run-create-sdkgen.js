@@ -10,8 +10,8 @@ const Pkg = require('../package.json')
 
 const { CreateSdkGen } = require('../dist/create-sdkgen.js') 
 
-const { Root } = require('../dist/standard/Root')
-
+// const { Root } = require('../dist/standard/Root')
+const rootpath = require.resolve('../dist/standard/Root')
 
 let DEBUG = false
 let CONSOLE = console
@@ -58,7 +58,8 @@ function exit(err) {
 
 function generate(options) {
   const createSdkGen = CreateSdkGen({
-    folder: options.folder
+    folder: options.folder,
+    rootpath
   })
 
   const model = {
@@ -74,16 +75,14 @@ function generate(options) {
     // TODO: move to CreateSdkGen options
     spec: options.spec,
     model,
-    root: Root,
+    // root: Root,
   }
   
   if(options.watch) {
-    spec.watch = {
-      watch: [
-        '../tm',
-        '../dist',
-      ],
-    }
+    spec.watch = [
+      '../tm',
+      '../dist',
+    ]
     createSdkGen.watch(spec)
   }
   else {

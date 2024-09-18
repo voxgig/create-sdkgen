@@ -3,6 +3,7 @@ type FullCreateSdkGenOptions = {
     fs: any;
     model: any;
     meta: any;
+    rootpath: string;
 };
 type CreateSdkGenOptions = Partial<FullCreateSdkGenOptions>;
 declare function CreateSdkGen(opts: CreateSdkGenOptions): {

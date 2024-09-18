@@ -8,9 +8,9 @@ main: sdk: build: &: { name: .$KEY }
 
 main: sdk: build: js: @"js.jsonic"
 
-main: sdk: build: ruby: @"ruby.jsonic"
+main: sdk: build: rb: @"rb.jsonic"
 
-main: sdk: build: python: @"python.jsonic"
+main: sdk: build: py: @"py.jsonic"
 
 main: sdk: build: php: @"php.jsonic"
 
