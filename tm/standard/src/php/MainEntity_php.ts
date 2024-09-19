@@ -12,19 +12,19 @@ const MainEntity = cmp(function MainEntity(props: any) {
       Content(`<?php
 // ${model.Name} ${build.Name} ${entity.Name} Main
 
-require_once __DIR__ . '../../sdk/php/src/PlantquestSDK.php';
+require_once __DIR__ . '../../sdk/php/src/${model.Name}SDK.php';
 require_once __DIR__ . '../../sdk/php/src/${entity.Name}.php';
 
-use PlantquestSDK\\PlantquestSDK;
-use PlantquestSDK\\${entity.Name};
+use ${model.Name}SDK\\${model.Name}SDK;
+use ${model.Name}SDK\\${entity.Name};
 
 // Initialize the SDK
 \$options = [
     'apikey' => 'your_api_key',
-    'endpoint' => 'https://api.plantquest.com'
+    'endpoint' => 'https://api.${model.name}.com'
 ];
 
-\$sdk = new PlantquestSDK(\$options);
+\$sdk = new ${model.Name}SDK(\$options);
 
 // Example usage
 \$${entity.Name.toLowerCase()} = new ${entity.Name}(\$sdk);

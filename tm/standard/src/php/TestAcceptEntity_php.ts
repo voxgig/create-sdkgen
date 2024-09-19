@@ -3,7 +3,7 @@ import { cmp, camelify, Content } from '@voxgig/sdkgen';
 
 
 const TestAcceptEntity = cmp(function TestEntity(props: any) {
-  const { entity } = props;
+  const { entity, ctx$: { model } } = props;
 
   entity.Name = camelify(entity.name);
 
@@ -11,7 +11,7 @@ const TestAcceptEntity = cmp(function TestEntity(props: any) {
 <?php
 use PHPUnit\\Framework\\TestCase;
 use Dotenv\\Dotenv;
-use Plantquest\\Client;
+use ${model.Name}\\Client;
 
 class Test${entity.Name}AcceptList extends TestCase {
 
@@ -21,8 +21,8 @@ class Test${entity.Name}AcceptList extends TestCase {
     }
 
     public function test${entity.Name}AcceptList() {
-        \$endpoint = getenv('PLANTQUEST_ENDPOINT');
-        \$apikey = getenv('PLANTQUEST_APIKEY');
+        \$endpoint = getenv('${model.NAME}_ENDPOINT');
+        \$apikey = getenv('${model.NAME}_APIKEY');
 
         \$client = new Client([
             'endpoint' => \$endpoint,
@@ -51,8 +51,8 @@ class Test${entity.Name}AcceptLoad extends TestCase {
     }
 
     public function test${entity.Name}AcceptLoad() {
-        \$endpoint = getenv('PLANTQUEST_ENDPOINT');
-        \$apikey = getenv('PLANTQUEST_APIKEY');
+        \$endpoint = getenv('${model.NAME}_ENDPOINT');
+        \$apikey = getenv('${model.NAME}_APIKEY');
 
         \$client = new Client([
             'endpoint' => \$endpoint,

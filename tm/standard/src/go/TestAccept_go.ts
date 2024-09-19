@@ -20,7 +20,7 @@ import (
   "os"
 
   "github.com/joho/godotenv"
-  "github.com/plantquest/plantquest-sdk"
+  "github.com/${model.name}/${model.name}-sdk"
 )
          `)
 

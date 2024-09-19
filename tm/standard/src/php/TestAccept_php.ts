@@ -15,7 +15,7 @@ namespace ${model.name}_test;
 
 use PHPUnit\\Framework\\TestCase;
 use Dotenv\\Dotenv;
-use Plantquest\\Client;
+use ${model.Name}\\Client;
          `);
 
     each(model.main.sdk.entity, (entity: any) => {

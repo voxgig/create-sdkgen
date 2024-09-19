@@ -23,7 +23,7 @@ sys.path.append(path_root)
 import ${model.name}_sdk
 import ${model.name}_sdk.Model as Model
 from ${model.name}_sdk.Model import Data
-from plantquest_sdk.Model import Query
+from ${model.name}_sdk.Model import Query
 
 # from Fetch import fetch
 

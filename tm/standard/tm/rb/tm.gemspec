@@ -1,19 +1,19 @@
-# plantquest_sdk.gemspec
+# $$name$$_sdk.gemspec
 
 Gem::Specification.new do |spec|
-  spec.name          = "plantquest_sdk"
+  spec.name          = "$$name$$_sdk"
   spec.version       = "0.1.0"
-  spec.authors       = ["PlantQuest Ltd"]
-  spec.email         = ["admin@plantquest.com"]
+  spec.authors       = ["$$Name$$"]
+  spec.email         = ["admin@$$name$$.com"]
 
-  spec.summary       = "A Ruby SDK for interacting with the PlantQuest API"
-  spec.description   = "This SDK provides a simple interface to interact with the PlantQuest API, enabling developers to manage assets, rooms, and other entities within the PlantQuest ecosystem."
-  spec.homepage      = "https://plantquest.com/"
+  spec.summary       = "A Ruby SDK for interacting with the $$Name$$ API"
+  spec.description   = "This SDK provides a simple interface to interact with the $$Name$$ API, enabling developers to manage assets, rooms, and other entities within the $$Name$$ ecosystem."
+  spec.homepage      = "https://$$name$$.com/"
   spec.license       = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://plantquest.com/sdk"
-  spec.metadata["changelog_uri"] = "https://plantquest.com/sdk/changelog"
+  spec.metadata["source_code_uri"] = "https://$$name$$.com/sdk"
+  spec.metadata["changelog_uri"] = "https://$$name$$.com/sdk/changelog"
 
   spec.required_ruby_version = ">= 2.6"
 

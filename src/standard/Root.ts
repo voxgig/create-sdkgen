@@ -17,6 +17,8 @@ import {
 } from 'jostraca'
 
 
+import { ModelSdk } from './ModelSdk'
+
 
 const Root = cmp(function Root(props: any) {
   const { model, ctx$ } = props
@@ -35,7 +37,9 @@ const Root = cmp(function Root(props: any) {
 
   ctx$.model = model
 
+  /*
   let createInfo = { exclude: [], last: Number.MAX_SAFE_INTEGER }
+
 
   try {
     createInfo = JSON.parse(ctx$.fs.readFileSync(
@@ -49,43 +53,36 @@ const Root = cmp(function Root(props: any) {
   ctx$.info = createInfo
 
   console.log('INFO', ctx$.info)
+  */
 
   Project({ folder }, () => {
 
     // TODO: perhaps remove the need for this, create top level folder in Project
     // would keep paths indo of project folder name
-    Folder({ name: Path.basename(folder) }, () => {
+    // Folder({ name: Path.basename(folder) }, () => {
 
-      File({ name: 'foo.txt' }, () => {
-        Content('FOO')
+    // File({ name: 'foo.txt' }, () => {
+    //   Content('FOO')
+    // })
+
+    // console.log('FOLDER', folder)
+    Copy({ from: __dirname + '/../../tm/standard' })
+
+    const def = model.def.filepath
+    if (null != def && '' !== def) {
+      Folder({ name: 'def' }, () => {
+        Copy({ from: def, name: Path.basename(def) })
       })
+    }
 
-      // console.log('FOLDER', folder)
-      Copy({ from: __dirname + '/../../tm/standard', name: folder })
+    Folder({ name: '.voxgig' }, () => { })
 
-      const def = model.def.filepath
-      if (null != def && '' !== def) {
-        Folder({ name: 'def' }, () => {
-          Copy({ from: def, name: Path.basename(def) })
-        })
-      }
-
-      Folder({ name: '.voxgig' }, () => {
-        /*
-        File({ name: 'create-sdkgen.json', exclude: false }, () => {
-          const exclude = ctx$.info.exclude
-          const info = {
-            last: Date.now(),
-            exclude,
-          }
-          console.log('INFO', info)
-          Content(JSON.stringify(info, null, 2))
-          })
-          */
-      })
+    Folder({ name: 'model' }, () => {
+      ModelSdk({})
     })
   })
 
+  /*
   // TODO: need mechanism to ensure this is last
   setTimeout(() => {
     try {
@@ -100,7 +97,8 @@ const Root = cmp(function Root(props: any) {
       console.log(err)
       // TODO: file not foound ignored, handle others!
     }
-  }, 777)
+    }, 777)
+    */
 })
 
 

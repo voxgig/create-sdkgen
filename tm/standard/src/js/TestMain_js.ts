@@ -13,6 +13,9 @@ const TestMain = cmp(function TestMain(props: any) {
   File({ name: model.Name + 'SDK.test.' + build.name }, () => {
 
     Content(`
+
+// 1
+
 const { test, describe } = require('node:test')
 const { equal, deepEqual } = require('node:assert')
 

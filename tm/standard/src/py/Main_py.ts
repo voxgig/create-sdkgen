@@ -17,8 +17,7 @@ const config_setup_files = [
 ]
 
 const Main = cmp(async function Main(props: any) {
-  const { build } = props
-  const { model } = props.ctx$
+  const { build, ctx$: { model } } = props
 
   const entity = model.main.sdk.entity
 
@@ -31,9 +30,9 @@ const Main = cmp(async function Main(props: any) {
 
   File({ name: '.env.test.local' }, () => {
     Content(`
-PLANTQUEST_ENDPOINT=example.com
-PLANTQUEST_ENDPOINT_PRISM=http://127.0.0.1:4010/a/b/c
-PLANTQUEST_APIKEY=pqapikey
+${model.Name}_ENDPOINT=example.com
+${model.Name}_ENDPOINT_PRISM=http://127.0.0.1:4010/a/b/c
+${model.Name}_APIKEY=pqapikey
 `)
 
   })

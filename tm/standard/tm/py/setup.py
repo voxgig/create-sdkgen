@@ -47,23 +47,23 @@ def read(*names, **kwargs):
     ) as fh:
         return fh.read()
 
-def read_version(fname="src/plantquest_sdk/version.py"):
+def read_version(fname="src/$$name$$_sdk/version.py"):
     exec(compile(open(fname, encoding="utf-8").read(), fname, "exec"))
     return locals()["__version__"]
 
 setup(
-    name='plantquest_sdk',
+    name='$$name$$_sdk',
     version='0.0.1',
     license='MIT',
     description='An example SDK.',
     long_description='Long description of SDK',
-    author='PlantQuest Ltd',
-    url='https://github.com/plantquest',
+    author='$$Name$$ Ltd',
+    url='https://github.com/$$name$$',
     packages=find_packages('src'),
     package_dir={'': 'src'},
-    # py_modules=['plantquest_sdk/example'],
+    # py_modules=['$$name$$_sdk/example'],
 
-    # py_modules=[splitext(basename(path))[0] for path in glob('src/plantquest_sdk/*.py')],
+    # py_modules=[splitext(basename(path))[0] for path in glob('src/$$name$$_sdk/*.py')],
     include_package_data=True,
     # data_files=[('bitmaps', ['bm/b1.gif', 'bm/b2.gif']), ('config', ['cfg/data.cfg'])],
     zip_safe=False,

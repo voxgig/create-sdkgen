@@ -1,4 +1,6 @@
 
+// Entity 1
+
 import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
 
 
@@ -12,7 +14,7 @@ const Entity = cmp(function Entity(props: any) {
     File({ name: entity.Name + '.' + build.name }, () => {
 
       Content(`
-// ${model.Name} ${build.Name} ${entity.Name}
+// ${model.Name} ${build.Name} ${entity.Name} 1
 
 class ${entity.Name} {
   def

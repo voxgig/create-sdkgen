@@ -67,7 +67,7 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
 
     spec.watch
       .map((wf: string) => (__dirname + '/' + wf))
-      .map((wf: string) => (console.log(wf), wf))
+      // .map((wf: string) => (console.log(wf), wf))
       .map((wf: string) => fsw.add(wf))
 
     // generate()

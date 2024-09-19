@@ -22,9 +22,9 @@ import json
 import requests
 from dotenv import dotenv_values
 
-import plantquest_sdk
+import ${model.name}_sdk
 
-from plantquest_sdk import Config
+from ${model.name}_sdk import Config
 
 # from Fetch import fetch
 
@@ -50,9 +50,9 @@ def fetch(url, config):
     return { "status": res.status_code }
 
 def makeClient(config = {}):
-    client = plantquest_sdk.PlantquestSDK.make(Config(
-        endpoint=config.get('PLANTQUEST_ENDPOINT_PRISM'),
-        apikey=config.get('PLANTQUEST_APIKEY') or 'abc123',
+    client = ${model.name}_sdk.${model.Name}SDK.make(Config(
+        endpoint=config.get('${model.NAME}_ENDPOINT_PRISM'),
+        apikey=config.get('${model.NAME}_APIKEY') or 'abc123',
         fetch=fetch
     ))
     return client

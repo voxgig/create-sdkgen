@@ -3,7 +3,7 @@ import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
 
 
 const Quick = cmp(function Quick(props: any) {
-  const { build, model } = props
+  const { build, ctx$: { model } } = props
 
   Folder({ name: 'src' }, () => {
 
@@ -12,23 +12,23 @@ const Quick = cmp(function Quick(props: any) {
       Content(`<?php
 // ${model.Name} QuickStart
 
-require_once __DIR__ . '../../sdk/php/src/PlantquestSDK.php';
+require_once __DIR__ . '../../sdk/php/src/${model.Name}SDK.php';
 require_once __DIR__ . '../../sdk/php/src/Asset.php';
 require_once __DIR__ . '../../sdk/php/src/Geofence.php';
 require_once __DIR__ . '../../sdk/php/src/Room.php';
 
-use PlantquestSDK\\PlantquestSDK;
-use PlantquestSDK\\Asset;
-use PlantquestSDK\\Geofence;
-use PlantquestSDK\\Room;
+use ${model.Name}SDK\\${model.Name}SDK;
+use ${model.Name}SDK\\Asset;
+use ${model.Name}SDK\\Geofence;
+use ${model.Name}SDK\\Room;
 
 // Initialize the SDK
 \$options = [
     'apikey' => 'your_api_key',
-    'endpoint' => 'https://api.plantquest.com'
+    'endpoint' => 'https://api.${model.name}.com'
 ];
 
-\$sdk = new PlantquestSDK(\$options);
+\$sdk = new ${model.Name}SDK(\$options);
 
 // Quick example usage
 \$asset = new Asset(\$sdk);

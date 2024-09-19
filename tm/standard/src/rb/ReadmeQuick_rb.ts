@@ -9,10 +9,10 @@ const ReadmeQuick = cmp(function ReadmeQuick(props: any) {
   Content(`
 require('${build.module.name}')
 
-client = PlantquestSDK::Client.new(
+client = ${model.Name}SDK::Client.new(
     {
-      endpoint: ENV['PLANTQUEST_ENDPOINT'],
-      apikey: ENV['PLANTQUEST_APIKEY'],
+      endpoint: ENV['${model.NAME}_ENDPOINT'],
+      apikey: ENV['${model.NAME}_APIKEY'],
     }
   )
 

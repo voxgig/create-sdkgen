@@ -62,7 +62,7 @@ function CreateSdkGen(opts) {
         });
         spec.watch
             .map((wf) => (__dirname + '/' + wf))
-            .map((wf) => (console.log(wf), wf))
+            // .map((wf: string) => (console.log(wf), wf))
             .map((wf) => fsw.add(wf));
         // generate()
     }

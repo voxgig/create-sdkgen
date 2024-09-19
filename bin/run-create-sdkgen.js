@@ -62,8 +62,12 @@ function generate(options) {
     rootpath
   })
 
+
+  // TODO: load model
+  
   const model = {
     name: options.name,
+    year: new Date().getFullYear(),
     def: {
       filepath: options.def || 'def.yml'
     }

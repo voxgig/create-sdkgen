@@ -1,14 +1,26 @@
 
-import { cmp, File, Content } from '@voxgig/sdkgen'
+import { names, getx, cmp, File, Content } from '@voxgig/sdkgen'
 
 
 const Quick = cmp(function Quick(props: any) {
   const { build } = props
-  const { model } = props.ctx$
+  const { model, meta: { spec } } = props.ctx$
+
+  // get quick entity from build config
+
+  // console.log('CONFIG 2')
+  // console.dir(spec.config, { depth: null })
+
+
+  const ent = getx(spec.config, 'entity *').find((ent: any) => ent.test.quick.active)
+  names(ent, ent.key$)
+
+  console.log('ENT 3', ent)
 
   File({ name: 'quick.' + build.name }, () => {
 
     Content(`
+// ENT 3
 require('dotenv').config({ path: ['../../.env.local']})
 
 const { ${model.Name}SDK } = require('../')
@@ -16,31 +28,38 @@ const { ${model.Name}SDK } = require('../')
 run()
 
 async function run() {
-   const client = ${model.Name}SDK.make({
-     endpoint: process.env.${model.NAME}_ENDPOINT,
-     apikey: process.env.${model.NAME}_APIKEY,
+  const client = ${model.Name}SDK.make({
+    endpoint: process.env.${model.NAME}_ENDPOINT,
+    apikey: process.env.${model.NAME}_APIKEY,
   })
 
-  let out = await client.Geofence().load({id:'CF49B47C-317B-4387-83C3-4A23715B1C45'})
-  console.log('Geofence.load', out) 
+  let out
 
-  out = await client.Geofence().list()
-  console.log('Geofence.list', out) 
+`)
 
-  // Run only if endpoint is localhost
-  if (process.env.${model.NAME}_ENDPOINT.includes('localhost')) {
-    // Update the geofence
-    out = await client.Geofence().save({
-      id: 'CF49B47C-317B-4387-83C3-4A23715B1C45',
-      name: 'Geofence 1',
-      desc: 'Geofence 1 description',
-      custom: { foo: 'bar' },
-      extent_id: 'CF49B47C-317B-4387-83C3-4A23715B1C45'
-    })
-    console.log('Geofence.save', out)
-  }
+    if (ent.test.quick.create) {
+      Content(`    
+  out = await client.${ent.Name}().create(${JSON.stringify(ent.test.quick.create)})
+  console.log('${ent.Name}.load', out) 
+`)
+    }
+
+    if (ent.test.quick.load) {
+      Content(`    
+  out = await client.${ent.Name}().load(${JSON.stringify(ent.test.quick.load)})
+  console.log('${ent.Name}.load', out) 
+`)
+    }
+
+    if (ent.test.quick.list) {
+      Content(`    
+  out = await client.${ent.Name}().list(${JSON.stringify(ent.test.quick.list)})
+  console.log('${ent.Name}.list', out)
+`)
+    }
+
+    Content(`
 }
-
 `)
 
   })

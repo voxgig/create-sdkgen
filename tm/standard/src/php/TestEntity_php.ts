@@ -3,7 +3,7 @@ import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
 
 
 const TestEntity = cmp(function TestEntity(props: any) {
-  const { build, entity, model } = props
+  const { build, entity, ctx$: { model } } = props
 
   Folder({ name: 'tests' }, () => {
 
@@ -13,8 +13,8 @@ const TestEntity = cmp(function TestEntity(props: any) {
 // ${model.Name} ${build.Name} ${entity.Name} Test
 
 use PHPUnit\Framework\TestCase;
-use PlantquestSDK\\PlantquestSDK;
-use PlantquestSDK\\${entity.Name};
+use ${model.Name}SDK\\${model.Name}SDK;
+use ${model.Name}SDK\\${entity.Name};
 
 class ${entity.Name}Test extends TestCase {
 
@@ -24,10 +24,10 @@ class ${entity.Name}Test extends TestCase {
     protected function setUp(): void {
         \$options = [
             'apikey' => 'your_api_key',
-            'endpoint' => 'https://api.plantquest.com'
+            'endpoint' => 'https://api.${model.name}.com'
         ];
 
-        \$this->sdk = new PlantquestSDK(\$options);
+        \$this->sdk = new ${model.Name}SDK(\$options);
         \$this->${entity.Name.toLowerCase()} = new ${entity.Name}(\$this->sdk);
     }
 
