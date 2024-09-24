@@ -3,4 +3,4 @@ title: PHP
 
 module: name: '$ModuleName'
 
-options: $.main.sdk.options
+option: $.main.sdk.option

@@ -26,34 +26,9 @@ const Root = cmp(function Root(props: any) {
   const { folder, meta } = ctx$
   const { spec } = meta
 
-  console.log('Root 5')
-
-  // console.log('SPEC', spec)
-
   names(model, model.name)
 
-  // console.log('MODEL')
-  // console.dir(model, { depth: null })
-
   ctx$.model = model
-
-  /*
-  let createInfo = { exclude: [], last: Number.MAX_SAFE_INTEGER }
-
-
-  try {
-    createInfo = JSON.parse(ctx$.fs.readFileSync(
-      Path.join(folder, '.voxgig', 'create-sdkgen.json'), 'utf8'))
-  }
-  catch (err: any) {
-    console.log(err)
-    // TODO: file not foound ignored, handle others!
-  }
-
-  ctx$.info = createInfo
-
-  console.log('INFO', ctx$.info)
-  */
 
   Project({ folder }, () => {
 
@@ -75,30 +50,16 @@ const Root = cmp(function Root(props: any) {
       })
     }
 
-    Folder({ name: '.voxgig' }, () => { })
-
     Folder({ name: 'model' }, () => {
       ModelSdk({})
     })
+
+    Folder({ name: 'feature' }, () => {
+      Copy({ from: __dirname + '/../../feature/standard' })
+    })
+
   })
 
-  /*
-  // TODO: need mechanism to ensure this is last
-  setTimeout(() => {
-    try {
-      const info = {
-        last: Date.now(),
-        exclude: ctx$.info.exclude,
-      }
-      ctx$.fs.writeFileSync(Path.join(folder, '.voxgig', 'create-sdkgen.json'),
-        JSON.stringify(info, null, 2))
-    }
-    catch (err: any) {
-      console.log(err)
-      // TODO: file not foound ignored, handle others!
-    }
-    }, 777)
-    */
 })
 
 

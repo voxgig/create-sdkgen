@@ -20,11 +20,11 @@
     }
   },
   "devDependencies": {
-    "@voxgig/model": "^3.2.0",
-    "@voxgig/sdkgen": "^0.6.0",
+    "@voxgig/model": "^3.5.0",
+    "@voxgig/sdkgen": "^0.10.2",
     "@voxgig/util": "^0.0.3",
-    "@types/node": "22.5.4",
+    "@types/node": "22.6.1",
     "@stoplight/prism-cli": "^5.9.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   }
 }

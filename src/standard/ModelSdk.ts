@@ -26,6 +26,9 @@ const ModelSdk = cmp(function ModelSdk(props: any) {
 
   File({ name: 'sdk.jsonic' }, () => {
     Content(`
+
+@"../node_modules/@voxgig/sdkgen/model/sdkgen.jsonic"
+
 name: '${model.name}'
 
 @"api.jsonic"
@@ -45,26 +48,14 @@ main: sdk: build: go: @"go.jsonic"
 
 
 
-main: sdk: test: quick: entity: name: q
+main: sdk: test: quick: entity: name: foo
 
 
 main: sdk: entity: $.main.api.entity
 
 
-main: sdk: entity: &: {
-  name: .$KEY
-  publish: *true | boolean
-}
 
-
-
-main: sdk: options: &: {
-   name: .$KEY
-   publish: *true | boolean
-}
-
-
-main: sdk: options: {
+main: sdk: option: {
 
   endpoint: {
     kind: *String | string
@@ -81,6 +72,12 @@ main: sdk: options: {
     publish: false
   }
 }
+
+
+main: sdk: feature: page: {
+  active: true
+}
+
 `)
   })
 

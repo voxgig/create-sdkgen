@@ -715,3 +715,22 @@ definitions:
 externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
+
+
+
+# API Transform
+# guide: entity: {
+#   pet: path: {
+#     '/pet/{petId}': {
+#       op:{ load: 'get', create: 'post', save: 'put' }
+#     }
+#   }
+#   pet: test: {
+#     quick: {
+#       active: true,
+#       create: { id: 1, name:'Rex' },
+#       load: { id: 1 },
+#     }
+#   }
+# }
+  

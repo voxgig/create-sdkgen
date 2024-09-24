@@ -85,6 +85,8 @@ function generate(options) {
   if(options.watch) {
     spec.watch = [
       '../tm',
+      '../feature',
+      '../def',
       '../dist',
     ]
     createSdkGen.watch(spec)

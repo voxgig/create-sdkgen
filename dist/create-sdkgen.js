@@ -35,7 +35,8 @@ function CreateSdkGen(opts) {
     const jostraca = Jostraca();
     const rootpath = opts.rootpath;
     async function generate(spec) {
-        // console.log('CreateSdkGen.generate', spec)
+        const now = Date.now();
+        console.log('CREATE SDK', now, new Date(now), spec);
         const { model } = spec;
         const ctx$ = { fs, folder, meta: { spec } };
         clear();

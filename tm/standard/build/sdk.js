@@ -1,10 +1,9 @@
 
 const { SdkGen } = require('@voxgig/sdkgen')
-const { Root } = require('../dist/Root')
-
 
 try {
   const config = {
+    root: __dirname+'/../dist/Root.js',
     folder: __dirname+'/../sdk',
     def: __dirname+'/../def/$$def.filename$$',
     meta: {
@@ -12,12 +11,10 @@ try {
     },
     model: {
       folder: __dirname+'/../model',
-      
-      entity: {}
     },
   }
 
-  module.exports = SdkGen.makeBuild(Root, config)
+  module.exports = SdkGen.makeBuild(config)
 
 }
 catch(e) {

@@ -13,17 +13,11 @@ import {
 
 } from '@voxgig/sdkgen'
 
-// import { Readme } from './Readme'
-// import { Main } from './Main'
-// import { Entity } from './Entity'
-
 
 const Root = cmp(function Root(props: any) {
   const { model, ctx$ } = props
 
   names(model, model.name)
-
-  // console.dir(model, { depth: null })
 
   ctx$.model = model
 
@@ -40,7 +34,6 @@ const Root = cmp(function Root(props: any) {
 
         each(entity, (entity: any) => {
           names(entity, entity.name)
-          // console.log('ENTITY', entity.name)
 
           Entity({ build, entity })
         })

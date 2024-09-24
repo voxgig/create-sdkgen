@@ -12,10 +12,12 @@ const Quick = cmp(function Quick(props: any) {
   // console.dir(spec.config, { depth: null })
 
 
-  const ent = getx(spec.config, 'entity *').find((ent: any) => ent.test.quick.active)
-  names(ent, ent.key$)
+  let ent = getx(spec.config.guideModel, 'guide entity *')
+    .find((ent: any) => ent.test.quick.active)
 
-  console.log('ENT 3', ent)
+  ent = ent || {}
+  names(ent, ent.key$ || 'name')
+
 
   File({ name: 'quick.' + build.name }, () => {
 
@@ -37,23 +39,23 @@ async function run() {
 
 `)
 
-    if (ent.test.quick.create) {
+    if (ent.test?.quick.create) {
       Content(`    
-  out = await client.${ent.Name}().create(${JSON.stringify(ent.test.quick.create)})
+  out = await client.${ent.Name}().create(${JSON.stringify(ent.test?.quick.create)})
   console.log('${ent.Name}.load', out) 
 `)
     }
 
-    if (ent.test.quick.load) {
+    if (ent.test?.quick.load) {
       Content(`    
-  out = await client.${ent.Name}().load(${JSON.stringify(ent.test.quick.load)})
+  out = await client.${ent.Name}().load(${JSON.stringify(ent.test?.quick.load)})
   console.log('${ent.Name}.load', out) 
 `)
     }
 
-    if (ent.test.quick.list) {
+    if (ent.test?.quick.list) {
       Content(`    
-  out = await client.${ent.Name}().list(${JSON.stringify(ent.test.quick.list)})
+  out = await client.${ent.Name}().list(${JSON.stringify(ent.test?.quick.list)})
   console.log('${ent.Name}.list', out)
 `)
     }

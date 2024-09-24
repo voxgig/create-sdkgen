@@ -1,6 +1,6 @@
 
 
-import { cmp, each, camelify, File, Content, Copy, Folder } from '@voxgig/sdkgen'
+import { cmp, each, names, File, Content, Copy, Folder } from '@voxgig/sdkgen'
 
 
 import { MainEntity } from './MainEntity_js'
@@ -11,7 +11,7 @@ const Main = cmp(async function Main(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
-  const entity = model.main.sdk.entity
+  const { entity, feature } = model.main.sdk
 
   Copy({ from: 'tm/' + build.name + '/package.json', name: 'package.json' })
 
@@ -25,8 +25,16 @@ const Main = cmp(async function Main(props: any) {
 // ${model.Name} ${build.Name} SDK
 `)
 
+      each(feature, (feature: any) => {
+        names(feature, feature.name)
+        Content(`
+// const { ${feature.Name + 'Feature'} } = require('./${feature.Name}Feature')
+`)
+      })
+
+
       each(entity, (entity: any) => {
-        entity.Name = camelify(entity.name)
+        names(entity, entity.name)
         Content(`
 const { ${entity.Name} } = require('./${entity.Name}')
 `)

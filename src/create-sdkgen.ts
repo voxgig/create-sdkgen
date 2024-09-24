@@ -29,7 +29,8 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
   const rootpath = opts.rootpath as string
 
   async function generate(spec: any) {
-    // console.log('CreateSdkGen.generate', spec)
+    const now = Date.now()
+    console.log('CREATE SDK', now, new Date(now), spec)
 
     const { model } = spec
 

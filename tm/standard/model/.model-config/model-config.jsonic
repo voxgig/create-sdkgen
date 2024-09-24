@@ -7,7 +7,7 @@ sys: model: builders: {
 }
 
 sys: model: watch: {
-  'build': {}
   'dist': {}
   'tm': {}
+  'def': {}
 }
