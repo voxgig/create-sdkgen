@@ -72,13 +72,28 @@ main: sdk: option: {
     publish: false
   }
 }
+`)
 
 
-main: sdk: feature: page: {
+    each(model.feature).filter((feature: any) => feature.active).map((feature: any) => {
+
+      Content(
+        `
+main: sdk: feature: ${feature.name}: {
   active: true
+  config: {
+`)
+
+      // load from feature folder
+      // Fragment({ from: '' })
+
+      Content(`
+  } 
 }
 
 `)
+    })
+
   })
 
 })

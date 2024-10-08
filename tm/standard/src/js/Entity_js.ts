@@ -1,7 +1,7 @@
 
 // Entity 1
 
-import { cmp, File, Content, Folder } from '@voxgig/sdkgen'
+import { cmp, each, File, Content, Folder } from '@voxgig/sdkgen'
 
 
 const Entity = cmp(function Entity(props: any) {
@@ -13,11 +13,24 @@ const Entity = cmp(function Entity(props: any) {
 
     File({ name: entity.Name + '.' + build.name }, () => {
 
+      const modifyRequest = each(model.main.sdk.feature).map((feature: any) => {
+        return `
+spec = this.sdk().features.${feature.name}.modifyRequest(spec, ctx)
+`
+      })
+
+      const modifyResponse = each(model.main.sdk.feature).map((feature: any) => {
+        return `
+      out = this.sdk().features.${feature.name}.modifyResponse(spec, ctx, out)
+`
+      })
+
       Content(`
 // ${model.Name} ${build.Name} ${entity.Name} 1
 
 class ${entity.Name} {
   def
+  sdk
   data
 
 
@@ -31,91 +44,114 @@ class ${entity.Name} {
   }
 
 
-  async handleResult(op, res, spec, handler) {
+  async handleResult(ctx, res, spec, handler) {
     const status = res.status
 
     if(200 === status) {
-      const json = await res.json()
+      let out = await res.json()
       // TODO: error
-      return handler(json)
+
+      ${modifyResponse}
+      return handler(out)
     }
     else {
-      throw new Error('HTTP-ERROR: '+op+': ${entity.name}: '+status)
+      throw new Error('HTTP-ERROR: '+ctx.op+': ${entity.name}: '+status)
     }
   }
+`)
 
-
+      Content(`
   async save(data) {
-    const op = 'save'
+    const ctx = {op:'save'}
     this.data = data
     // TODO: validate data
 
-    const spec = this.sdk().fetchSpec(op,this)
+    let spec = this.sdk().fetchSpec(ctx,this)
+    ${modifyRequest}
     const res = await this.sdk().options.fetch(spec.url,spec)
 
-    return this.handleResult(op, res, spec, (json)=>{
+    return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
       return this
     })
   }
 
+`)
+
+      Content(`
   async create(data) {
-    const op = 'create'
+    const ctx = {op:'create'}
     this.data = data
     // TODO: validate data
 
-    const spec = this.sdk().fetchSpec(op,this)
+    let spec = this.sdk().fetchSpec(ctx,this)
+    ${modifyRequest}
     const res = await this.sdk().options.fetch(spec.url,spec) 
 
-    return this.handleResult(op, res, spec, (json)=>{
+    return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
       return this
     })
   }
 
 
+`)
+
+      Content(`
   async load(data) {
-    const op = 'load'
+    const ctx = {op:'load'}
     this.data = data
     // TODO: check data.id defined
     // TODO: separate data and query
 
-    const spec = this.sdk().fetchSpec(op,this)
+    let spec = this.sdk().fetchSpec(ctx,this)
+    ${modifyRequest}
     const res = await this.sdk().options.fetch(spec.url,spec)
 
-   return this.handleResult(op, res, spec, (json)=>{
+   return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
       return this
     })
   }
 
 
+`)
+
+      Content(`
   async remove(data) {
-    const op = 'remove'
+    const ctx = {op:'remove'}
     this.data = data
     // TODO: check data.id defined
 
-    const spec = this.sdk().fetchSpec(op,this)
+    let spec = this.sdk().fetchSpec(ctx,this)
+    ${modifyRequest}
     const res = await this.sdk().options.fetch(spec.url,spec)
 
-    return this.handleResult(op, res, spec, (json)=>{
+    return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
       return null
     })
   }
 
+`)
 
+      Content(`
   async list(query) {
-    const op = 'list'
+    const ctx = {op:'list'}
     // TODO: use query if defined
 
-    const spec = this.sdk().fetchSpec(op,this)
+    let spec = this.sdk().fetchSpec(ctx,this)
+    ${modifyRequest}
     const res = await this.sdk().options.fetch(spec.url,spec)
 
-    return this.handleResult(op, res, spec, (json)=>{
+    return this.handleResult(ctx, res, spec, (json)=>{
       return json.list.map(data=>this.sdk().${entity.Name}(data))
     })
   }
+
+`)
+
+      Content(`
 
 }
 

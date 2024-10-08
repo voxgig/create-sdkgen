@@ -6,9 +6,12 @@ type FullCreateSdkGenOptions = {
     rootpath: string;
 };
 type CreateSdkGenOptions = Partial<FullCreateSdkGenOptions>;
-declare function CreateSdkGen(opts: CreateSdkGenOptions): {
+type GenerateSpec = {
+    watch: string[];
+};
+declare function CreateSdkGen(opts: FullCreateSdkGenOptions): {
     generate: (spec: any) => Promise<void>;
-    watch: (spec: any) => Promise<void>;
+    watch: (spec: GenerateSpec) => Promise<void>;
 };
 export type { CreateSdkGenOptions, };
 export { CreateSdkGen, };

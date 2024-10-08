@@ -55,13 +55,21 @@ main: sdk: option: {
     publish: false
   }
 }
-
-
-main: sdk: feature: page: {
+`);
+        (0, jostraca_1.each)(model.feature).filter((feature) => feature.active).map((feature) => {
+            (0, jostraca_1.Content)(`
+main: sdk: feature: ${feature.name}: {
   active: true
+  config: {
+`);
+            // load from feature folder
+            // Fragment({ from: '' })
+            (0, jostraca_1.Content)(`
+  } 
 }
 
 `);
+        });
     });
 });
 exports.ModelSdk = ModelSdk;

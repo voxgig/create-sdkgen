@@ -19,10 +19,15 @@ type FullCreateSdkGenOptions = {
 type CreateSdkGenOptions = Partial<FullCreateSdkGenOptions>
 
 
-const { Jostraca } = JostracaModule
+type GenerateSpec = {
+  watch: string[]
+}
 
 
-function CreateSdkGen(opts: CreateSdkGenOptions) {
+const { each, names, Jostraca } = JostracaModule
+
+
+function CreateSdkGen(opts: FullCreateSdkGenOptions) {
   const fs = opts.fs || Fs
   const folder = opts.folder || '.'
   const jostraca = Jostraca()
@@ -30,7 +35,7 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
 
   async function generate(spec: any) {
     const now = Date.now()
-    console.log('CREATE SDK', now, new Date(now), spec)
+    // console.log('CREATE SDK', now, new Date(now), spec)
 
     const { model } = spec
 
@@ -38,6 +43,8 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
 
     clear()
     const { Root } = require(rootpath)
+
+    completeModel(model)
 
     try {
       await jostraca.generate(ctx$, () => Root({ model }))
@@ -49,7 +56,7 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
   }
 
 
-  async function watch(spec: any) {
+  async function watch(spec: GenerateSpec) {
     const fsw = new FSWatcher()
     let last_change_time = 0
 
@@ -87,6 +94,15 @@ function CreateSdkGen(opts: CreateSdkGenOptions) {
     watch,
   }
 
+}
+
+
+function completeModel(model: any) {
+  names(model, model.name)
+
+  each(model.feature, (feature: any) => {
+    names(feature, feature.key$)
+  })
 }
 
 

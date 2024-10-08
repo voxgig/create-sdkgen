@@ -28,7 +28,7 @@ const Main = cmp(async function Main(props: any) {
       each(feature, (feature: any) => {
         names(feature, feature.name)
         Content(`
-// const { ${feature.Name + 'Feature'} } = require('./${feature.Name}Feature')
+const { ${feature.Name + 'Feature'} } = require('./${feature.name}/${feature.Name}Feature')
 `)
       })
 
@@ -46,11 +46,16 @@ const { ${entity.Name} } = require('./${entity.Name}')
           a + ('String' === opt.kind ?
             `    required('string','${opt.name}',options)\n` : ''), '')
 
+      const features = each(feature).map((feature: any) => `
+${feature.name}: new ${feature.Name}Feature(this, ${JSON.stringify(feature.config || {})})
+`).join('\n')
+
 
       Content(`
     
 class ${model.Name}SDK {
   options
+  features
 
   static make(options) {
     return new ${model.Name}SDK(options)
@@ -62,7 +67,11 @@ class ${model.Name}SDK {
 
 ${validate_options}
 
-    this.options.fetch = this.options.fetch || fetch 
+    this.options.fetch = this.options.fetch || fetch
+
+    this.features = {
+${features}
+    }
   }
 
 
@@ -89,7 +98,8 @@ ${validate_options}
     return JSON.stringify(msg)
   }
 
-  fetchSpec(op,ent) {
+  fetchSpec(ctx, ent) {
+    const { op } = ctx
     const method = this.method(op, ent)
     const spec = {
       url: this.endpoint(op, ent),

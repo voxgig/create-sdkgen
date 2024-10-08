@@ -7,19 +7,14 @@ exports.Root = void 0;
 const node_path_1 = __importDefault(require("node:path"));
 const jostraca_1 = require("jostraca");
 const ModelSdk_1 = require("./ModelSdk");
+// TODO: rename to RootSdk
 const Root = (0, jostraca_1.cmp)(function Root(props) {
     const { model, ctx$ } = props;
     const { folder, meta } = ctx$;
     const { spec } = meta;
-    (0, jostraca_1.names)(model, model.name);
+    // names(model, model.name)
     ctx$.model = model;
     (0, jostraca_1.Project)({ folder }, () => {
-        // TODO: perhaps remove the need for this, create top level folder in Project
-        // would keep paths indo of project folder name
-        // Folder({ name: Path.basename(folder) }, () => {
-        // File({ name: 'foo.txt' }, () => {
-        //   Content('FOO')
-        // })
         // console.log('FOLDER', folder)
         (0, jostraca_1.Copy)({ from: __dirname + '/../../tm/standard' });
         const def = model.def.filepath;
@@ -32,7 +27,11 @@ const Root = (0, jostraca_1.cmp)(function Root(props) {
             (0, ModelSdk_1.ModelSdk)({});
         });
         (0, jostraca_1.Folder)({ name: 'feature' }, () => {
-            (0, jostraca_1.Copy)({ from: __dirname + '/../../feature/standard' });
+            (0, jostraca_1.each)(model.feature).map((feature) => {
+                (0, jostraca_1.Folder)({ name: feature.name }, () => {
+                    (0, jostraca_1.Copy)({ from: __dirname + '/../../feature/standard/' + feature.name });
+                });
+            });
         });
     });
 });

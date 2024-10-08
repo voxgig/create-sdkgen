@@ -1,10 +1,10 @@
 
 class PageFeature {
-
+  sdk
   
   // Create a new instance for each client instance
-  constructor() {
-
+  constructor(sdk) {
+    this.sdk = sdk
   }
 
 
@@ -14,13 +14,13 @@ class PageFeature {
     return spec
   }
 
+  
   // If defined, pass in request spec and response
   // ctx contains context = { start: <time>, end: <time>, res: <response> }
-  modifyResponse(spec, out, ctx) {
-    return spec
+  modifyResponse(spec, ctx, out) {
+    return out
   }
 
-  
 }
 
 

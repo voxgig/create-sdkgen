@@ -9,6 +9,7 @@ import {
 
   Main,
   Entity,
+  Feature,
   Readme,
 
 } from '@voxgig/sdkgen'
@@ -23,6 +24,7 @@ const Root = cmp(function Root(props: any) {
 
   const build = model.main.sdk.build
   const entity = model.main.sdk.entity
+  const feature = model.main.sdk.feature
 
   Project({}, () => {
 
@@ -37,6 +39,13 @@ const Root = cmp(function Root(props: any) {
 
           Entity({ build, entity })
         })
+
+        each(feature).filter((feature: any) => feature.active).map((feature: any) => {
+          names(feature, feature.name)
+
+          Feature({ build, feature })
+        })
+
 
         Main({ build })
 

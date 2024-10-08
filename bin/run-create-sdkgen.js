@@ -5,6 +5,8 @@ const { statSync } = require('node:fs')
 const { parseArgs } = require('node:util')
 
 const { Gubu, Fault } = require('gubu')
+const { Aontu, Context } = require('aontu')
+
 
 const Pkg = require('../package.json')
 
@@ -63,18 +65,8 @@ function generate(options) {
   })
 
 
-  // TODO: load model
-  
-  const model = {
-    name: options.name,
-    year: new Date().getFullYear(),
-    def: {
-      filepath: options.def || 'def.yml'
-    }
-  }
-
-  model.def.filename = Path.basename(model.def.filepath) 
-  
+  const model = resolveModel(options)
+    
   const spec = {
     // TODO: move to CreateSdkGen options
     spec: options.spec,
@@ -98,6 +90,57 @@ function generate(options) {
 }
 
 
+function resolveModel(options) {
+
+  const typespec = `
+name: string
+year: number
+def: filepath: string
+feature: &: {
+  active: *false | boolean
+}
+`
+
+  const features = options.feature.map(name=>`feature:${name}:active:true`)
+  
+  const src = [
+    typespec,
+    `name: ${options.name}`,
+    `year: ${new Date().getFullYear()}`,
+    `def: filepath: "${options.def || 'def.yml'}"`,
+    '' === options.model ? '' : `@"${options.model}"`,
+    ...(options.set||[]),
+    ...(features||[]),
+  ].join('\n')
+  const aopts = {}
+  const root = Aontu(src, aopts)
+  const hasErr = root.err && 0 < root.err.length
+
+  // TODO: collect all errors
+  if (hasErr) {
+    // console.log('ERROR ROOT', root.err)
+    throw root.err[0].msg
+  }
+
+  let genctx = new Context({ root })
+  const model = root.gen(genctx)
+
+  // TODO: collect all errors
+  if (genctx.err && 0 < genctx.err.length) {
+    // console.log(genctx.err)
+    // console.log('ERROR GEN', genctx.err)
+    throw new Error(JSON.stringify(genctx.err[0]))
+  }
+  
+  model.def.filename = Path.basename(model.def.filepath)
+
+  // console.log('MODEL')
+  // console.dir(model,{depth:null})
+  
+  return model
+}
+
+
 function resolveOptions() {
 
   const args = parseArgs({
@@ -115,10 +158,22 @@ function resolveOptions() {
         default: '',
       },
       
+      set: {
+        type: 'string',
+        short: 's',
+        multiple: true,
+      },
+
       model: {
         type: 'string',
         short: 'm',
         default: '',
+      },
+      
+      feature: {
+        type: 'string',
+        short: 't',
+        multiple: true,
       },
       
       watch: {
@@ -149,6 +204,8 @@ function resolveOptions() {
     folder: '' === args.values.folder ? args.positionals[0] : args.values.folder,
     def: args.values.def,
     model: args.values.model,
+    feature: args.values.feature,
+    set: args.values.set,
     watch: !!args.values.watch,
     debug: !!args.values.debug,
     help: !!args.values.help,
@@ -165,6 +222,8 @@ function validateOptions(rawOptions) {
     folder: String,
     def: '',
     model: '',
+    feature: [String],
+    set: [String],
     watch: Boolean,
     debug: Boolean,
     help: Boolean,

@@ -28,7 +28,7 @@ exports.CreateSdkGen = CreateSdkGen;
 const Fs = __importStar(require("node:fs"));
 const chokidar_1 = require("chokidar");
 const JostracaModule = __importStar(require("jostraca"));
-const { Jostraca } = JostracaModule;
+const { each, names, Jostraca } = JostracaModule;
 function CreateSdkGen(opts) {
     const fs = opts.fs || Fs;
     const folder = opts.folder || '.';
@@ -36,11 +36,12 @@ function CreateSdkGen(opts) {
     const rootpath = opts.rootpath;
     async function generate(spec) {
         const now = Date.now();
-        console.log('CREATE SDK', now, new Date(now), spec);
+        // console.log('CREATE SDK', now, new Date(now), spec)
         const { model } = spec;
         const ctx$ = { fs, folder, meta: { spec } };
         clear();
         const { Root } = require(rootpath);
+        completeModel(model);
         try {
             await jostraca.generate(ctx$, () => Root({ model }));
         }
@@ -76,6 +77,12 @@ function CreateSdkGen(opts) {
         generate,
         watch,
     };
+}
+function completeModel(model) {
+    names(model, model.name);
+    each(model.feature, (feature) => {
+        names(feature, feature.key$);
+    });
 }
 // Adapted from https://github.com/sindresorhus/import-fresh - Thanks!
 function clearRequire(path) {

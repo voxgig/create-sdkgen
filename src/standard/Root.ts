@@ -20,25 +20,18 @@ import {
 import { ModelSdk } from './ModelSdk'
 
 
+// TODO: rename to RootSdk
 const Root = cmp(function Root(props: any) {
   const { model, ctx$ } = props
 
   const { folder, meta } = ctx$
   const { spec } = meta
 
-  names(model, model.name)
+  // names(model, model.name)
 
   ctx$.model = model
 
   Project({ folder }, () => {
-
-    // TODO: perhaps remove the need for this, create top level folder in Project
-    // would keep paths indo of project folder name
-    // Folder({ name: Path.basename(folder) }, () => {
-
-    // File({ name: 'foo.txt' }, () => {
-    //   Content('FOO')
-    // })
 
     // console.log('FOLDER', folder)
     Copy({ from: __dirname + '/../../tm/standard' })
@@ -55,7 +48,11 @@ const Root = cmp(function Root(props: any) {
     })
 
     Folder({ name: 'feature' }, () => {
-      Copy({ from: __dirname + '/../../feature/standard' })
+      each(model.feature).map((feature: any) => {
+        Folder({ name: feature.name }, () => {
+          Copy({ from: __dirname + '/../../feature/standard/' + feature.name })
+        })
+      })
     })
 
   })
