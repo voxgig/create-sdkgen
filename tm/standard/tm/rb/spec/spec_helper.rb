@@ -1,7 +1,7 @@
 require 'bundler/setup'
 require 'rspec'
 require 'webmock/rspec'
-require 'plantquest_sdk'
+require '$$name$$_sdk'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 

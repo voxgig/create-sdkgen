@@ -1,5 +1,5 @@
 
-import { cmp, File, Content, Folder, Copy } from '@voxgig/sdkgen'
+import { cmp, File, Folder, Copy, Content } from '@voxgig/sdkgen'
 
 import { Quick } from './Quick_rb'
 import { TestMain } from './TestMain_rb'
@@ -7,7 +7,7 @@ import { TestAccept } from './TestAccept_rb'
 
 
 const Test = cmp(function Test(props: any) {
-  const { build } = props
+  const { build, model } = props
 
   Copy({ from: "tm/" + build.name + "/.rspec", name: ".rspec" });
 

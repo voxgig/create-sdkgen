@@ -5,7 +5,7 @@ import { cmp, each, File, Content } from '@voxgig/sdkgen'
 import { TestAcceptEntity } from "./TestAcceptEntity_rb"
 
 
-const TestAccept = cmp(function TestMain_js(props: any) {
+const TestAccept = cmp(function TestAccept(props: any) {
   const { build } = props
   const { model } = props.ctx$
 
@@ -13,9 +13,9 @@ const TestAccept = cmp(function TestMain_js(props: any) {
   File({ name: model.name + '_sdk_spec.rb' }, () => {
 
     Content(`
-      RSpec.describe '${model.Name}SDK::Client Acceptance Tests' do 
+      RSpec.describe '${model.Name}SDK Acceptance Tests' do 
         before(:each) do
-          @client = ${model.Name}SDK::Client.new(
+          @client = ${model.Name}SDK.new(
             apikey: ENV['${model.NAME}_APIKEY'],
             endpoint: ENV['${model.NAME}_ENDPOINT']
           )
@@ -23,7 +23,7 @@ const TestAccept = cmp(function TestMain_js(props: any) {
 
         it 'happy' do
           out = @client.Geofence.load(id: 'gf01')
-          # puts 'Geofence-load', out.inspect
+          # puts 'Geofence-load', out.data()
           expect(out.data[:id]).to eq('gf01')
         end
     `)
