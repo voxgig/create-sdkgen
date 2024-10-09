@@ -6,7 +6,7 @@ import {
 
   Project,
   Folder,
-  Copy,
+  Fragment,
   File,
   Content,
 
@@ -84,8 +84,11 @@ main: sdk: feature: ${feature.name}: {
   config: {
 `)
 
-      // load from feature folder
-      // Fragment({ from: '' })
+      Fragment({
+        from:
+          `${__dirname}/../../feature/standard/${feature.name}/${feature.name}-config.jsonic`,
+        indent: '    '
+      })
 
       Content(`
   } 

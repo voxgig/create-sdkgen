@@ -98,17 +98,25 @@ ${features}
     return JSON.stringify(msg)
   }
 
-  fetchSpec(ctx, ent) {
+  fetchSpec(ctx) {
     const { op } = ctx
-    const method = this.method(op, ent)
+    const method = this.method(op, ctx.entity)
+
+    let qpairs = Object.entries(ctx.entity.query)
+      .filter(entry=>!entry[0].includes('$'))
+      .reduce((qp,entry)=>
+         (qp.push(encodeURIComponent(entry[0])+'='+encodeURIComponent(entry[1])),qp),[])
+
+    let query = 0===qpairs.length?'':'?'+(qpairs.join('&'))
+
     const spec = {
-      url: this.endpoint(op, ent),
+      url: this.endpoint(op, ctx.entity)+query,
       method,
       headers: {
         'content-type': 'application/json',
         'authorization': 'Bearer '+this.options.apikey
       },
-      body: 'GET' === method || 'DELETE' === method ? undefined : this.body(op, ent),
+      body: 'GET' === method || 'DELETE' === method ? undefined : this.body(op, ctx.entity),
     }
     return spec
   }

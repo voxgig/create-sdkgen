@@ -62,8 +62,10 @@ main: sdk: feature: ${feature.name}: {
   active: true
   config: {
 `);
-            // load from feature folder
-            // Fragment({ from: '' })
+            (0, jostraca_1.Fragment)({
+                from: `${__dirname}/../../feature/standard/${feature.name}/${feature.name}-config.jsonic`,
+                indent: '    '
+            });
             (0, jostraca_1.Content)(`
   } 
 }

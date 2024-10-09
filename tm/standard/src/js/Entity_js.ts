@@ -15,13 +15,13 @@ const Entity = cmp(function Entity(props: any) {
 
       const modifyRequest = each(model.main.sdk.feature).map((feature: any) => {
         return `
-spec = this.sdk().features.${feature.name}.modifyRequest(spec, ctx)
+    spec = this.sdk().features.${feature.name}.modifyRequest(ctx)
 `
       })
 
-      const modifyResponse = each(model.main.sdk.feature).map((feature: any) => {
+      const modifyResult = each(model.main.sdk.feature).map((feature: any) => {
         return `
-      out = this.sdk().features.${feature.name}.modifyResponse(spec, ctx, out)
+      ctx.result = this.sdk().features.${feature.name}.modifyResult(ctx)
 `
       })
 
@@ -32,7 +32,7 @@ class ${entity.Name} {
   def
   sdk
   data
-
+  query
 
   constructor(sdk,data) {
     this.sdk = ()=>sdk
@@ -48,11 +48,11 @@ class ${entity.Name} {
     const status = res.status
 
     if(200 === status) {
-      let out = await res.json()
+      ctx.result = await res.json()
       // TODO: error
 
-      ${modifyResponse}
-      return handler(out)
+      ${modifyResult}
+      return handler(ctx.result)
     }
     else {
       throw new Error('HTTP-ERROR: '+ctx.op+': ${entity.name}: '+status)
@@ -62,11 +62,12 @@ class ${entity.Name} {
 
       Content(`
   async save(data) {
-    const ctx = {op:'save'}
+    const ctx = {op:'save',entity:this}
     this.data = data
+    this.query = {}
     // TODO: validate data
 
-    let spec = this.sdk().fetchSpec(ctx,this)
+    let spec = ctx.spec = this.sdk().fetchSpec(ctx,this)
     ${modifyRequest}
     const res = await this.sdk().options.fetch(spec.url,spec)
 
@@ -80,12 +81,18 @@ class ${entity.Name} {
 
       Content(`
   async create(data) {
-    const ctx = {op:'create'}
+    const ctx = {op:'create',entity:this}
     this.data = data
+    this.query = {}
     // TODO: validate data
 
-    let spec = this.sdk().fetchSpec(ctx,this)
+    let spec = ctx.spec = this.sdk().fetchSpec(ctx,this)
     ${modifyRequest}
+
+    if(this.sdk().options.debug) {
+      console.log('FETCH-create', spec)
+    }
+
     const res = await this.sdk().options.fetch(spec.url,spec) 
 
     return this.handleResult(ctx, res, spec, (json)=>{
@@ -98,17 +105,21 @@ class ${entity.Name} {
 `)
 
       Content(`
-  async load(data) {
-    const ctx = {op:'load'}
-    this.data = data
-    // TODO: check data.id defined
-    // TODO: separate data and query
+  async load(query) {
+    const ctx = {op:'load',entity:this}
+    this.data = {}
+    this.query = query || {}
 
-    let spec = this.sdk().fetchSpec(ctx,this)
+    let spec = ctx.spec = this.sdk().fetchSpec(ctx,this)
     ${modifyRequest}
+
+    if(this.sdk().options.debug) {
+      console.log('FETCH-load', spec)
+    }
+
     const res = await this.sdk().options.fetch(spec.url,spec)
 
-   return this.handleResult(ctx, res, spec, (json)=>{
+    return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
       return this
     })
@@ -118,12 +129,12 @@ class ${entity.Name} {
 `)
 
       Content(`
-  async remove(data) {
-    const ctx = {op:'remove'}
-    this.data = data
-    // TODO: check data.id defined
+  async remove(query) {
+    const ctx = {op:'remove',entity:this}
+    this.data = {}
+    this.query = query || {}
 
-    let spec = this.sdk().fetchSpec(ctx,this)
+    let spec = ctx.spec = this.sdk().fetchSpec(ctx,this)
     ${modifyRequest}
     const res = await this.sdk().options.fetch(spec.url,spec)
 
@@ -137,11 +148,17 @@ class ${entity.Name} {
 
       Content(`
   async list(query) {
-    const ctx = {op:'list'}
-    // TODO: use query if defined
+    const ctx = {op:'list',entity:this}
+    this.data = {}
+    this.query = query || {}
 
-    let spec = this.sdk().fetchSpec(ctx,this)
+    let spec = ctx.spec = this.sdk().fetchSpec(ctx,this)
     ${modifyRequest}
+
+    if(this.sdk().options.debug) {
+      console.log('FETCH-load', spec)
+    }
+
     const res = await this.sdk().options.fetch(spec.url,spec)
 
     return this.handleResult(ctx, res, spec, (json)=>{

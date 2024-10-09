@@ -1,0 +1,31 @@
+
+# param: define the API request parameters for paging
+# NOTE: these key names are also used in the Entity query page$ namespace
+
+param: pagenum: {
+  name: *page | string   # page number
+  kind: *query | string  # place in URL query: ?page=2
+  defval: *0 | number
+}
+
+param: pagesize: {
+  name: *size | string   # page number
+  kind: *query | string  # place in URL query: ?page=2&size=50
+  defopt: *pagesize | string # use option as the default value
+}
+
+
+# option: SDK feature options specified when instantiating an SDK client
+
+option: debug: {
+  type: Boolean
+  required: false
+  defval: false
+} 
+
+# option to specify pagesize default
+option: pagesize: {
+  type: Number
+  required: false
+  defval: 50
+} 
