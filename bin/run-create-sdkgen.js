@@ -296,7 +296,10 @@ Usage: npm create @voxgig/sdkgen@latest <name> <args>
     -d                       that defines the SDK. Optional.
 
     --model <file>         Specify the SDK model file to customize the SDK. Optional.
-    -m                       
+    -m
+    
+    --feature <name>       Specify a feature to include in the SDK. Can be specified multiple times.
+    -t <name>
 
     --watch                Run in watch mode. The SDK project will be updated if any of the
     -w                       project inputs (such as the spec file) change.
