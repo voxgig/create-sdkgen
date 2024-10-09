@@ -302,7 +302,7 @@ Usage: npm create @voxgig/sdkgen@latest <name> <args>
     -w                       project inputs (such as the spec file) change.
 
     --debug                Print verbose logging.
-    -d                       
+    -g                    
 
     --help                 Print this help message.
     -h
