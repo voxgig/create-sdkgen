@@ -1,14 +1,28 @@
-import { names, getx, cmp, File, Content } from '@voxgig/sdkgen'
+
+import { names, getx, each, cmp, File, Content } from '@voxgig/sdkgen'
+
 
 const Quick = cmp(function Quick(props: any) {
-  const { build } = props;
-  const { model, meta: { spec } } = props.ctx$;
+  const { build } = props
+  const { model, meta: { spec } } = props.ctx$
 
-  let ent = getx(spec.config.guideModel, 'guide entity *')
-  .find((ent: any) => ent.test.quick.active)
+  // get quick entity from build config
+
+
+  let entmap = getx(spec.config.guideModel, 'guide entity?test:quick:active=true')
+  let ent: any = Object.values(entmap)[0]
+  ent.name = Object.keys(entmap)[0]
 
   ent = ent || {}
-  names(ent, ent.key$ || 'name')
+  names(ent, ent.name)// , ent.key$ || 'name')
+
+  // TODO: selected features should be active by default!
+
+  const featureOptions = each(model.main.sdk.feature)
+    .filter((f: any) => f.active)
+    .reduce((a: any, f: any) => a + `\n    ${f.name}: { active: true },`, '')
+
+  // console.log('QUICK', ent, featureOptions)
 
   File({ name: "quick.rb" }, () => {
     Content(`

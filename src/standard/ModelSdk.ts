@@ -20,6 +20,8 @@ const ModelSdk = cmp(function ModelSdk(props: any) {
 
   // console.log('ModelSdk 2', model)
 
+  // console.log(`${new Date().toISOString().replace('T', ' ').slice(0, 19)} - Updating ${model.name} SDK...`)
+
   // TODO: use apidef
   // const def = ctx$.fs.readFileSync(model.def.filepath)
 

@@ -5,11 +5,12 @@ import { cmp, Content, names, getx } from '@voxgig/sdkgen'
 const ReadmeQuick = cmp(function ReadmeQuick(props: any) {
   const { build, ctx$: { model, meta: { spec } } } = props
 
-  let ent = getx(spec.config.guideModel, 'guide entity *')
-  .find((ent: any) => ent.test.quick.active)
+  let entmap = getx(spec.config.guideModel, 'guide entity?test:quick:active=true')
+  let ent: any = Object.values(entmap)[0]
+  ent.name = Object.keys(entmap)[0]
 
   ent = ent || {}
-  names(ent, ent.key$ || 'name')
+  names(ent, ent.name)// , ent.key$ || 'name')
 
   Content('```ruby')
   Content(`

@@ -76,10 +76,10 @@ ${features}
 
 
   endpoint(op,ent) {
-    let data = ent.data || {}
+    let entid = ent.data?.id || ent.query?.id
     let def = ent.def
-    // Make this code depend on openapi spec
-    return this.options.endpoint + '/' + def.name + ((op === 'load' || op === 'remove') && data.id ? '/' + data.id : '')
+    let endpoint = this.options.endpoint + '/' + def.name + ((op === 'load' || op === 'remove') && entid ? '/' + entid : '')
+    return endpoint
   }
 
   method(op,ent) {

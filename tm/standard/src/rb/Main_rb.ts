@@ -38,7 +38,6 @@ const Main = cmp(async function Main(props: any) {
     File({ name: snakify(model.Name) + "_sdk.rb" }, () => {
             Content(`
 # ${model.Name} ${build.name} SDK
-
 require 'json'
 require 'net/http'
 require 'digest'

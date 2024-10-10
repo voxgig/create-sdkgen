@@ -9,7 +9,7 @@ import {
 
   Main,
   Entity,
-  // Feature,
+  Feature,
   Readme,
 
 } from '@voxgig/sdkgen'
@@ -43,7 +43,7 @@ const Root = cmp(function Root(props: any) {
         each(feature).filter((feature: any) => feature.active).map((feature: any) => {
           names(feature, feature.name)
 
-          // Feature({ build, feature })
+          Feature({ build, feature })
         })
 
 
