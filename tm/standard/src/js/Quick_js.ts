@@ -16,11 +16,13 @@ const Quick = cmp(function Quick(props: any) {
   ent = ent || {}
   names(ent, ent.name)// , ent.key$ || 'name')
 
+  // TODO: selected features should be active by default!
+
   const featureOptions = each(model.main.sdk.feature)
     .filter((f: any) => f.active)
     .reduce((a: any, f: any) => a + `\n    ${f.name}: { active: true },`, '')
 
-  console.log('QUICK', ent, featureOptions)
+  // console.log('QUICK', ent, featureOptions)
 
 
   File({ name: 'quick.' + build.name }, () => {
