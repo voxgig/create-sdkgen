@@ -12,8 +12,8 @@ const Quick = cmp(function Quick(props: any) {
   // console.dir(spec.config, { depth: null })
 
 
-  let ent = getx(spec.config.guideModel, 'guide entity *')
-    .find((ent: any) => ent.test.quick.active)
+  let ent = getx(spec.config.guideModel, 'guide entity?test:quick:active=true')
+  // .find((ent: any) => ent.test.quick.active)
 
   ent = ent || {}
   names(ent, ent.key$ || 'name')
