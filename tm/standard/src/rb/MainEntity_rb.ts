@@ -6,8 +6,9 @@ const MainEntity = cmp(async function MainEntity(props: any) {
   const def = JSON.stringify(entity);
 
   Content(`
-  def ${entity.Name}(data={})
-    ${entity.Name}.new(self, data)
+  def ${entity.Name}
+    ensure_initialized
+    ${entity.Name}.new(self)
   end
 
 `);

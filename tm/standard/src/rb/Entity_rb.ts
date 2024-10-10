@@ -18,16 +18,34 @@ const Entity = cmp(function Entity(props: any) {
 
 require 'json'
 require 'net/http'
+require_relative 'errors'
 
 class ${entity.Name}
-  attr_accessor :sdk, :def, :data
+  attr_accessor :sdk, :def, :data, :query
 
-  def initialize(sdk, data = nil)
+  def initialize(sdk)
     @sdk = sdk
     @def = {
       name: "${entity.name}"
     }
-    @data = data
+    @data = nil
+    @query = nil
+  end
+
+  def data(new_data = nil)
+    if new_data
+      @data = new_data
+    else
+      @data
+    end
+  end
+
+  def query(new_query = nil)
+    if new_query
+      @query = new_query
+    else
+      @query
+    end
   end
 
   def handle_result(op, res, spec)
@@ -35,8 +53,14 @@ class ${entity.Name}
 
     case status
     when 200
-      json = JSON.parse(res.body, symbolize_names: true)
-      yield(json)
+      if res.body.is_a?(String) && !res.body.empty?
+        json = JSON.parse(res.body, symbolize_names: true)
+        yield(json)
+      elsif res.body.nil? || res.body.empty?
+        yield(nil)
+      else
+        raise TypeError, "Unexpected response body type: #{res.body.class}"
+      end
     when 400
       raise ${model.Name}BadRequestError.new("Bad request", status, res.body)
     when 401
@@ -54,17 +78,17 @@ class ${entity.Name}
     end
   end
 
-  def save(data)
+  def save(data = nil, flags = {})
     op = 'save'
-    self.data = data
-    # TODO: validate data
+    @data = data if data
 
-    body = sdk.body('save', self)
-    method = sdk.method('save', self)
-    url = sdk.endpoint('save', self)
-    
-    spec = {}
-    res = sdk.options[:fetch].call(url, method, sdk.options[:apikey], body)
+    # check if @data.id is defined
+    if @data.nil? || @data[:id].nil?
+      raise ${model.Name}SDKError.new("HTTP-ERROR: #{op}: ${entity.name}: id is required", 400, "id is required")
+    end
+
+    spec = sdk.fetch_spec('save', self)
+    res = sdk.options[:fetch].call(spec[:url], spec)
 
     handle_result(op, res, spec) do |json|
       self.data = json
@@ -72,16 +96,12 @@ class ${entity.Name}
     end
   end
 
-  def create(data)
+  def create(data = nil, flags = {})
     op = 'create'
-    self.data = data
+    @data = data if data
 
-    body = sdk.body('create', self)
-    method = sdk.method('create', self)
-    url = sdk.endpoint('create', self)
-
-    spec = {}
-    res = sdk.options[:fetch].call(url, method, sdk.options[:apikey], body)
+    spec = sdk.fetch_spec('create', self)
+    res = sdk.options[:fetch].call(spec[:url], spec)
 
     handle_result(op, res, spec) do |json|
       self.data = json
@@ -89,17 +109,13 @@ class ${entity.Name}
     end
   end
 
-  def load(data)
+  def load(query = nil, flags = {})
     op = 'load'
-    self.data = data
+    @query = query if query
     # TODO: check if data.id is defined
 
-    body = sdk.body('load', self)
-    method = sdk.method('load', self)
-    url = sdk.endpoint('load', self)
-
-    spec = {}
-    res = sdk.options[:fetch].call(url, method, sdk.options[:apikey], body)
+    spec = sdk.fetch_spec('load', self)
+    res = sdk.options[:fetch].call(spec[:url], spec)
 
     handle_result(op, res, spec) do |json|
       self.data = json
@@ -107,33 +123,29 @@ class ${entity.Name}
     end
   end
 
-  def list(data = {})
+  def list(query = nil, flags = {})
     op = 'list'
-    self.data = data
+    @query = query if query
     # TODO: check if data.id is defined
 
-    body = sdk.body('load', self)
-    method = sdk.method('load', self)
-    url = sdk.endpoint('load', self)
-
-    spec = {}
-    res = sdk.options[:fetch].call(url, method, sdk.options[:apikey], body)
+    spec = sdk.fetch_spec('list', self)
+    res = sdk.options[:fetch].call(spec[:url], spec)
 
     handle_result(op, res, spec) do |json|
-      return json[:list].map { |data| sdk.${entity.Name}(data) }
+      json[:list].map do |data| 
+        entity = ${entity.Name}.new(sdk)
+        entity.data(data)
+        entity
+      end
     end
   end
 
-  def remove(data)
+  def remove(data = nil, flags = {})
     op = 'remove'
-    self.data = data
+    @data = data if data
 
-    body = sdk.body('remove', self)
-    method = sdk.method('remove', self)
-    url = sdk.endpoint('remove', self)
-
-    spec = {}
-    res = sdk.options[:fetch].call(url, method, sdk.options[:apikey], body)
+    spec = sdk.fetch_spec('remove', self)
+    res = sdk.options[:fetch].call(spec[:url], spec)
 
     handle_result(op, res, spec) do |json|
       self.data = json
