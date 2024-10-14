@@ -22,19 +22,24 @@ class TelemetryFeature {
 
     console.log('TELEMETRY OPTIONS', this.options)
 
-    let serviceName = process.env.OTEL_SERVICE_NAME
-    let serviceVersion = process.env.OTEL_SERVICE_VERSION
-    let endpoint = process.env.OTEL_ENDPOINT
+    let provider
+    let serviceName = process.env.TELEMETRY_SERVICE_NAME || this.options.serviceName
+    let serviceVersion = process.env.TELEMETRY_SERVICE_VERSION || this.options.serviceVersion
+    let endpoint = process.env.TELEMETRY_ENDPOINT || this.options.endpoint
 
-    const provider = new BasicTracerProvider({ 
-      resource: new Resource({ [ATTR_SERVICE_NAME]: serviceName, [ATTR_SERVICE_VERSION]: serviceVersion })
-    });
-  
-    const otlpExporter = new OTLPTraceExporter({ url: endpoint });
-  
-    provider.addSpanProcessor(new SimpleSpanProcessor(otlpExporter));
-    // provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
-    provider.register();
+    if (this.options.provider) {
+      provider = this.options.provider
+    } else {
+      provider = new BasicTracerProvider({ 
+        resource: new Resource({ [ATTR_SERVICE_NAME]: serviceName, [ATTR_SERVICE_VERSION]: serviceVersion })
+      });
+    
+      const otlpExporter = new OTLPTraceExporter({ url: endpoint });
+    
+      provider.addSpanProcessor(new SimpleSpanProcessor(otlpExporter));
+      // provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+      provider.register();
+    }
 
     this.tracer = provider.getTracer(serviceName) || trace.getTracer(serviceName)
 
@@ -44,7 +49,7 @@ class TelemetryFeature {
   // If defined, pass in request spec
   // ctx contains context = { start: <time> }
   modifyRequest(ctx) {
-    console.log('TELEMETRY MODIFY REQUEST', ctx)
+    // console.log('TELEMETRY MODIFY REQUEST', ctx)
 
     const span = this.tracer.startSpan(ctx.entity.def.name + '.' + ctx.op + '.request')
     span.setAttribute('entity.operation', ctx.op)
@@ -62,7 +67,7 @@ class TelemetryFeature {
   // If defined, pass in request spec and response
   // ctx contains context = { start: <time>, end: <time>, res: <response> }
   modifyResult(ctx) {
-    console.log('TELEMETRY MODIFY RESULT', ctx)
+    // console.log('TELEMETRY MODIFY RESULT', ctx)
 
     const span = this.tracer.startSpan(ctx.entity.def.name + '.' + ctx.op + '.response')
     span.setAttribute('entity.operation', ctx.op)
@@ -78,13 +83,12 @@ class TelemetryFeature {
   }
 
 }
-
-module.exports = {
-  TelemetryFeature
-}
-
 function getHeaders(headers) {
   return JSON.stringify(Object.keys(headers)
   .filter(key => ['content-type', 'user-agent', 'accept'].includes(key.toLowerCase()))
   .reduce((obj, key) => ({ ...obj, [key]: headers[key] }), {}));
+}
+
+module.exports = {
+  TelemetryFeature
 }
