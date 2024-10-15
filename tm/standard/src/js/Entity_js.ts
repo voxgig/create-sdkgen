@@ -14,6 +14,11 @@ const Entity = cmp(function Entity(props: any) {
     File({ name: entity.Name + '.' + build.name }, () => {
 
       const modifyRequest = each(model.main.sdk.feature).map((feature: any) => {
+        if (feature.config.return == "promise") {
+          return `
+    spec = await this.sdk().features.${feature.name}.modifyRequest(ctx)
+`
+        }
         return `
     spec = this.sdk().features.${feature.name}.modifyRequest(ctx)
 `

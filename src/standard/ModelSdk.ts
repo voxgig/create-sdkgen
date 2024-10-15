@@ -72,6 +72,50 @@ main: sdk: option: {
     publish: false
   }
 }
+
+main: sdk: feature: ratelimiter: {
+  active: true
+  method: 'tryAcquire()'
+  config: {
+
+    option: debug: {
+      type: Boolean
+      required: false
+      defval: false
+    }
+
+    option: cost: {
+      type: Number
+      required: false
+      defval: 1
+    }
+
+    option: limit: {
+      type: Number
+      required: false
+      defval: 5
+    }
+
+    option: period: {
+      type: Number
+      required: false
+      defval: 10
+    }
+
+    option: retry: {
+      type: Number
+      required: false
+      defval: 5
+    }
+
+    option: queueMax: {
+      type: Number
+      required: false
+      defval: 50
+    }
+
+  }
+}
 `)
 
 
@@ -91,6 +135,7 @@ main: sdk: feature: ${feature.name}: {
       })
 
       Content(`
+
   } 
 }
 
