@@ -11,4 +11,5 @@ sys: model: watch: {
   'dist': {}
   'tm': {}
   'def': {}
+  'doc/static/src': {}
 }
