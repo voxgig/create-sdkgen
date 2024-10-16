@@ -5,6 +5,7 @@ const jostraca_1 = require("jostraca");
 const ModelSdk = (0, jostraca_1.cmp)(function ModelSdk(props) {
     const { ctx$, ctx$: { model } } = props;
     // console.log('ModelSdk 2', model)
+    // console.log(`${new Date().toISOString().replace('T', ' ').slice(0, 19)} - Updating ${model.name} SDK...`)
     // TODO: use apidef
     // const def = ctx$.fs.readFileSync(model.def.filepath)
     (0, jostraca_1.File)({ name: 'sdk.jsonic' }, () => {

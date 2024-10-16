@@ -33,12 +33,32 @@ require('dotenv').config({ path: ['../../.env.local']})
 
 const { ${model.Name}SDK } = require('../')
 
+const { SimpleSpanProcessor, BasicTracerProvider, ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-base');
+const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
+const { Resource } = require('@opentelemetry/resources');
+const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = require('@opentelemetry/semantic-conventions');
+
 run()
 
 async function run() {
+
+  const provider = new BasicTracerProvider({ 
+    resource: new Resource({ [ATTR_SERVICE_NAME]: 'plantquest-sdk', [ATTR_SERVICE_VERSION]: '1.0.0' })
+  });
+
+  const otlpExporter = new OTLPTraceExporter({
+    url: process.env.TELEMETRY_ENDPOINT,
+  });
+
+  provider.addSpanProcessor(new SimpleSpanProcessor(otlpExporter));
+  // provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+  provider.register();
+
+
   const client = ${model.Name}SDK.make({
     endpoint: process.env.${model.NAME}_ENDPOINT,
     apikey: process.env.${model.NAME}_APIKEY,
+    debug: true,
     ${featureOptions}
   })
 
@@ -49,7 +69,7 @@ async function run() {
     if (ent.test?.quick.create) {
       Content(`    
   out = await client.${ent.Name}().create(${JSON.stringify(ent.test?.quick.create)})
-  console.log('${ent.Name}.load', out) 
+  console.log('${ent.Name}.create', out) 
 `)
     }
 

@@ -14,9 +14,7 @@ const Error = cmp(function Error(props: any) {
     Folder({ name: snakify(model.Name) + "_sdk" }, () => {
       File({ name: "errors.rb" }, () => {
         Content(`
-
-module ${model.Name}SDK
-  class ${model.Name}SDKError < StandardError
+class ${model.Name}SDKError < StandardError
     attr_reader :status, :body, :response
     
     def initialize(message, status = nil, body = nil, response = nil)
@@ -27,7 +25,7 @@ module ${model.Name}SDK
     end
 
     def to_s
-      "#{message} (status: #{status || 'N/A'}, response body: #{body || 'N/A'})"
+      "#{super} (status: #{status || 'N/A'}, response body: #{body || 'N/A'})"
     end
   end
 
@@ -42,10 +40,6 @@ module ${model.Name}SDK
   class ${model.Name}RateLimitError < ${model.Name}SDKError; end
   class ${model.Name}ClientError < ${model.Name}SDKError; end
   class ${model.Name}ServerError < ${model.Name}SDKError; end
-end
-
-
-
 `);
       });
     });

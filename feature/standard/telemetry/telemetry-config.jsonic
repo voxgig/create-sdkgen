@@ -1,0 +1,31 @@
+
+
+option: debug: {
+  type: Boolean
+  required: false
+  defval: false
+}
+
+option: endpoint: {
+  type: String
+  required: false
+  defval: ''
+}
+
+option: serviceName: {
+  type: String
+  required: false
+  defval: 'server-sdk'
+}
+
+option: serviceVersion: {
+  type: String
+  required: false
+  defval: '1.0.0'
+}
+# option to specify pagesize default
+option: provider: {
+  type: Object
+  required: false
+  defval: {}
+} 
