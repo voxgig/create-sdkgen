@@ -42,13 +42,13 @@
     "@hapi/code": "^9.0.3",
     "@types/node": "22.7.5",
     "esbuild": "^0.24.0",
-    "memfs": "^4.13.0",
+    "memfs": "^4.14.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {
     "aontu": "^0.22.0",
     "chokidar": "^4.0.1",
     "gubu": "^8.3.0",
-    "jostraca": "^0.7.5"
+    "jostraca": "^0.7.6"
   }
 }

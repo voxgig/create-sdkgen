@@ -4,6 +4,7 @@
 
 sys: model: builders: {
   sdk: load: 'build/sdk.js'
+  doc: load: 'build/doc.js'
 }
 
 sys: model: watch: {
