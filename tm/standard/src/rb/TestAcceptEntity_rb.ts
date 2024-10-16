@@ -2,7 +2,7 @@
 import { cmp, camelify, Content } from '@voxgig/sdkgen'
 
 
-const TestAcceptEntity = cmp(function TestEntity(props: any) {
+const TestAcceptEntity = cmp(function TestAcceptEntity(props: any) {
   const { entity } = props
 
   entity.Name = camelify(entity.name)
@@ -57,15 +57,12 @@ const TestAcceptEntity = cmp(function TestEntity(props: any) {
 })
 
 function generateObjectFromFields(fields: any) {
-  const getRandomString = (length: number): string =>
-    Array.from({ length }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 62))).join('');
-
   const defaultValues: Record<string, any> = {
-    number: Math.floor(Math.random() * 100),
-    string: getRandomString(5),
-    object: { [getRandomString(3)]: getRandomString(3) },
-    boolean: Math.random() > 0.5,
-    array: Array.from({ length: 3 }, () => getRandomString(3)),
+    number: 99,
+    string: 'foobar',
+    object: { foo: 'bar' },
+    boolean: false,
+    array: ['foo', 'bar', 'baz'],
   }
 
   const result: Record<string, any> = {}
