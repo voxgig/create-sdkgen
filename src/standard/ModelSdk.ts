@@ -91,7 +91,6 @@ main: sdk: feature: ${feature.name}: {
       })
 
       Content(`
-
   } 
 }
 
