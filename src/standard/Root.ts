@@ -34,7 +34,10 @@ const Root = cmp(function Root(props: any) {
   Project({ folder }, () => {
 
     // console.log('FOLDER', folder)
-    Copy({ from: __dirname + '/../../tm/standard' })
+    Copy({
+      from: __dirname + '/../../tm/standard',
+      exclude: ['.env.local']
+    })
 
     const def = model.def.filepath
     if (null != def && '' !== def) {

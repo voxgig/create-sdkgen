@@ -21,7 +21,8 @@
   },
   "devDependencies": {
     "@voxgig/model": "^3.5.0",
-    "@voxgig/sdkgen": "^0.11.1",
+    "@voxgig/sdkgen": "^0.12.0",
+    "@voxgig/docgen": "^0.2.2",
     "@voxgig/util": "^0.0.3",
     "@types/node": "22.7.5",
     "@stoplight/prism-cli": "^5.10.0",

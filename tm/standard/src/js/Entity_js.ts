@@ -17,18 +17,26 @@ const Entity = cmp(function Entity(props: any) {
         if (feature.config.return == "promise") {
           return `
     spec = await this.sdk().features.${feature.name}.modifyRequest(ctx)
-`
+    `
+        }
+        if (feature.name == 'ratelimiter') {
+          return `
+    await this.sdk().features.${feature.name}.tryAcquire()`
+
         }
         return `
     spec = this.sdk().features.${feature.name}.modifyRequest(ctx)
 `
-      })
+      }).join('')
 
       const modifyResult = each(model.main.sdk.feature).map((feature: any) => {
+        if (feature.name == 'ratelimiter') {
+          return ''
+        }
         return `
       ctx.result = this.sdk().features.${feature.name}.modifyResult(ctx)
 `
-      })
+      }).join('')
 
       Content(`
 // ${model.Name} ${build.Name} ${entity.Name} 1
