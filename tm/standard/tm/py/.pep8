@@ -1,0 +1,12 @@
+[pep8]
+# Set the maximum allowed line length (StandardJS uses 80 by default)
+max-line-length = 80
+
+# Enforce space around operators
+ignore = E203
+
+# Disable formatting warnings for shebang
+ignore = E265
+
+# Set other rules similar to StandardJS
+indent-size = 2  # Match the default indentation of 2 spaces in StandardJS

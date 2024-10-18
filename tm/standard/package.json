@@ -10,7 +10,17 @@
     "test": "echo no-test",
     "clean": "rm -rf node_modules yarn.lock package-lock.json",
     "reset": "npm run clean && npm i && npm run build && npm test",
-    "mock-server": "prism mock def/$DefinitionFile"
+    "mock-server": "prism mock def/$DefinitionFile",
+    "lint-js": "cd sdk/js && npm run lint",
+    "lint-js-watch": "chokidar 'sdk/js/**/*.{js,ts}' -c 'npm run lint-js'",
+    "lint-py": "autopep8 --in-place --aggressive --aggressive sdk/py/**/*.py sdk/py/**/**/*.py",
+    "lint-py-watch": "chokidar 'sdk/py/**/*.py' -c 'npm run lint-py'",
+    "lint-rb": "cd sdk/rb && bundle exec standardrb --fix .",
+    "lint-rb-watch": "chokidar 'sdk/rb/**/*.rb' -c 'npm run lint-rb'",
+    "lint-go": "gofmt -s -w sdk/go",
+    "lint-go-watch": "chokidar 'sdk/go/**/*.go' -c 'npm run lint:go'",
+    "lint-php": "cd sdk/php && composer run-script lint",
+    "lint-php-watch": "chokidar 'sdk/php/**/*.php' -c 'npm run lint-php'"
   },
   "author": "",
   "license": "MIT",
@@ -26,6 +36,7 @@
     "@voxgig/util": "^0.0.3",
     "@types/node": "22.7.5",
     "@stoplight/prism-cli": "^5.10.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "chokidar-cli": "^3.0.0"
   }
 }

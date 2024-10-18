@@ -13,7 +13,8 @@ const config_setup_files = [
   'setup.cfg',
   'MANIFEST.in',
   'Makefile',
-  'pytest.ini'
+  'pytest.ini',
+  '.pep8'
 ]
 
 const Main = cmp(async function Main(props: any) {

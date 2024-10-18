@@ -6,12 +6,15 @@
   "scripts": {
     "test": "node --test test/*.test.js",
     "test-accept": "node --test test/accept/*.test.js",
-    "test-all": "npm run test && npm run test-accept"
+    "test-all": "npm run test && npm run test-accept",
+    "lint": "standard --fix 'src/**/*.{js,ts}' 'test/**/*.js'"
   },
   "author": "$$Name$$",
   "license": "MIT",
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ts-standard": "^12.0.2",
+    "standard": "^17.1.2"
   }
 }
