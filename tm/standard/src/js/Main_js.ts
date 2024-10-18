@@ -48,7 +48,7 @@ const { ${entity.Name} } = require('./${entity.Name}')
 
       const features = each(feature).map((feature: any) => `
 ${feature.name}: new ${feature.Name}Feature(this, ${JSON.stringify(feature.config || {})})
-`).join('\n')
+`).join(',\n')
 
 
       Content(`
