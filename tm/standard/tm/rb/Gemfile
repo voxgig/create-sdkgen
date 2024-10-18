@@ -18,4 +18,5 @@ end
 # Development and test dependencies
 group :development, :test do
   gem 'pry', '~> 0.14'
+  gem 'standard', '~> 1.40.1'
 end

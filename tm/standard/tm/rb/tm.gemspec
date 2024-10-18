@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov", "~> 0.22"
   spec.add_development_dependency "codecov"
   spec.add_development_dependency "pry", "~> 0.14"
+  spec.add_development_dependency 'standard', '~> 1.40.1'
 
   # If you use any files in your Gemfile that should be explicitly included in the gem:
   spec.files += Dir["lib/**/*", "bin/*", "README.md", "LICENSE.txt"]
