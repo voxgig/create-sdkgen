@@ -1,30 +1,40 @@
 
-import { cmp, each, File, Content } from '@voxgig/sdkgen'
+import { cmp, each, File, Content, names, getx } from '@voxgig/sdkgen'
 
 
 import { TestAcceptEntity } from "./TestAcceptEntity_rb"
 
 
-const TestAccept = cmp(function TestMain_js(props: any) {
+const TestAccept = cmp(function TestAccept(props: any) {
   const { build } = props
-  const { model } = props.ctx$
+  const { model, meta: { spec } } = props.ctx$
+
+  let entmap = getx(spec.config.guideModel, 'guide entity?test:quick:active=true')
+  let ent: any = Object.values(entmap)[0]
+  ent.name = Object.keys(entmap)[0]
+
+  ent = ent || {}
+  names(ent, ent.name)// , ent.key$ || 'name')
 
 
   File({ name: model.name + '_sdk_spec.rb' }, () => {
 
     Content(`
-      RSpec.describe '${model.Name}SDK::Client Acceptance Tests' do 
+      RSpec.describe '${model.Name}SDK Acceptance Tests' do 
         before(:each) do
-          @client = ${model.Name}SDK::Client.new(
+          @client = ${model.Name}SDK.new(
             apikey: ENV['${model.NAME}_APIKEY'],
-            endpoint: ENV['${model.NAME}_ENDPOINT']
+            endpoint: ENV['${model.NAME}_ENDPOINT'],
+            debug: true,
+            page: {
+              debug: true
+            }
           )
         end
 
         it 'happy' do
-          out = @client.Geofence.load(id: 'gf01')
-          # puts 'Geofence-load', out.inspect
-          expect(out.data[:id]).to eq('gf01')
+          out = @client.${ent.Name}.load(${JSON.stringify(ent.test?.accept?.load?.data)})
+          expect(out.data).to eq(${JSON.stringify(ent.test?.accept?.load?.expect?.data)})
         end
     `)
 
