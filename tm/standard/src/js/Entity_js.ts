@@ -14,10 +14,15 @@ const Entity = cmp(function Entity(props: any) {
     File({ name: entity.Name + '.' + build.name }, () => {
 
       const modifyRequest = each(model.main.sdk.feature).map((feature: any) => {
-        if(feature.name == 'ratelimiter') {
+        if (feature.config.return == "promise") {
+          return `
+    spec = await this.sdk().features.${feature.name}.modifyRequest(ctx)
+    `
+        }
+        if (feature.name == 'ratelimiter') {
           return `
     await this.sdk().features.${feature.name}.tryAcquire()`
-        
+
         }
         return `
     spec = this.sdk().features.${feature.name}.modifyRequest(ctx)
@@ -25,7 +30,7 @@ const Entity = cmp(function Entity(props: any) {
       }).join('')
 
       const modifyResult = each(model.main.sdk.feature).map((feature: any) => {
-        if(feature.name == 'ratelimiter') {
+        if (feature.name == 'ratelimiter') {
           return ''
         }
         return `
