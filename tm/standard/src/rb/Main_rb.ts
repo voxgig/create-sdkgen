@@ -7,6 +7,7 @@ import {
   Copy,
   Folder,
   snakify,
+  names,
 } from '@voxgig/sdkgen';
 
 import { Test } from "./Test_rb";
@@ -17,52 +18,62 @@ const Main = cmp(async function Main(props: any) {
   const { build } = props;
   const { model } = props.ctx$;
 
-  const entity = model.main.sdk.entity;
+  const { entity, feature } = model.main.sdk
 
   Copy({ from: "tm/" + build.name + "/Gemfile", name: "Gemfile" });
   Copy({ from: "tm/" + build.name + "/" + 'tm.gemspec', name: snakify(model.Name) + "_sdk.gemspec" });
   Copy({ from: "tm/" + build.name + "/Rakefile", name: "Rakefile" });
   Copy({ from: "tm/" + build.name + "/.env.example", name: ".env.example" });
-  
-//   File({ name: ".env.example" }, () => {
-//     Content(`
-// ${model.NAME}_ENDPOINT=<URL>
-// ${model.NAME}_APIKEY=<API_KEY>
-//     `)
-//   })
+
 
   Test({ model, build });
   Error({ model, build });
 
-  Folder({ name: "lib" }, () => {
-    File({ name: snakify(model.Name) + "_sdk.rb" }, () => {
-            Content(`
-# ${model.Name} ${build.name} SDK
+  Folder({ name: "src" }, () => {
+    File({ name: snakify(model.Name) + "_sdk." + build.name }, () => {
+            
+      Content(`
 require 'json'
 require 'net/http'
 require 'digest'
 require 'securerandom'
-    `);
+      `);
     
-each(entity, (entity: any) => {
-entity.Name = camelify(entity.name);
-Content(`
+      each(entity, (entity: any) => {
+        entity.Name = camelify(entity.name);
+        Content(`
 require_relative './${snakify(model.Name)}_sdk/${snakify(entity.Name)}'
-    `);
-            });
+        `);
+      });
+      
+      each(feature, (feature: any) => {
+        names(feature, feature.name)
+        Content(`
+require_relative './telemetry/${feature.Name}Feature'
+        `);
+      });
     
-            const validate_options = each(build.options).reduce(
-            (a: string, opt: any) =>
-                a +
-                ("String" === opt.kind
-                ? `    required('String','${opt.name}', @options)\n`
-                : ""),
-            ""
-            );
-    
-            Content(`
+      const validate_options = each(build.options).reduce(
+      (a: string, opt: any) =>
+          a +
+          ("String" === opt.kind
+          ? `    required('String','${opt.name}', @options)\n`
+          : ""),
+      ""
+      );
+      
+      const features = each(feature).map((feature: any) => {
+        const configStr = feature.config ? Object.entries(feature.config)
+          .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+          .join(', ') : ''
+        return `
+          ${feature.name}: ${feature.Name}Feature.new(self, {${configStr}})
+        `
+      }).join('\n')
+
+      Content(`
 class ${model.Name}SDK
-  attr_reader :options, :initialized
+  attr_reader :options, :features
 
   def initialize(options)
       @options = options
@@ -70,20 +81,13 @@ class ${model.Name}SDK
       @options[:fetch] ||= ->(url, spec) {
           default_fetch(url, spec)
       }
-      @initialized = false
-  end
 
-  def init
-    @initialized = true unless @initialized
-    # perform any initialization here
-  end
-
-  def ensure_initialized
-    init unless @initialized
+      @features = {
+${features}
+      }
   end
 
   def authentication(method, ent, path)
-    ensure_initialized
     bearer_auth = -> { 'Bearer ' + options[:apikey] }
 
     auth_map = {
@@ -95,20 +99,19 @@ class ${model.Name}SDK
 
 
   def endpoint(op, ent)
-    ensure_initialized
     data = ent.data || ent.query
     definition = ent.def
     base_url = "#{options[:endpoint]}/#{definition[:name]}"
 
     if (op == 'load' || op == 'remove') && data[:id] != nil
-      "#{base_url}/#{data[:id]}"
+      url = "#{base_url}/#{data[:id]}"
     else
-      base_url
+      url = base_url
     end
+    return url
   end
 
   def method(op, ent)
-    ensure_initialized
     {
       'create' => 'POST',
       'save' => 'PUT',
@@ -140,7 +143,6 @@ Content(`
   end
 
   def cmd
-    ensure_initialized
     ${model.Name}SDKCmd.new(self)
   end
 
@@ -156,7 +158,10 @@ Content(`
       },
       body: 'GET' == method || 'DELETE' == method ? nil : self.body(op, ent),
     }
-    #puts "spec[body]: #{spec[:body]}"
+    puts "url: #{url}"
+    puts "method: #{method}"
+    puts "headers: #{spec[:headers]}"
+    puts "body: #{spec[:body]}"
     spec
   end
     
@@ -170,7 +175,6 @@ Content(`
   end
 
   def default_fetch(url, spec)
-    ensure_initialized
     uri = URI(url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.scheme == "https")

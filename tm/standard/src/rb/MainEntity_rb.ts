@@ -7,7 +7,6 @@ const MainEntity = cmp(async function MainEntity(props: any) {
 
   Content(`
   def ${entity.Name}
-    ensure_initialized
     ${entity.Name}.new(self)
   end
 

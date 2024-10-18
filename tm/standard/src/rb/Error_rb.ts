@@ -10,7 +10,7 @@ const Error = cmp(function Error(props: any) {
   const { build, entity } = props;
   const { model } = props.ctx$;
 
-  Folder({ name: "lib" }, () => {
+  Folder({ name: "src" }, () => {
     Folder({ name: snakify(model.Name) + "_sdk" }, () => {
       File({ name: "errors.rb" }, () => {
         Content(`

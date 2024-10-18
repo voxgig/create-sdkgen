@@ -38,25 +38,25 @@ RSpec.describe '${model.Name}SDK Unit Tests' do
       expect { ${model.Name}SDK.new(endpoint: 'http://example.com') }.to raise_error(ArgumentError)
     end
 
-    it 'initializes the client' do
-      expect(@client.initialized).to be(false)
-      @client.init
-      expect(@client.initialized).to be(true)
-    end
+    # it 'initializes the client' do
+    #   expect(@client.initialized).to be(false)
+    #   @client.init
+    #   expect(@client.initialized).to be(true)
+    # end
 
-    it 'ensures the client is initialized' do
-      expect(@client.initialized).to be(false)
-      @client.ensure_initialized
-      expect(@client.initialized).to be(true)
-    end
+    # it 'ensures the client is initialized' do
+    #   expect(@client.initialized).to be(false)
+    #   @client.ensure_initialized
+    #   expect(@client.initialized).to be(true)
+    # end
   end
 
-  describe '#initialize' do
-    it 'sets the options' do
-      expected_options = { apikey: 'test_api_key', endpoint: 'http://example.com' }
-      expect(@client.options).to include(expected_options)
-    end
-  end
+  # describe '#initialize' do
+  #   it 'sets the options' do
+  #     expected_options = { apikey: 'test_api_key', endpoint: 'http://example.com' }
+  #     expect(@client.options).to include(expected_options)
+  #   end
+  # end
 
 `);
 

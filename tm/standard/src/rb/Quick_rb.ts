@@ -28,7 +28,7 @@ const Quick = cmp(function Quick(props: any) {
     Content(`
 require 'dotenv'
 Dotenv.load
-require_relative '../lib/${model.name}_sdk'
+require_relative '../src/${model.name}_sdk'
 
 def run
 
@@ -37,9 +37,7 @@ def run
       endpoint: ENV['${model.NAME}_ENDPOINT'],
       apikey: ENV['${model.NAME}_APIKEY'],
       debug: true, 
-      page: {
-        debug: true
-      }
+      ${featureOptions}
     }
   )
 `) 
