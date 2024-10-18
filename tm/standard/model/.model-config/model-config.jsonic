@@ -4,10 +4,12 @@
 
 sys: model: builders: {
   sdk: load: 'build/sdk.js'
+  doc: load: 'build/doc.js'
 }
 
 sys: model: watch: {
   'dist': {}
   'tm': {}
   'def': {}
+  'doc/static/src': {}
 }

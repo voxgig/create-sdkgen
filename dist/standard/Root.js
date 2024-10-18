@@ -16,7 +16,10 @@ const Root = (0, jostraca_1.cmp)(function Root(props) {
     ctx$.model = model;
     (0, jostraca_1.Project)({ folder }, () => {
         // console.log('FOLDER', folder)
-        (0, jostraca_1.Copy)({ from: __dirname + '/../../tm/standard' });
+        (0, jostraca_1.Copy)({
+            from: __dirname + '/../../tm/standard',
+            exclude: ['.env.local']
+        });
         const def = model.def.filepath;
         if (null != def && '' !== def) {
             (0, jostraca_1.Folder)({ name: 'def' }, () => {
