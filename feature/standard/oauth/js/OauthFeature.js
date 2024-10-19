@@ -17,42 +17,26 @@ class OauthFeature {
 
   // If defined, pass in request spec
   async modifyRequest(ctx) {
-    const configOptions = this.config.option
+    const defaultTokenUri = process.env.OAUTH_TOKEN_URI
+    const defaultHeaders = {
+      accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
 
-    const tokenUri = process.env[this.options.tokenUri
-      || configOptions.tokenUri.defval]
+    const clientSpec = this.options.clientSpec || {
+      uri: defaultTokenUri,
+      headers: defaultHeaders,
+    }
 
-    const clientId = process.env[this.options.clientId
-      || configOptions.clientId.defval]
+    const refreshSpec = this.options.refreshSpec || {
+      uri: defaultTokenUri,
+      headers: defaultHeaders,
+    }
 
-    const clientSecret = process.env[this.options.clientSecret
-      || configOptions.clientSecret.defval]
-
-    const credentialsKey = this.options.credentialsKey
 
     const oAuthClient = new Oauth2({
-      clientSpec: {
-        uri: tokenUri,
-        headers: this.options.clientHeaders
-          || {
-          accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-          authorization: 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')
-        },
-        params: this.options.clientParams,
-        credentialsKey
-      },
-      refreshSpec: {
-        uri: tokenUri,
-        headers: this.options.refreshHeaders
-          || {
-          accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Client-Id': clientId,
-        },
-        params: this.options.refreshParams,
-        credentialsKey
-      }
+      clientSpec: clientSpec,
+      refreshSpec: refreshSpec
     })
 
     const token = await oAuthClient.getToken()

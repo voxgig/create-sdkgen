@@ -1,4 +1,4 @@
-return: 'promise'
+return: 'async'
 
 option: debug: {
   type: Boolean
@@ -6,61 +6,16 @@ option: debug: {
   defval: false
 }
 
-# option to specify the server uri env variable key
-option: tokenUri: {
-  type: String
-  required: true 
-  defval: 'OAUTH_TOKEN_URI'
-}
-
-# option to specify the client id env variable key
-option: clientId: {
-  type: String
-  required: true 
-  defval: 'OAUTH_CLIENT_ID'
-}
-
-# option to specify the client secret env variable key
-option: clientSecret: {
-  type: String
-  required: true 
-  defval: 'OAUTH_CLIENT_SECRET'
-}
-
-# option to specify the key to access the credentials on nested server response
-option: credentialsKey: {
-  type: String
-  required: false 
-  defval: 'data'
-}
-
-# option to specify the headers structure to be sent on grant client credentials
-option: clientHeaders: {
-  type: Object 
-  required: false 
+# option to specify the structure to be sent on grant client credentials
+option: clientSpec: {
+  type: Object
+  required: false
   defval: {}
 }
 
-# option to specify the headers structure to be sent on refreshToken
-option: refreshHeaders: {
-  type: Object 
-  required: false 
-  defval: {}
-}
-
-# option to specify additional parameters on grant client credentials
-# default: grant_type => client_credentials
-option: clientParams: {
-  type: Object 
-  required: false 
-  defval: {}
-}
-
-# option to specify additional parameters on refresh token
-# default: grant_type => refresh_token
-# default: refresh_token => server_provided_refresh_token
-option: refreshParams: {
-  type: Object 
-  required: false 
+# option to specify the structure to be sent on refresh token
+option: refreshSpec: {
+  type: Object
+  required: false
   defval: {}
 }
