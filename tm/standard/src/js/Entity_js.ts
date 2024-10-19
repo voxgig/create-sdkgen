@@ -29,7 +29,7 @@ const Entity = cmp(function Entity(props: any) {
       }).join('')
 
       const modifyResult = each(model.main.sdk.feature).map((feature: any) => {
-        if (feature.name == 'ratelimiter') {
+        if(feature.name == 'ratelimiter') {
           return ''
         }
         return `
