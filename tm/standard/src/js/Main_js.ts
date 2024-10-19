@@ -47,8 +47,8 @@ const { ${entity.Name} } = require('./${entity.Name}')
             `    required('string','${opt.name}',options)\n` : ''), '')
 
       const features = each(feature).map((feature: any) => `
-${feature.name}: new ${feature.Name}Feature(this, ${JSON.stringify(feature.config || {})}),
-`).join('\n')
+${feature.name}: new ${feature.Name}Feature(this, ${JSON.stringify(feature.config || {})})
+`).join(',\n')
 
 
       Content(`

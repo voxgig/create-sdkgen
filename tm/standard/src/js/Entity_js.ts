@@ -19,10 +19,9 @@ const Entity = cmp(function Entity(props: any) {
     spec = await this.sdk().features.${feature.name}.modifyRequest(ctx)
     `
         }
-        if (feature.name == 'ratelimiter') {
+        if(feature.name == 'ratelimiter') {
           return `
     await this.sdk().features.${feature.name}.tryAcquire()`
-
         }
         return `
     spec = this.sdk().features.${feature.name}.modifyRequest(ctx)
