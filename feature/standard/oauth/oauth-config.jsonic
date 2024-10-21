@@ -1,0 +1,21 @@
+return: 'async'
+
+option: debug: {
+  type: Boolean
+  required: false
+  defval: false
+}
+
+# option to specify the structure to be sent on grant client credentials
+option: clientSpec: {
+  type: Object
+  required: false
+  defval: {}
+}
+
+# option to specify the structure to be sent on refresh token
+option: refreshSpec: {
+  type: Object
+  required: false
+  defval: {}
+}
