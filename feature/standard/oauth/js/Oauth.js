@@ -44,7 +44,7 @@ class Oauth2 {
     const token = credentialsData?.access_token
 
     if (!token) {
-      console.info("Response properties returned: ", Object.keys(resData))
+      console.log("Response properties returned: ", Object.keys(resData))
       throw new Error("OAuth2 Client " +
         "client credentials response doesn't have access_token property")
     }
@@ -77,7 +77,8 @@ class Oauth2 {
     const token = credentialsData?.access_token
 
     if (!token) {
-      console.log("OAuth2 Client Refresh missing access_token ", credentialsData)
+      console.log("OAuth2 Client Refresh missing access_token properties: ",
+        Object.keys(resData))
       this.#grantClientCredentials()
     }
 
