@@ -1,4 +1,6 @@
 
+// A
+
 class PageFeature {
   client
   config
@@ -9,10 +11,11 @@ class PageFeature {
     this.client = client
     this.config = config
 
-    console.log('PAGE CONFIG', config)
+    // console.log('PAGE CONFIG', config)
 
     // Options for this feature appear under the `page` key
-    this.options = client.options.page
+    // TODO: deep override of defaults
+    this.options = client.options().page || {}
   }
 
 

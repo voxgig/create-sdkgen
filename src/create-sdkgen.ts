@@ -35,7 +35,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
   async function generate(spec: any) {
     const now = Date.now()
-    // console.log('CREATE SDK', now, new Date(now), spec)
+    console.log('CREATE SDK', now, new Date(now), spec)
 
     const { model } = spec
 
@@ -63,7 +63,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
     await generate(spec)
 
     fsw.on('change', (args: any[]) => {
-      // console.log('CHANGE', args)
+      console.log('CHANGE', args)
 
       const dorun = 1111 < Date.now() - last_change_time
 

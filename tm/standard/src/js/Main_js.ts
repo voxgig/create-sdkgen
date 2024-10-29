@@ -54,7 +54,7 @@ ${feature.name}: new ${feature.Name}Feature(this, ${JSON.stringify(feature.confi
       Content(`
     
 class ${model.Name}SDK {
-  options
+  #options
   features
 
   static make(options) {
@@ -63,11 +63,11 @@ class ${model.Name}SDK {
 
 
   constructor(options) {
-    this.options = options
+    this.#options = options
 
 ${validate_options}
 
-    this.options.fetch = this.options.fetch || fetch
+    this.#options.fetch = this.#options.fetch || fetch
 
     this.features = {
 ${features}
@@ -75,11 +75,35 @@ ${features}
   }
 
 
-  endpoint(op,ent) {
-    let data = ent.data || {}
-    let def = ent.def
-    // Make this code depend on openapi spec
-    return this.options.endpoint + '/' + def.name + ((op === 'load' || op === 'remove') && data.id ? '/' + data.id : '')
+  options() {
+    return { ...this.#options }
+  }
+
+
+
+  endpoint(ctx) {
+    const { opdef, entity } = ctx
+    let fullpath = this.#options.endpoint + opdef.path
+
+console.log('ENDPOINT-START', opdef, entity)
+
+    for(let queryKey in entity.query) {
+      const param = opdef.param[queryKey]
+      if(param) { 
+        const paramVal = entity.query[param.name]
+console.log('ENDPOINT PARAM', paramKey, paramVal)
+        fullpath = fullpath.replace(RegExp('{'+paramKey+'}'), paramVal)
+      }
+    }
+
+    console.log('ENDPOINT', fullpath)
+
+    return fullpath
+
+    // let data = ent.data || {}
+    // let def = ent.def
+    // // Make this code depend on openapi spec
+    // return this.#options.endpoint + '/' + def.name + ((op === 'load' || op === 'remove') && data.id ? '/' + data.id : '')
   }
 
   method(op,ent) {
@@ -102,19 +126,22 @@ ${features}
     const { op } = ctx
     const method = this.method(op, ctx.entity)
 
+/*
     let qpairs = Object.entries(ctx.entity.query)
       .filter(entry=>!entry[0].includes('$'))
       .reduce((qp,entry)=>
          (qp.push(encodeURIComponent(entry[0])+'='+encodeURIComponent(entry[1])),qp),[])
 
     let query = 0===qpairs.length?'':'?'+(qpairs.join('&'))
+*/
 
     const spec = {
-      url: this.endpoint(op, ctx.entity)+query,
+// url: this.endpoint(ctx)+query,
+      url: this.endpoint(ctx),
       method,
       headers: {
         'content-type': 'application/json',
-        'authorization': 'Bearer '+this.options.apikey
+        'authorization': 'Bearer '+this.#options.apikey
       },
       body: 'GET' === method || 'DELETE' === method ? undefined : this.body(op, ctx.entity),
     }

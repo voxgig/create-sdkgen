@@ -36,7 +36,7 @@ function CreateSdkGen(opts) {
     const rootpath = opts.rootpath;
     async function generate(spec) {
         const now = Date.now();
-        // console.log('CREATE SDK', now, new Date(now), spec)
+        console.log('CREATE SDK', now, new Date(now), spec);
         const { model } = spec;
         const ctx$ = { fs, folder, meta: { spec } };
         clear();
@@ -55,7 +55,7 @@ function CreateSdkGen(opts) {
         let last_change_time = 0;
         await generate(spec);
         fsw.on('change', (args) => {
-            // console.log('CHANGE', args)
+            console.log('CHANGE', args);
             const dorun = 1111 < Date.now() - last_change_time;
             if (dorun) {
                 last_change_time = Date.now();

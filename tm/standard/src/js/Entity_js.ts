@@ -14,10 +14,10 @@ const Entity = cmp(function Entity(props: any) {
     File({ name: entity.Name + '.' + build.name }, () => {
 
       const modifyRequest = each(model.main.sdk.feature).map((feature: any) => {
-        if(feature.name == 'ratelimiter') {
+        if (feature.name == 'ratelimiter') {
           return `
     await this.sdk().features.${feature.name}.tryAcquire()`
-        
+
         }
         return `
     spec = this.sdk().features.${feature.name}.modifyRequest(ctx)
@@ -25,7 +25,7 @@ const Entity = cmp(function Entity(props: any) {
       }).join('')
 
       const modifyResult = each(model.main.sdk.feature).map((feature: any) => {
-        if(feature.name == 'ratelimiter') {
+        if (feature.name == 'ratelimiter') {
           return ''
         }
         return `
@@ -77,7 +77,7 @@ class ${entity.Name} {
 
     let spec = ctx.spec = this.sdk().fetchSpec(ctx,this)
     ${modifyRequest}
-    const res = await this.sdk().options.fetch(spec.url,spec)
+    const res = await this.sdk().options().fetch(spec.url,spec)
 
     return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
@@ -101,7 +101,7 @@ class ${entity.Name} {
       console.log('FETCH-create', spec)
     }
 
-    const res = await this.sdk().options.fetch(spec.url,spec) 
+    const res = await this.sdk().options().fetch(spec.url,spec) 
 
     return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
@@ -114,9 +114,11 @@ class ${entity.Name} {
 
       Content(`
   async load(query) {
-    const ctx = {op:'load',entity:this}
+    const ctx = {op:'load',entity:this,opdef:${JSON.stringify(entity.op.load)}}
     this.data = {}
     this.query = query || {}
+
+    // console.log(${JSON.stringify(entity.op.load)})
 
     let spec = ctx.spec = this.sdk().fetchSpec(ctx,this)
     ${modifyRequest}
@@ -125,7 +127,7 @@ class ${entity.Name} {
       console.log('FETCH-load', spec)
     }
 
-    const res = await this.sdk().options.fetch(spec.url,spec)
+    const res = await this.sdk().options().fetch(spec.url,spec)
 
     return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
@@ -144,7 +146,7 @@ class ${entity.Name} {
 
     let spec = ctx.spec = this.sdk().fetchSpec(ctx,this)
     ${modifyRequest}
-    const res = await this.sdk().options.fetch(spec.url,spec)
+    const res = await this.sdk().options().fetch(spec.url,spec)
 
     return this.handleResult(ctx, res, spec, (json)=>{
       this.data = json
@@ -167,7 +169,7 @@ class ${entity.Name} {
       console.log('FETCH-load', spec)
     }
 
-    const res = await this.sdk().options.fetch(spec.url,spec)
+    const res = await this.sdk().options().fetch(spec.url,spec)
 
     return this.handleResult(ctx, res, spec, (json)=>{
       return json.list.map(data=>this.sdk().${entity.Name}(data))

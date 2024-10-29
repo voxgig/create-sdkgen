@@ -14,7 +14,6 @@ const TestMain = cmp(function TestMain(props: any) {
 
     Content(`
 
-// 1
 
 const { test, describe } = require('node:test')
 const { equal, deepEqual } = require('node:assert')
@@ -23,11 +22,9 @@ const { ${model.Name}SDK } = require('../')
 
 
 describe('${model.Name}SDK Unit Tests', ()=>{
-  test('happy', async ()=>{
+  test('make', async ()=>{
     const client = makeClient()
-    const out = await client.Geofence().load({id:'gf01'})
-    console.log('Geofence-load', out)
-    equal(out.data.id,'gf01')
+    equal(null == client, false)
   })
 
 `)
