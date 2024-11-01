@@ -33,50 +33,6 @@ const TestEntity = cmp(function TestEntity(props: any) {
     end
 `);
 
-  // const entityTestCases: Record<string,any> = {
-  //   create: {
-  //     requestBody: `{ id: 't01', title: 'T01' }`,
-  //     responseBody: `{ id: 't01', title: 'T01' }`,
-  //     description: 'creates the entity with the correct data'
-  //   },
-  //   save: {
-  //     requestBody: `{ id: 't01', title: 'T01' }`,
-  //     responseBody: `{ id: 't01', title: 'T01' }`,
-  //     description: 'saves the entity with the correct data'
-  //   },
-  //   load: {
-  //     idParam: 't01',
-  //     requestBody: `{ id: 't01' }`,
-  //     responseBody: `{ id: 't01', title: 'T01' }`,
-  //     description: 'loads the entity with the correct data'
-  //   },
-  //   list: {
-  //     responseBody: `{ name: '${entity.name}', list: [{ id: 't01', title: 'T01' }, { id: 't02', title: 'T02' }]}`,
-  //     description: 'lists the entities with the correct data'
-  //   },
-  //   remove: {
-  //     idParam: 't01',
-  //     requestBody: `{ id: 't01' }`,
-  //     description: 'removes the entity with the correct data'
-  //   },
-  // }
-
-  // Object.keys(entity.op).forEach((op: any) => {
-  //   const testData = entityTestCases[op];
-  //   Content(`
-
-  //     describe('${entity.name}-${op}') do
-  //       it '${testData.description}' do
-  //         stub_request(:${entity.op[op].method}, "http://example.com/${entity.name}${testData.idParam ? `/${testData.idParam}` : ''}")
-  //         .to_return(body: ${testData.responseBody ? testData.responseBody : `''`}.to_json, headers: { 'Content-Type' => 'application/json' })
-
-  //         out = @client.${entity.Name}().${op}(${testData.requestBody ? testData.requestBody : ``})
-  //         expect(${op == 'list' ? 'out' : 'out.data'}).to eq(${testData.responseBody ? testData.responseBody : ''})
-  //       end
-  //     end
-
-  //   `);
-  // })
 });
 
 export { TestEntity };

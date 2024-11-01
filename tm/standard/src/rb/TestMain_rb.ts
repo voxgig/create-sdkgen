@@ -15,28 +15,39 @@ const TestMain = cmp(function TestMain(props: any) {
 
   File({ name: snakify(model.name) + "_sdk_spec.rb" }, () => {
     Content(`
-RSpec.describe '${model.Name}SDK::Client Unit Tests' do  
+RSpec.describe '${model.Name}SDK Unit Tests' do  
   before(:each) do
-    ${model.Name}SDK.configure do |config|
-      config.options = {
-        endpoint: 'http://example.com',
+    @client = ${model.Name}SDK.new(
+      endpoint: 'http://example.com',
         apikey: 'test_api_key',
-      }
-    end
-    @client = ${model.Name}SDK::Client.new
+    )
   end
 
-  describe '.configure' do
+  describe 'initialize' do
     it 'creates a new client with the given options' do
       expected_options = { apikey: 'test_api_key', endpoint: 'http://example.com' }
-      expect(@client).to be_a(${model.Name}SDK::Client)
+      expect(@client).to be_a(${model.Name}SDK)
       expect(@client.options).to include(expected_options)
     end
 
-    it 'merges the options with the default options' do
-      expected_options = { apikey: 'another_api_key', endpoint: 'http://example.com' }
-      another_client = ${model.Name}SDK::Client.new(apikey: 'another_api_key')
-      expect(another_client.options).to include(expected_options)
+    it 'raises an error if the endpoint is not set' do
+      expect { ${model.Name}SDK.new(apikey: 'test_api_key') }.to raise_error(ArgumentError)
+    end
+
+    it 'raises an error if the apikey is not set' do
+      expect { ${model.Name}SDK.new(endpoint: 'http://example.com') }.to raise_error(ArgumentError)
+    end
+
+    it 'initializes the client' do
+      expect(@client.initialized).to be(false)
+      @client.init
+      expect(@client.initialized).to be(true)
+    end
+
+    it 'ensures the client is initialized' do
+      expect(@client.initialized).to be(false)
+      @client.ensure_initialized
+      expect(@client.initialized).to be(true)
     end
   end
 
