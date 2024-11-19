@@ -1,6 +1,0 @@
-
-title: Ruby
-
-module: name: '$ModuleName'
-
-option: $.main.sdk.option

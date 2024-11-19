@@ -1,8 +1,0 @@
-
-
-function foo() { }
-
-
-export {
-  foo
-}

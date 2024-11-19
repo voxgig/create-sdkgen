@@ -1,7 +1,7 @@
 
 
 import Path from 'node:path'
-
+import * as Fs from 'node:fs'
 
 import {
   names,
@@ -22,44 +22,38 @@ import { ModelSdk } from './ModelSdk'
 
 // TODO: rename to RootSdk
 const Root = cmp(function Root(props: any) {
-  const { model, ctx$ } = props
-
-  const { folder, meta } = ctx$
-  const { spec } = meta
-
-  // names(model, model.name)
+  const { ctx$, ctx$: { folder }, spec, model } = props
 
   ctx$.model = model
 
   Project({ folder }, () => {
-
-    // console.log('FOLDER', folder)
     Copy({
       from: __dirname + '/../../tm/standard',
-      exclude: ['.env.local']
+      exclude: ['generate/.env.local']
     })
 
-    const def = model.def.filepath
-    if (null != def && '' !== def) {
+    const origdef = spec.def
+    const projdef = Path.basename(origdef)
+    spec.def = projdef
+
+    Folder({ name: 'generate' }, () => {
       Folder({ name: 'def' }, () => {
-        Copy({ from: def, name: Path.basename(def) })
+        if (Fs.existsSync(origdef)) {
+          Copy({ from: origdef, to: projdef })
+        }
+        else {
+          File({ name: projdef }, () => {
+            Content('# Insert OpenAPI Definition here')
+          })
+        }
       })
-    }
 
-    Folder({ name: 'model' }, () => {
-      ModelSdk({})
-    })
-
-    Folder({ name: 'feature' }, () => {
-      each(model.feature).map((feature: any) => {
-        Folder({ name: feature.name }, () => {
-          Copy({ from: __dirname + '/../../feature/standard/' + feature.name })
-        })
+      Folder({ name: 'model' }, () => {
+        ModelSdk({ spec })
       })
     })
 
   })
-
 })
 
 

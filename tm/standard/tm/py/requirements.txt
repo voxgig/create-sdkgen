@@ -1,4 +1,0 @@
-pytest
-python-dotenv
-pydantic
-requests

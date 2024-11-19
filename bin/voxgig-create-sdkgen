@@ -1,0 +1,196 @@
+#!/usr/bin/env node
+
+const Path = require('node:path')
+const { statSync } = require('node:fs')
+const { parseArgs } = require('node:util')
+
+const { Gubu, Fault } = require('gubu')
+
+const Pkg = require('../package.json')
+
+const { CreateSdkGen } = require('../dist/create-sdkgen.js') 
+
+const rootpath = require.resolve('../dist/standard/Root')
+
+let CONSOLE = console
+
+
+try {
+  let options = resolveOptions()
+
+  if(options.debug) {
+    DEBUG = true
+  }
+
+  if(options.version) {
+    version()
+  }
+
+  if(options.help) {
+    help()
+  }
+
+  if(options.version || options.help) {
+    exit()
+  }
+
+  options = validateOptions(options)
+
+  generate(options)
+}
+catch(err) {
+  handleError(err)
+}
+
+
+
+function exit(err) {
+  let code = 0
+  if(err) {
+    code = 1
+  }
+  process.exit(code)
+}
+
+
+function generate(options) {
+  const createSdkGen = CreateSdkGen({
+    debug: options.debug
+  })
+
+
+  const spec = {
+    name: options.name,
+    root: './standard/Root',
+    def: options.def,
+  }
+  
+  createSdkGen.generate(spec)
+}
+
+
+
+function resolveOptions() {
+
+  let args
+
+  try {
+    args = parseArgs({
+      allowPositionals: true,
+      options: {
+        def: {
+          type: 'string',
+          short: 'd',
+          default: ''
+        },
+
+        debug: {
+          type: 'string',
+          short: 'g',
+          default: 'info'
+        },
+        
+        help: {
+          type: 'boolean',
+          short: 'h',
+        },
+        
+        version: {
+          type: 'boolean',
+          short: 'v',
+        },
+        
+      }
+    })
+  }
+  catch(err) {
+    if('ERR_PARSE_ARGS_UNKNOWN_OPTION' === err.code) {
+      handleError(err.message.replace(/\. .+$/,'.'))
+    }
+    throw err
+  }
+
+  // Set fake name if -v or -h used.
+  let name = args.positionals[0]
+  name = null == name ? '' : name
+  name = '' === name && (args.values.help || args.values.version) ? '__none__' : name
+  
+  const options = {
+    name,
+    def: args.values.def,
+    debug: !!args.values.debug,
+    help: !!args.values.help,
+    version: !!args.values.version,
+  }
+
+  return options
+}
+
+
+function validateOptions(rawOptions) {
+  const optShape = Gubu({
+    name: Fault('The first argument must be the project name.', String),
+    def: '',
+    debug: Boolean,
+    help: Boolean,
+    version: Boolean,
+  })
+
+  const err = []
+  const options = optShape(rawOptions,{err})
+
+  if(err[0]) {
+    handleError(err[0].text)
+  }
+
+  return options
+}
+
+
+function handleError(err) {
+  CONSOLE.log('Voxgig Create SDK Error: '+err)
+  exit(err)
+}
+
+
+function version() {
+  CONSOLE.log(Pkg.version)
+}
+
+
+function help() {
+  let s = `
+Create a Voxgig SDK Generator project.
+
+Usage: npm create @voxgig/sdkgen@latest <name> <args> 
+
+  <name> is the name of the SDK project. This is also used to
+    create a project folder. If run against an existing folder
+    generated files will be overwritten.
+
+  <args> are the command arguments:
+
+    --def        Path to the OpenAPI definition file (optional).
+    -d            
+
+    --debug      Set log level (default: info): trace, error, debug, info, warn, fatal.
+    -g             
+
+    --help       Print this help message.
+    -h
+
+    --version    Print version number.
+    -v
+
+
+Examples:
+
+# Basic usage
+> npm create @voxgig/sdkgen@latest foo
+# Creates the SDK Project in the folder ./foo
+
+See also: https://voxgig.com/sdkgen
+`
+
+  CONSOLE.log(s)
+}

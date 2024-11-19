@@ -1,17 +1,17 @@
+import { Pino } from '@voxgig/util';
 type FullCreateSdkGenOptions = {
-    folder: string;
-    fs: any;
-    model: any;
-    meta: any;
-    rootpath: string;
+    fs?: any;
+    debug?: boolean | string;
+    pino?: ReturnType<typeof Pino>;
 };
 type CreateSdkGenOptions = Partial<FullCreateSdkGenOptions>;
 type GenerateSpec = {
-    watch: string[];
+    name: string;
+    def: string;
+    root: string;
 };
 declare function CreateSdkGen(opts: FullCreateSdkGenOptions): {
-    generate: (spec: any) => Promise<void>;
-    watch: (spec: GenerateSpec) => Promise<void>;
+    generate: (spec: GenerateSpec) => Promise<void>;
 };
 export type { CreateSdkGenOptions, };
 export { CreateSdkGen, };

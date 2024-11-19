@@ -17,7 +17,7 @@
     "url": "git://github.com/voxgig/create-sdkgen.git"
   },
   "bin": {
-    "create-sdkgen": "bin/run-create-sdkgen.js"
+    "create-sdkgen": "bin/voxgig-create-sdkgen.js"
   },
   "scripts": {
     "test": "node --enable-source-maps --test dist-test",
@@ -40,15 +40,16 @@
   ],
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@types/node": "22.8.4",
+    "@types/node": "22.9.0",
     "esbuild": "^0.24.0",
     "memfs": "^4.14.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "aontu": "^0.23.0",
+    "@voxgig/util": "^0.0.6",
+    "aontu": "^0.25.1",
     "chokidar": "^4.0.1",
     "gubu": "^8.3.0",
-    "jostraca": "^0.7.7"
+    "jostraca": "^0.8.1"
   }
 }

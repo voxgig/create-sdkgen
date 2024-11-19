@@ -1,26 +1,28 @@
 /* Copyright (c) 2024 Richard Rodger, MIT License */
 
 import * as Fs from 'node:fs'
+import Path from 'node:path'
 
-import { FSWatcher } from 'chokidar'
+import { prettyPino, Pino } from '@voxgig/util'
 
 import * as JostracaModule from 'jostraca'
 
 
 
 type FullCreateSdkGenOptions = {
-  folder: string
-  fs: any
-  model: any
-  meta: any
-  rootpath: string
+  fs?: any
+  debug?: boolean | string
+  pino?: ReturnType<typeof Pino>
+
 }
 
 type CreateSdkGenOptions = Partial<FullCreateSdkGenOptions>
 
 
 type GenerateSpec = {
-  watch: string[]
+  name: string // Name of SDK project.
+  def: string // Path to OpenAPI definition file, copied into SDK project.
+  root: string // Path to Root template component.
 }
 
 
@@ -29,107 +31,43 @@ const { each, names, Jostraca } = JostracaModule
 
 function CreateSdkGen(opts: FullCreateSdkGenOptions) {
   const fs = opts.fs || Fs
-  const folder = opts.folder || '.'
+  const pino = prettyPino('create', opts)
+  const log = pino.child({ cmp: 'create' })
+
   const jostraca = Jostraca()
-  const rootpath = opts.rootpath as string
 
-  async function generate(spec: any) {
-    const now = Date.now()
-    console.log('CREATE SDK', now, new Date(now), spec)
+  async function generate(spec: GenerateSpec) {
+    const start = Date.now()
 
-    const { model } = spec
+    log.info({ point: 'generate-start', start })
+    log.debug({ point: 'generate-spec', spec, note: JSON.stringify(spec, null, 2) })
 
-    const ctx$ = { fs, folder, meta: { spec } }
+    const rootModule: any = require(spec.root)
+    const Root = rootModule.Root
 
-    clear()
-    const { Root } = require(rootpath)
+    const name = spec.name
+    spec.def = (null == spec.def || '' === spec.def) ? name + '-openapi3.yml' : spec.def
 
-    completeModel(model)
+    const folder = Path.join(process.cwd(), name + (name.endsWith('-sdk') ? '' : '-sdk'))
 
-    try {
-      await jostraca.generate(ctx$, () => Root({ model }))
+    const opts = { fs, folder, log: log.child({ cmp: 'jostraca' }), meta: { spec } }
+
+    const model = {
+      name,
+      year: new Date().getFullYear(),
     }
-    catch (err: any) {
-      console.log('CREATE SDKGEN ERROR: ', err)
-      throw err
-    }
+
+    names(model, model.name)
+
+    log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) })
+
+    await jostraca.generate(opts, () => Root({ model, spec }))
+
+    log.info({ point: 'generate-end' })
   }
-
-
-  async function watch(spec: GenerateSpec) {
-    const fsw = new FSWatcher()
-    let last_change_time = 0
-
-    await generate(spec)
-
-    fsw.on('change', (args: any[]) => {
-      console.log('CHANGE', args)
-
-      const dorun = 1111 < Date.now() - last_change_time
-
-      if (dorun) {
-        last_change_time = Date.now()
-        generate(spec)
-      }
-    })
-
-    spec.watch
-      .map((wf: string) => (__dirname + '/' + wf))
-      // .map((wf: string) => (console.log(wf), wf))
-      .map((wf: string) => fsw.add(wf))
-
-    // generate()
-  }
-
-
-  function clear() {
-    if (rootpath) {
-      clearRequire(rootpath)
-    }
-  }
-
 
   return {
     generate,
-    watch,
-  }
-
-}
-
-
-function completeModel(model: any) {
-  names(model, model.name)
-
-  each(model.feature, (feature: any) => {
-    names(feature, feature.key$)
-  })
-}
-
-
-// Adapted from https://github.com/sindresorhus/import-fresh - Thanks!
-function clearRequire(path: string) {
-  let filePath = require.resolve(path)
-
-  if (require.cache[filePath]) {
-    const children = require.cache[filePath].children.map(child => child.id)
-
-    // Delete module from cache
-    delete require.cache[filePath]
-
-    for (const id of children) {
-      clearRequire(id)
-    }
-  }
-
-
-  if (require.cache[filePath] && require.cache[filePath].parent) {
-    let i = require.cache[filePath].parent.children.length
-
-    while (i--) {
-      if (require.cache[filePath].parent.children[i].id === filePath) {
-        require.cache[filePath].parent.children.splice(i, 1)
-      }
-    }
   }
 
 }

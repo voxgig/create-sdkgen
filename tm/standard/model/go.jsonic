@@ -1,6 +1,0 @@
-
-title: Go
-
-module: name: '$ModuleName'
-
-option: $.main.sdk.option
