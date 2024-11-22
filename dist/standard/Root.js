@@ -34,10 +34,14 @@ const ModelSdk_1 = require("./ModelSdk");
 // TODO: rename to RootSdk
 const Root = (0, jostraca_1.cmp)(function Root(props) {
     const { ctx$, ctx$: { folder }, spec, model } = props;
+    // TODO: move to @voxgig/util as duplicated
+    model.const = { name: model.name };
+    (0, jostraca_1.names)(model.const, model.name);
+    model.const.year = new Date().getFullYear();
     ctx$.model = model;
     (0, jostraca_1.Project)({ folder }, () => {
         (0, jostraca_1.Copy)({
-            from: __dirname + '/../../tm/standard',
+            from: __dirname + '/../../tm',
             exclude: ['generate/.env.local']
         });
         const origdef = spec.def;
@@ -50,7 +54,7 @@ const Root = (0, jostraca_1.cmp)(function Root(props) {
                 }
                 else {
                     (0, jostraca_1.File)({ name: projdef }, () => {
-                        (0, jostraca_1.Content)('# Insert OpenAPI Definition here');
+                        (0, jostraca_1.Content)('# OpenAPI Definition');
                     });
                 }
             });

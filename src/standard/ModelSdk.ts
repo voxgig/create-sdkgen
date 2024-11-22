@@ -21,16 +21,39 @@ const ModelSdk = cmp(function ModelSdk(props: any) {
   File({ name: 'sdk.jsonic' }, () => {
     Content(`
 
-@"../node_modules/@voxgig/sdkgen/model/sdkgen.jsonic"
+# Defaults and type definitions
+@"@voxgig/apidef/model/apidef.jsonic"
+@"@voxgig/sdkgen/model/sdkgen.jsonic"
 
+
+# SDK Details
 name: '${spec.name}'
 def: '${spec.def}'
 
-@"api.jsonic"
 
-main: sdk: entity: $.main.api.entity
+# Generated API description (from external specificaton).
+@"api-generated.jsonic"
 
-main: sdk: option: $.main.api.entity
+
+# Original external specification.
+@"def-generated.jsonic"
+
+
+# Generation guide.
+main: guide: @"guide.jsonic"
+
+
+# SDK Target details.
+main: sdk: target: {}
+
+
+# SDK Entity details.
+main: sdk: entity: {}
+
+
+# SDK Faeture details.
+main: sdk: feature: {}
+
 
 `)
 

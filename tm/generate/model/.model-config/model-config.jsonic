@@ -3,8 +3,9 @@
 @'@voxgig/model/model/.model-config/model-config.jsonic'
 
 sys: model: builders: {
-  sdk: load: 'build/sdk.js'
-  doc: load: 'build/doc.js'
+  apidef: load: 'build/apidef.js'
+  // sdkgen: load: 'build/sdkgen.js'
+  // docgen: load: 'build/docgen.js'
 }
 
 sys: model: watch: {

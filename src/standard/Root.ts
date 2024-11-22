@@ -24,11 +24,16 @@ import { ModelSdk } from './ModelSdk'
 const Root = cmp(function Root(props: any) {
   const { ctx$, ctx$: { folder }, spec, model } = props
 
+  // TODO: move to @voxgig/util as duplicated
+  model.const = { name: model.name }
+  names(model.const, model.name)
+  model.const.year = new Date().getFullYear()
+
   ctx$.model = model
 
   Project({ folder }, () => {
     Copy({
-      from: __dirname + '/../../tm/standard',
+      from: __dirname + '/../../tm',
       exclude: ['generate/.env.local']
     })
 
@@ -43,7 +48,7 @@ const Root = cmp(function Root(props: any) {
         }
         else {
           File({ name: projdef }, () => {
-            Content('# Insert OpenAPI Definition here')
+            Content('# OpenAPI Definition')
           })
         }
       })

@@ -18,38 +18,41 @@ import {
 const Root = cmp(function Root(props: any) {
   const { model, ctx$ } = props
 
-  names(model, model.name)
+  // TODO: move to @voxgig/util as duplicated
+  model.const = { name: model.name }
+  names(model.const, model.name)
+  model.const.year = new Date().getFullYear()
 
   ctx$.model = model
 
-  const build = model.main.sdk.build
+  const target = model.main.sdk.target
   const entity = model.main.sdk.entity
   const feature = model.main.sdk.feature
 
   Project({}, () => {
 
-    each(build, (build: any) => {
-      names(build, build.name)
-      // console.log('BUILD', build.name)
+    each(target, (target: any) => {
+      names(target, target.name)
+      // console.log('TARGET', target.name)
 
-      Folder({ name: build.name }, () => {
+      Folder({ name: target.name }, () => {
 
         each(entity, (entity: any) => {
           names(entity, entity.name)
 
-          Entity({ build, entity })
+          Entity({ target, entity })
         })
 
         each(feature).filter((feature: any) => feature.active).map((feature: any) => {
           names(feature, feature.name)
 
-          Feature({ build, feature })
+          Feature({ target, feature })
         })
 
 
-        Main({ build })
+        Main({ target })
 
-        Readme({ build })
+        Readme({ target })
       })
     })
   })
