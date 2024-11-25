@@ -5,3 +5,16 @@
 # Entity guides.
 entity: {}
 
+
+# Entity guide example.
+# entity: foo: {
+#   path: {
+#     '/foo/{foo_id}': op: {
+#       load: 'get'
+#       list: 'get'
+#       create: 'post'
+#       save: 'put'
+#       remove: 'delete'
+#     }
+#   }
+# }

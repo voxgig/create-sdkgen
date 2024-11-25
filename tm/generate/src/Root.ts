@@ -26,8 +26,18 @@ const Root = cmp(function Root(props: any) {
   ctx$.model = model
 
   const target = model.main.sdk.target
-  const entity = model.main.sdk.entity
   const feature = model.main.sdk.feature
+
+  const entity = model.main.api.entity
+
+  ctx$.log.debug({
+    point: 'cmp-root', target, entity, feature, note: [
+      '\ntarget: \n' + Object.keys(target).map(s => '  ' + s).join('\n'),
+      '\nentity:\n' + Object.keys(entity).map(s => '  ' + s).join('\n'),
+      '\nfeature:\n' + Object.keys(feature).map(s => '  ' + s).join('\n'),
+    ].join('\n')
+  })
+
 
   Project({}, () => {
 

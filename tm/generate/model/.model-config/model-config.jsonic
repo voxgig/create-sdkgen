@@ -4,7 +4,7 @@
 
 sys: model: builders: {
   apidef: load: 'build/apidef.js'
-  // sdkgen: load: 'build/sdkgen.js'
+  sdkgen: load: 'build/sdkgen.js'
   // docgen: load: 'build/docgen.js'
 }
 
@@ -12,5 +12,5 @@ sys: model: watch: {
   'dist': {}
   'tm': {}
   'def': {}
-  'doc/static/src': {}
+  # 'doc/static/src': {}
 }

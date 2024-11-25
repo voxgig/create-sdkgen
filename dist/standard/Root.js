@@ -42,7 +42,10 @@ const Root = (0, jostraca_1.cmp)(function Root(props) {
     (0, jostraca_1.Project)({ folder }, () => {
         (0, jostraca_1.Copy)({
             from: __dirname + '/../../tm',
-            exclude: ['generate/.env.local']
+            exclude: [
+                'generate/.env.local',
+                'generate/model/guide.jsonic',
+            ]
         });
         const origdef = spec.def;
         const projdef = node_path_1.default.basename(origdef);
