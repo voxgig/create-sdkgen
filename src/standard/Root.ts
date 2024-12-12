@@ -6,7 +6,6 @@ import * as Fs from 'node:fs'
 import {
   names,
   cmp,
-  each,
 
   Project,
   Folder,
@@ -33,10 +32,11 @@ const Root = cmp(function Root(props: any) {
 
   Project({ folder }, () => {
     Copy({
-      from: __dirname + '/../../tm',
+      from: __dirname + '/../../project',
       exclude: [
         'generate/.env.local',
         'generate/model/guide.jsonic',
+        /\.fragment\./,
       ]
     })
 

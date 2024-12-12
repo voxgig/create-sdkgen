@@ -50,7 +50,17 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     const folder = Path.join(process.cwd(), name + (name.endsWith('-sdk') ? '' : '-sdk'))
 
-    const opts = { fs, folder, log: log.child({ cmp: 'jostraca' }), meta: { spec } }
+    const opts = {
+      fs: () => fs,
+      folder,
+      log: log.child({ cmp: 'jostraca' }),
+      meta: { spec },
+      existing: {
+        // write: false,
+        // present: true,
+        merge: true
+      }
+    }
 
     const model = {
       name,
@@ -61,7 +71,9 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) })
 
-    await jostraca.generate(opts, () => Root({ model, spec }))
+    const info = await jostraca.generate(opts, () => Root({ model, spec }))
+
+    logfiles(info, log)
 
     log.info({ point: 'generate-end' })
   }
@@ -70,6 +82,21 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
     generate,
   }
 
+}
+
+
+function logfiles(info: any, log: ReturnType<typeof Pino>) {
+  const cwd = process.cwd()
+
+    ;['preserve', 'present', 'merge'].map(action => {
+      let entries = info.file[action]
+      if (0 < entries.length) {
+        log.info({
+          point: 'file-' + action, entries,
+          note: '\n' + entries.map((n: any) => n.path.replace(cwd, '.')).join('\n')
+        })
+      }
+    })
 }
 
 
