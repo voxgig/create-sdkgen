@@ -33,11 +33,6 @@ const Root = cmp(function Root(props: any) {
   Project({ folder }, () => {
     Copy({
       from: __dirname + '/../../project',
-      exclude: [
-        'generate/.env.local',
-        'generate/model/guide.jsonic',
-        /\.fragment\./,
-      ]
     })
 
     const origdef = spec.def

@@ -49,7 +49,7 @@
     "@voxgig/util": "^0.0.8",
     "aontu": "^0.25.3",
     "chokidar": "^4.0.1",
-    "gubu": "^8.3.0",
-    "jostraca": "^0.14.0"
+    "gubu": "^9.0.0",
+    "jostraca": "^0.15.0"
   }
 }

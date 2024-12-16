@@ -43,7 +43,6 @@ const Root = cmp(function Root(props: any) {
 
     each(target, (target: any) => {
       names(target, target.name)
-      // console.log('TARGET', target.name)
 
       Folder({ name: target.name }, () => {
 

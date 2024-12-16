@@ -18,3 +18,7 @@ entity: {}
 #     }
 #   }
 # }
+
+
+# JOSTRACA_PROTECT - prevent overwriting when regenerating
+

@@ -18,8 +18,8 @@
     "@voxgig/model": "^5.1.0",
     "@voxgig/sdkgen": "^0.15.0",
     "@voxgig/docgen": "^0.5.0",
-    "@voxgig/util": "^0.0.6",
-    "@types/node": "22.9.0",
-    "typescript": "^5.6.3"
+    "@voxgig/util": "^0.0.8",
+    "@types/node": "22.10.2",
+    "typescript": "^5.7.2"
   }
 }
