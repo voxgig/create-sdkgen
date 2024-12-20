@@ -15,11 +15,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@voxgig/model": "^5.1.0",
-    "@voxgig/apidef":"^1.2.0",
-    "@voxgig/sdkgen": "^0.15.0",
-    "@voxgig/docgen": "^0.5.0",
-    "@voxgig/util": "^0.0.8",
+    "@voxgig/model": "^5.2.0",
+    "@voxgig/apidef":"^1.4.0",
+    "@voxgig/sdkgen": "^0.16.0",
+    "@voxgig/util": "^0.0.9",
     "@types/node": "22.10.2",
     "typescript": "^5.7.2"
   }
