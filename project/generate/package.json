@@ -15,9 +15,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@voxgig/model": "^5.2.0",
+    "@voxgig/model": "^5.2.1",
     "@voxgig/apidef":"^1.4.0",
-    "@voxgig/sdkgen": "^0.16.0",
+    "@voxgig/sdkgen": "^0.17.0",
     "@voxgig/util": "^0.0.9",
     "@types/node": "22.10.2",
     "typescript": "^5.7.2"

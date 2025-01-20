@@ -1,5 +1,7 @@
 
 import {
+  requirePath,
+
   names,
   cmp,
   each,
@@ -48,22 +50,21 @@ const Root = cmp(function Root(props: any) {
 
         each(entity, (entity: any) => {
           names(entity, entity.name)
-
           Entity({ target, entity })
         })
 
         each(feature).filter((feature: any) => feature.active).map((feature: any) => {
           names(feature, feature.name)
-
           Feature({ target, feature })
         })
-
 
         Main({ target })
 
         Readme({ target })
+
       })
     })
+
   })
 })
 

@@ -1,17 +1,23 @@
 
+// import {
+//   names,
+//   cmp,
+//   each,
+
+//   Project,
+//   Folder,
+
+//   Index,
+// } from '@voxgig/docgen'
+
 import {
-  names,
   cmp,
-  each,
-
-  Project,
-  Folder,
-
-  Index,
-} from '@voxgig/docgen'
+} from '@voxgig/sdkgen'
 
 
 const Root = cmp(function Root(props: any) {
+
+  /*
   const { model, ctx$ } = props
 
 
@@ -28,7 +34,8 @@ const Root = cmp(function Root(props: any) {
 
     Index({})
 
-  })
+    })
+    */
 })
 
 
