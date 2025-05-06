@@ -1,6 +1,6 @@
 {
   "name": "@voxgig/create-sdkgen",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "dist/create-sdkgen.js",
   "type": "commonjs",
   "types": "dist/create-sdkgen.d.ts",
@@ -24,6 +24,8 @@
     "test-some": "node --enable-source-maps --test-name-pattern=\"$npm_config_pattern\" --test dist-test",
     "watch": "tsc --build src test -w",
     "build": "tsc --build src test",
+    "test-model": "voxgig-model project/.sdk/test/test.jsonic",
+    "test-model-watch": "voxgig-model -w project/.sdk/test/test.jsonic",
     "clean": "rm -rf node_modules yarn.lock package-lock.json",
     "reset": "npm run clean && npm i && npm run build && npm test",
     "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
@@ -40,16 +42,16 @@
   ],
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@types/node": "22.10.2",
-    "esbuild": "^0.24.1",
-    "memfs": "^4.15.0",
-    "typescript": "^5.7.2"
+    "@types/node": "22.15.12",
+    "esbuild": "^0.25.4",
+    "memfs": "^4.17.1",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@voxgig/util": "^0.0.9",
-    "aontu": "^0.25.3",
+    "@voxgig/util": "^0.0.10",
+    "aontu": "^0.28.0",
     "chokidar": "^4.0.3",
     "gubu": "^9.0.0",
-    "jostraca": "^0.15.1"
+    "jostraca": "^0.16.2"
   }
 }

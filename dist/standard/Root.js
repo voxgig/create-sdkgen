@@ -56,7 +56,7 @@ const Root = (0, jostraca_1.cmp)(function Root(props) {
         const origdef = spec.def;
         const projdef = node_path_1.default.basename(origdef);
         spec.def = projdef;
-        (0, jostraca_1.Folder)({ name: 'generate' }, () => {
+        (0, jostraca_1.Folder)({ name: '.sdk' }, () => {
             (0, jostraca_1.Folder)({ name: 'def' }, () => {
                 if (Fs.existsSync(origdef)) {
                     (0, jostraca_1.Copy)({ from: origdef, to: projdef });

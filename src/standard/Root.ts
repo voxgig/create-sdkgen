@@ -39,7 +39,7 @@ const Root = cmp(function Root(props: any) {
     const projdef = Path.basename(origdef)
     spec.def = projdef
 
-    Folder({ name: 'generate' }, () => {
+    Folder({ name: '.sdk' }, () => {
       Folder({ name: 'def' }, () => {
         if (Fs.existsSync(origdef)) {
           Copy({ from: origdef, to: projdef })
