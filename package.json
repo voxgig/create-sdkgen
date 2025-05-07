@@ -1,6 +1,6 @@
 {
   "name": "@voxgig/create-sdkgen",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "dist/create-sdkgen.js",
   "type": "commonjs",
   "types": "dist/create-sdkgen.d.ts",
@@ -42,7 +42,7 @@
   ],
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@types/node": "22.15.12",
+    "@types/node": "22.15.15",
     "esbuild": "^0.25.4",
     "memfs": "^4.17.1",
     "typescript": "^5.8.3"
@@ -52,6 +52,6 @@
     "aontu": "^0.28.0",
     "chokidar": "^4.0.3",
     "gubu": "^9.0.0",
-    "jostraca": "^0.16.2"
+    "jostraca": "^0.17.0"
   }
 }
