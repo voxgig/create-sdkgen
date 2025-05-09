@@ -1,0 +1,20 @@
+# param: define the API request parameters for subscriptions
+param: subscriptionid: {
+  name: *subscription | string   # subscription ID
+  kind: *query | string   # place in URL query: ?subscription=1234
+  defval: "" | string
+}
+
+# option: SDK feature options specified when instantiating an SDK client
+option: debug: {
+  type: Boolean
+  required: false
+  defval: false
+} 
+
+# option to specify default subscription
+option: subscriptionid: {
+  type: String
+  required: false
+  defval: ""
+}
