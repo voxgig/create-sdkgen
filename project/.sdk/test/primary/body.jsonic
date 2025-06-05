@@ -1,0 +1,27 @@
+
+basic: set: [
+  {
+    ctx: {
+      op:kind:req, op:reqform:'`data.foo`', op:check:nobody:true
+      op:data:foo:{x:1}
+    }
+    out: {x:1}
+  }
+
+  {
+    ctx: {
+      op:kind:req, op:reqform:'`data.bar`', op:check:nobody:false
+      op:data:foo:{x:2}
+    }
+  }
+
+  {
+    ctx: {
+      op:kind:req, op:reqform:'`data.bar`', op:check:nobody:true
+      op:data:foo:{x:3}
+    }
+    err: 'empty'
+  }
+
+]
+

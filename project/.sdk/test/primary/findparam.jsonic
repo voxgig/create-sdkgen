@@ -1,0 +1,22 @@
+
+
+DEF: {
+  ctx0: {op:{}}
+  ctx1: .ctx0 & {op:kind:res}
+  ctx2: .ctx1 & {op:match:{}}
+  ctx3: .ctx2 & {op:match:a:'A'}
+  ctx4: .ctx3 & {op:alias:{}}
+  ctx5: .ctx4 & {op:alias:b:'a',spec:{}}
+}
+
+basic: set: [
+  { mark:10, args: [ .....DEF.ctx0, a ] }
+  { mark:20, args: [ .....DEF.ctx1, a ] }
+  { mark:30, args: [ .....DEF.ctx2, a ] }
+  { mark:40, args: [ .....DEF.ctx3, a ], out: 'A'}
+  { mark:50, args: [ .....DEF.ctx3, b ] }
+  { mark:60, args: [ .....DEF.ctx4, b ] }
+  { mark:70, args: [ .....DEF.ctx5, a ], out: 'A' }
+  { mark:80, args: [ .....DEF.ctx5, b ], out: 'A', match: ctx:spec:alias:a:'b' }
+]
+

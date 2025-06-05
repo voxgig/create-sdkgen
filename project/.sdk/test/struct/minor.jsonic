@@ -1,0 +1,259 @@
+
+clone: {
+  set: [
+    { in: {a:1}, out: {a:1} }
+    { in: [11], out: [11] }
+  ]
+}
+
+isnode: {
+  set: [
+    { in: {a:1}, out: true }
+    { in: [1], out: true }
+    { in: 1, out: false }
+    { in: 'a', out: false }
+    { in: true, out: false }
+  ]
+}
+
+ismap: {
+  set: [
+    { in: {a:1}, out: true }
+    { in: [1], out: false }
+    { in: 1, out: false }
+    { in: 'a', out: false }
+    { in: true, out: false }
+  ]
+}
+
+islist: {
+  set: [
+    { in: {a:1}, out: false }
+    { in: [1], out: true }
+    { in: 1, out: false }
+    { in: 'a', out: false }
+    { in: true, out: false }
+  ]
+}
+
+iskey: {
+  set: [
+    { in: 1, out: true }
+    { in: 'a', out: true }
+    { in: '', out: false }
+    { in: true, out: false }
+    { in: false, out: false }
+    { in: {}, out: false }
+    { in: {x:1}, out: false }
+    { in: [], out: false }
+    { in: [1], out: false }
+    { in: ['a'], out: false }
+  ]
+}
+
+
+items: {
+  set: [
+    { in: {a:11}, out: [['a',11]] }
+    { in: {a:1,b:2}, out: [['a',1],['b',2]] }
+    { in: {a:{x:1},b:{x:2},c:{x:3}}, out: [['a',{x:1}],['b',{x:2}],['c',{x:3}]] }
+    { in: {a:[111],b:[222],c:[333],d:[444]},
+      out: [['a',[111]],['b',[222]],['c',[333]],['d',[444]]] }
+    { in: {a:{x:{y:1}},b:{x:{y:2}},c:{x:{y:3}},d:{x:{y:4}},e:{x:{y:5}}},
+      out: [['a',{x:{y:1}}],['b',{x:{y:2}}],['c',{x:{y:3}}],['d',{x:{y:4}}],['e',{x:{y:5}}]] }
+
+    { in: [11], out: [[0,11]] }
+    { in: [11,22], out: [[0,11],[1,22]] }
+    { in: [{z:1},{z:2},{z:3}], out: [[0,{z:1}],[1,{z:2}],[2,{z:3}]] }
+    { in: [[111],[222],[333],[444]], out: [[0,[111]],[1,[222]],[2,[333]],[3,[444]]] }
+    
+    { in: 1, out: [] }
+    { in: 'a', out: [] }
+    { in: true, out: [] }
+  ]
+}
+
+
+getprop: {
+  set: [
+    { in: { val: {x:1}, key: x }, out: 1 }
+    { in: { val: {x:[11]}, key: x }, out: [11] }
+    { in: { val: {x:{z:22}}, key: x }, out: {z:22} }
+    { in: { val: {x:2}, key: y } }
+    { in: { val: {}, key: z } }
+    { in: { val: {}, key: 0 } }
+    { in: { val: {x:3}, key: {} } }
+    { in: { val: {x:3}, key: [] } }
+    { in: { val: {'2':'x'}, key: '2' }, out: 'x' }
+    { in: { val: {'2':'x'}, key: 2 }, out: 'x' }
+    { in: { val: {'2':'x'}, key: 1 } }
+    { in: { val: [], key: 0 } }
+    { in: { val: [], key: 'x' } }
+    { in: { val: ['a'], key: 0 }, out: 'a' }
+    { in: { val: ['a'], key: '0' }, out: 'a' }
+    { in: { val: ['a'], key: 'x' } }
+    { in: { val: [{x:11},{x:22}], key: 1 }, out: {x:22} }
+    { in: { val: [[111],[222]], key: 1 }, out: [222] }
+    { in: { val: {x:1}, key: x, alt: 9 }, out: 1 }
+    { in: { val: {x:[11]}, key: x, alt: 'A' }, out: [11] }
+    { in: { val: {x:{z:22}}, key: x, alt: true }, out: {z:22} }
+    { in: { val: {x:2}, key: y, alt: 99 }, out: 99 }
+    { in: { val: {}, key: z, alt: 'B' }, out: 'B' }
+    { in: { val: {}, key: 0, alt: ['C'] }, out: ['C'] }
+    { in: { val: {x:3}, key: {}, alt: {D:88} }, out: {D:88} }
+    { in: { val: {x:3}, key: [], alt: {} }, out: {} }
+    { in: { val: {'2':'x'}, key: '2', alt: false }, out: 'x' }
+    { in: { val: {'2':'x'}, key: 2, alt: [] }, out: 'x' }
+    { in: { val: {'2':'x'}, key: 1, alt: [] }, out: [] }
+    { in: { val: [], key: 0, alt: true }, out: true }
+    { in: { val: [], key: 'x', alt: false }, out: false }
+    { in: { val: ['a'], key: 0, alt:{E:[77]} }, out: 'a' }
+    { in: { val: ['a'], key: '0', alt:[{F:66}] }, out: 'a' }
+    { in: { val: ['a'], key: 'x', alt:[{G:551},{G:552}] }, out:[{G:551},{G:552}] }
+    { in: { val: [{x:11},{x:22}], key: 1, alt:{H:[441,442,443]} }, out: {x:22} }
+    { in: { val: [[111],[222]], key: 1, alt:[[]] }, out: [222] }
+  ]
+}
+
+
+setprop: {
+  set: [
+    { in: { parent: {}, key: x, val: 1,  }, out: {x:1} }
+    { in: { key: x, val: 1,  } }
+    { in: { parent: {}, val: 1 }, out: {} }
+    { in: { parent: {}, key: x }, out: {} }
+
+    { in: { parent: {x:11}, key: y, val: 22, }, out: {x:11,y:22} }
+    { in: { parent: {x:12}, key: y, val: 'Y' }, out: {x:12,y:'Y'} }
+    { in: { parent: {x:13}, key: y, val: true }, out: {x:13,y:true} }
+    { in: { parent: {x:14}, key: y, val: false }, out: {x:14,y:false} }
+    { in: { parent: {x:141}, key: y, val: null }, out: {x:141,y:null} }
+
+    { in: { parent: {x:15}, key: y, val: {z:22}, }, out: {x:15,y:{z:22}} }
+    { in: { parent: {x:16}, key: y, val: [22], }, out: {x:16,y:[22]} }
+
+    { in: { parent: {x:17}, key: 0, val: 0, }, out: {x:17,'0':0} }
+
+    { in: { parent: [22], key: 0, val: 23, }, out: [23] }
+    { in: { parent: [23,24], key: 1, val: 25, }, out: [23,25] }
+    { in: { parent: [25], key: 1, val: 26, }, out: [25,26] }
+    { in: { parent: [27], key: 2, val: 28, }, out: [27, 28] }
+    { in: { parent: [271], key: 3, val: 281, }, out: [271, 281] }
+    { in: { parent: [271], key: -1, val: 281, }, out: [281, 271] }
+    { in: { parent: [272], key: -2, val: 282, }, out: [282, 272] }
+
+    { in: { parent: [273], key: 2 }, out: [273] }
+    { in: { parent: [274], key: 1 }, out: [274] }
+    { in: { parent: [275], key: 0 }, out: [] }
+    { in: { parent: [276], key: -1 }, out: [276] }
+    { in: { parent: [277], key: -2 }, out: [277] }
+
+    { in: { parent: [28], key: [], val: 29, }, out: [28] }
+    { in: { parent: [29], key: {}, val: 30, }, out: [29] }
+    { in: { parent: [30], key: true, val: 31, }, out: [30] }
+    { in: { parent: [31], key: false, val: 32, }, out: [31] }
+
+    { in: { parent: {x:32}, key: x }, out: {} }
+    { in: { parent: {x:33,y:34}, key: y }, out: {x:33} }
+
+    { in: { parent: [], key: 'a' }, out: [] }
+  ]
+}
+
+
+isempty: {
+  set: [
+    { in: '', out: true }
+    { in: [], out: true }
+    { in: {}, out: true }
+
+    { in: false, out: false }
+    { in: true, out: false }
+    { in: 0, out: false }
+    { in: 1, out: false }
+    { in: 'a', out: false }
+    { in: true, out: false }
+    { in: 1, out: false }
+    { in: {x:2}, out: false }
+    { in: [3], out: false }
+
+    { in: null, out: true }
+  ]
+}
+
+
+stringify: {
+  set: [
+    { in: { val: 1 }, out: '1' }
+    { in: { val: 'a' }, out: 'a' }
+    { in: { val: false }, out: 'false' }
+    { in: { val: [2,'b',true] }, out: '[2,b,true]' }
+    { in: { val: [[3],{x:1}] }, out: '[[3],{x:1}]' }
+    { in: { val: {x:4,y:'c',z:false} }, out: '{x:4,y:c,z:false}' }
+    { in: { val: {x:{y:5,z:'d'},y:[6]} }, out: '{x:{y:5,z:d},y:[6]}' }
+    { in: { val: {x:{y:5,z:'d'},y:[6]}, max:10 }, out: '{x:{y:5...' }
+  ]
+}
+
+
+escre: {
+  set: [
+    { in: 'a0_', out: 'a0_' }
+    { in: '.*+?^${}()|[]\\', out: '\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\' }
+  ]
+}
+
+
+escurl: {
+  set: [
+    { in: 'a-B_0.', out: 'a-B_0.' }
+    { in: ' ?:', out: '%20%3F%3A' }
+  ]
+}
+
+
+haskey: {
+  set: [
+    { args: [{a:1},a], out: true }
+    { args: [{a:2},b], out: false }
+    { args: [{a:11,c:12},a], out: true }
+    { args: [{a:12,c:13},b], out: false }
+    { args: [{a:13,c:14},c], out: true }
+    { args: [{a:21,b:22},a], out: true }
+    { args: [{a:22,b:23},b], out: true }
+    { args: [{a:24,b:25},c], out: false }
+    { args: [[3],0], out: true }
+    { args: [[3],1], out: false }
+    { args: [[3],'0'], out: true }
+    { args: [[3],'1'], out: false }
+  ]
+}
+
+
+keysof: {
+  set: [
+    { out: [] }
+    { in: {}, out: [] }
+    { in: [], out: [] }
+    { in: {a:1}, out: [a] }
+    { in: {a:2,b:3}, out: [a,b] }
+    { in: {b:4,a:5}, out: [a,b] }
+    { in: [a], out: [0] }
+    { in: [a,b], out: [0,1] }
+  ]
+}
+
+
+joinurl: {
+  set: [
+    { out: 'a' in: ['a'] }
+    { out: 'a/b' in: ['a','b'] }
+    { out: 'a/b' in: ['a',null,'b'] }
+    { out: 'a/b' in: ['a/','b'] }
+    { out: 'a/b' in: ['a','/b'] }
+    { out: 'a/b' in: ['a/','/b'] }
+    { out: 'a/b' in: ['a/','//b'] }
+    { out: 'a/b/c/d' in: ['a','b','c//d'] }
+    { out: '//a/b' in: ['//a','/b'] }
+  ]
+}

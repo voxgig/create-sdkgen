@@ -1,0 +1,29 @@
+
+
+DEF: {
+  client: a: test: options: { base: 'b0', system: fetch: '`fetch`' }
+}
+
+
+
+basic: set: [
+  {
+    ctx: {
+      op: params: [],
+      spec: {
+        base: 'base-',
+        prefix: 'prefix-',
+        suffix: 'suffix-',
+        path: '/p0',
+        params: {},
+        query: {},
+        alias: {},
+      }      
+    },
+    client: a
+    out: {
+      status: 200
+    }
+  }
+]
+

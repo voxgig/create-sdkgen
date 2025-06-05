@@ -1,0 +1,13 @@
+
+basic: set: [
+  {
+    ctx: {response:{},spec:{}},
+    match:ctx:result: {
+      headers: {},
+      ok: true,
+      status: -1,
+      statusText: 'no-status'
+    }
+  }
+]
+

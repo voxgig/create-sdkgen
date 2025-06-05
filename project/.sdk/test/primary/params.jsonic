@@ -1,0 +1,10 @@
+
+basic: set: [
+  { ctx: {op:{}}, out:{} }
+  { ctx: {op:params:[a]}, out:{} }
+  { ctx: {op:params:[a], op:match:a:A}, out:{a:A} }
+  { ctx: {op:params:[a], op:match:b:B}, out:{} }
+  { ctx: {op:params:[a], op:match:a:A,b:B}, out:{a:A} }
+  
+]
+

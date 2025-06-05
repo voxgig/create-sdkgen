@@ -1,0 +1,108 @@
+
+
+basic: {
+  set: [
+    { in: { data: a, spec: '`$STRING`' }, out: a }
+    { in: { data: 1, spec: '`$STRING`' }, err: 'Expected string at <root>, found number: 1' }
+  
+    { in: { data: {a:A}, spec: {a:'`$STRING`'} }, out: {a:A} }
+
+    { in: { data: {a:1}, spec: {a:'`$STRING`'} }
+      err: 'Expected string at a, found number: 1' }
+
+    { in: { data: {a:2,b:B,c:true}, spec: {a:'`$NUMBER`',b:'`$STRING`',c:'`$BOOLEAN`'}}
+      out: {a:2,b:B,c:true} }
+
+    { in: { data: {a:3,b:B}, spec: {a:'`$NUMBER`'}}
+      err: 'Unexpected keys at <root>: b' }
+
+    { in: { data: {a:4}, spec: {a:'`$NUMBER`',b:C}}
+      out: {a:4,b:C} }
+
+      
+    { in: { data: {a:5,b:D}, spec: {a:'`$NUMBER`',b:C}}
+      out: {a:5,b:D} }
+
+    { in: { data: {a:6,b:2}, spec: {a:'`$NUMBER`',b:C}}
+      err: 'Expected string at b, found number: 2' }
+
+      
+    { in: { data: {x1:{a:1}}, spec: {x1:'`$OBJECT`'}}
+      out: {x1:{a:1}} }
+
+    { in: { data: {x2:{}}, spec: {x2:'`$OBJECT`'}}
+      out: {x2:{}} }
+      
+    { in: { data: {a:[],b:{}}, spec: {a:'`$ARRAY`',b:'`$OBJECT`'}}
+      out: {a:[],b:{}} }
+
+    { in: { data: {a:[11,22],b:{c:33,d:44}}, spec: {a:'`$ARRAY`',b:'`$OBJECT`'}}
+      out: {a:[11,22],b:{c:33,d:44}} }
+
+    { in: { data: {a:[[55],{c:66}],b:{d:[77],e:{f:88}}}, spec: {a:'`$ARRAY`',b:'`$OBJECT`'}}
+      out: {a:[[55],{c:66}],b:{d:[77],e:{f:88}}} }
+  ]
+}
+
+
+node: {
+  set: [
+    { in: { data: {a:{x:1}}, spec: {a:{}} }, out: {a:{x:1}} }
+    { in: { data: {a:{x:{y:2}}}, spec: {a:{}} }, out: {a:{x:{y:2}}} }
+
+    { in: { data: {}, spec: {x:{y:11}} }, out: {x:{y:11}} }
+    
+    { in: { data: {a:{x:12,y:22}}, spec: {a:{x:0,'`$OPEN`':true}} }, out: {a:{x:12,y:22}} }
+    
+    { in: { data: {q:{a:{x:1},b:{x:2}}}, spec: {q:{'`$CHILD`':{x:'`$NUMBER`'}}} },
+      out: {q:{a:{x:1},b:{x:2}}} }
+
+    { in: { data: {q:{}}, spec: {q:{'`$CHILD`':{x:'`$NUMBER`'}}} },
+      out: {q:{}} }
+
+    { in: { data: {q:{a:{x:X}}}, spec: {q:{'`$CHILD`':{x:'`$NUMBER`'}}} },
+      err: 'Invalid data: Expected number at q.a.x, found string: X' }
+      
+    { in: { data: {q:{a:{x:1,y:'Y1'},b:{x:2,y:'Y2'}}},
+            spec: {q:{'`$CHILD`':{x:'`$NUMBER`','`$OPEN`':true}}} },
+      out: {q:{a:{x:1,y:'Y1'},b:{x:2,y:'Y2'}}} }
+      
+    { in: { data: {q:{a:{a0:{x:0},a1:{x:1}}, b:{b0:{x:2},b1:{x:3}}}},
+           spec: {q:{'`$CHILD`':{'`$CHILD`':{x:'`$NUMBER`'}}}} },
+      out: {q:{a:{a0:{x:0},a1:{x:1}}, b:{b0:{x:2},b1:{x:3}}}} }
+      
+    { in: { data: {q:[21,22]}, spec: {q:['`$CHILD`','`$NUMBER`']} },
+      out: {q:[21,22]} }
+
+    { in: { data: {q:[23,a23]}, spec: {q:['`$CHILD`','`$NUMBER`']} },
+      err: 'Expected number at q.1, found string: a23' }
+      
+    { in: { data: {q:[a24]}, spec: {q:['`$CHILD`','`$STRING`']} },
+      out: {q:[a24]} }
+
+    { in: { data: {q:[]}, spec: {q:['`$CHILD`','`$BOOLEAN`']} },
+      out: {q:[]} }
+
+    { in: { data: {q:a25}, spec: {q:['`$CHILD`','`$OBJECT`']} },
+      err: 'Expected array at q, found string: a25' }
+      
+    { in: { data: [30], spec: ['`$NUMBER`']}, out: [30] }
+    { in: { data: [31,32], spec: ['`$NUMBER`','`$NUMBER`']}, out: [31,32] }
+
+    { in: { data: 31, spec: ['`$ONE`','`$STRING`','`$NUMBER`']}, out: 31 }
+    { in: { data: 'a31', spec: ['`$ONE`','`$STRING`','`$NUMBER`']}, out: 'a31' }
+    { in: { data: true, spec: ['`$ONE`','`$STRING`','`$NUMBER`']},
+      err: 'Expected one of string, number at <root>, found boolean: true' }
+
+    { in: { data:{a40:{x0:2}}, spec: {a40:{'`$CHILD`':1}}}, out:{a40:{x0:2}} }
+    { in: { data:{a41:{x0:3,x1:4}}, spec: {a41:{'`$CHILD`':1}}}, out:{a41:{x0:3,x1:4}} }
+    { in: { data:{a42:{}}, spec: {a42:{'`$CHILD`':1}}}, out:{a42:{}} }
+    { in: { data:{}, spec: {a43:{'`$CHILD`':1}}}, out:{a43:{}} }
+
+    { in: { data:{a50:[2]}, spec: {a50:['`$CHILD`',1]}}, out:{a50:[2]} }
+    { in: { data:{a51:[3,4]}, spec: {a51:['`$CHILD`',1]}}, out:{a51:[3,4]} }
+    { in: { data:{a52:[]}, spec: {a52:['`$CHILD`',1]}}, out:{a52:[]} }
+    { in: { data:{}, spec: {a53:['`$CHILD`',1]}}, out:{a53:[]} }
+  ]
+}
+

@@ -1,0 +1,20 @@
+
+DEF: {
+  client: a: test: options: { apikey: 'APIKEY01' }
+  client: b: test: options: {}
+}
+
+
+basic: set: [
+
+  { ctx: spec:headers:{}
+    client: a
+    match: out:headers:authorization:'Bearer APIKEY01'
+  }
+
+  { ctx: spec:headers:{}
+    client: b
+    match: out:headers:authorization:'__UNDEF__' }
+
+]
+

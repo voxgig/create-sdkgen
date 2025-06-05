@@ -1,0 +1,10 @@
+
+# API/SDK Generation guide.
+
+
+# Entity guides.
+entity: {}
+
+
+# JOSTRACA_PROTECT - prevent overwriting when regenerating
+

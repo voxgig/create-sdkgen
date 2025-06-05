@@ -1,0 +1,50 @@
+
+basic: set: [
+  {
+    ctx: {
+      op: {
+        params: ['a'],
+      },
+      spec: {
+        base: 'base-',
+        prefix: 'prefix-',
+        suffix: 'suffix-',
+        path: '/p0/{a}',
+        params: {
+          a: 'A'
+        },
+        query: {
+          b: 'B'
+        },
+        alias: {}
+      },
+    },
+    out: 'base-/prefix-/p0/A/suffix-?b=B'
+  }
+
+  {
+    ctx: {
+      op: {
+        kind: 'res',
+        params: ['foo_id'],
+        alias: {
+          foo_id: 'id'
+        },
+        match: {
+          id: 'A',
+        },
+      },
+      spec: {
+        base: 'base-',
+        prefix: 'prefix-',
+        suffix: 'suffix-',
+        path: '/p0/{foo_id}',
+        params: {},
+        alias: {}
+      }
+    }
+    out: 'base-/prefix-/p0/A/suffix-'
+  }
+  
+]
+

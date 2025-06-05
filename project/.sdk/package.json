@@ -1,0 +1,28 @@
+{
+  "name": "build-$$const.name$$-sdk",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "model": "voxgig-model model/sdk.jsonic",
+    "model-watch": "voxgig-model -w model/sdk.jsonic",
+    "test-model": "voxgig-model test/test.jsonic",
+    "test-model-watch": "voxgig-model -w test/test.jsonic",
+    "watch": "tsc --build src -w",
+    "build": "tsc --build src",
+    "test": "echo no-test",
+    "clean": "rm -rf node_modules yarn.lock package-lock.json",
+    "reset": "npm run clean && npm i && npm run build && npm test",
+    "mock-server": "prism mock def/$DefinitionFile"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@voxgig/model": "^5.6.0",
+    "@voxgig/apidef":"^1.4.0",
+    "@voxgig/sdkgen": "^0.17.0",
+    "@voxgig/util": "^0.0.9",
+    "@types/node": "22.13.4",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,9 @@
+
+basic: set: [
+  {
+    ctx:{response:{headers:{a:A,b:B}},result:{}},
+    out:headers:{a:A,b:B}
+    match:ctx:result:headers:{a:A,b:B}
+  }
+]
+

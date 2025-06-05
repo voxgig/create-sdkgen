@@ -1,0 +1,73 @@
+
+basic: set: [
+  {
+    ctx: {
+      op: {
+        entity: 'Foo',
+        name: 'load',
+        path: '/foo/{foo_id}',
+        params: ['foo_id'],
+        alias: {'foo_id':'id','id':'foo_id'},
+        match: {},
+        data: {},
+        state: {},
+        reqform: '`data`',
+        resform: '`body`',
+        check: {}
+      }
+    }
+    match: {
+      ctx: op: {
+        kind: ''
+        entity: 'Foo',
+        name: 'load',
+        path: '/foo/{foo_id}',
+        params: ['foo_id'],
+        alias: {'foo_id':'id','id':'foo_id'},
+        match: {},
+        data: {},
+        state: {},
+        reqform: '`data`',
+        resform: '`body`',
+        check: {}
+      }
+    } 
+  }
+
+  {
+    ctx: op: {}
+    err: `Expected string at name, found undefined
+Expected one of req, res at kind, found undefined
+Expected string at path, found undefined
+Expected string at entity, found undefined`
+  }
+
+  {
+    ctx: op: {
+      entity: 11,
+      name: 22,
+      path: 33,
+      params: [44],
+      alias: {'foo_id':55},
+      match: 101,
+      data: 102,
+      state: 103,
+      reqform: 66,
+      resform: 77,
+      check: 88
+    }
+    err: `Invalid data: Expected string at name, found number: 22
+Expected one of req, res at kind, found undefined
+Expected string at path, found number: 33
+Expected string at entity, found number: 11
+Expected one of string, object, function at reqform, found number: 66
+Expected one of string, object, function at resform, found number: 77
+Expected string at alias.foo_id, found number: 55
+Expected object at match, found number: 101
+Expected one of {}, [] at data, found number: 102
+Expected object at state, found number: 103
+Expected object at check, found number: 88`
+  }
+
+]
+

@@ -1,0 +1,17 @@
+
+
+@'@voxgig/model/model/.model-config/model-config.jsonic'
+
+sys: model: builders: {
+  apidef: load: 'build/apidef.js'
+  sdkgen: load: 'build/sdkgen.js'
+  // docgen: load: 'build/docgen.js'
+}
+
+sys: model: watch: {
+  'src': {}   # To catch fragment updates.
+  'dist': {}
+  'tm': {}
+  'def': {}
+  # 'doc/static/src': {}
+}

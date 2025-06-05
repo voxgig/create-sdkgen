@@ -1,0 +1,10 @@
+
+# API Specification Transform Guide
+
+@"@voxgig/apidef/model/guide.jsonic"
+
+guide: entity: {
+
+}
+
+

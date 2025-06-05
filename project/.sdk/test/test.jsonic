@@ -1,0 +1,41 @@
+# Copyright (c) 2025 Voxgig Ltd. MIT License.
+
+# Tests are defined as sets of expected inputs and outputs
+# The test runner script for each language loads the generated test.json
+# file and runs the actual tests.
+
+# Each language must pass these exact same tests, ensuring uniform
+# behaviour over all languages.
+
+
+# Tests for the core "struct" data structure utilities.
+struct: minor: @"struct/minor.jsonic"
+struct: getpath: @"struct/getpath.jsonic"
+struct: inject: @"struct/inject.jsonic"
+struct: merge: @"struct/merge.jsonic"
+struct: transform: @"struct/transform.jsonic"
+struct: walk: @"struct/walk.jsonic"
+struct: validate: @"struct/validate.jsonic"
+
+
+# Tests for the primary SDK utilities.
+primary: auth: @"primary/auth.jsonic"
+primary: body: @"primary/body.jsonic"
+primary: error: @"primary/error.jsonic"
+primary: findparam: @"primary/findparam.jsonic"
+primary: fullurl: @"primary/fullurl.jsonic"
+primary: headers: @"primary/headers.jsonic"
+primary: resform: @"primary/resform.jsonic"
+primary: method: @"primary/method.jsonic"
+primary: operator: @"primary/operator.jsonic"
+primary: options: @"primary/options.jsonic"
+primary: reqform: @"primary/reqform.jsonic"
+primary: params: @"primary/params.jsonic"
+primary: query: @"primary/query.jsonic"
+primary: request: @"primary/request.jsonic"
+primary: resbasic: @"primary/resbasic.jsonic"
+primary: resbody: @"primary/resbody.jsonic"
+primary: resheaders: @"primary/resheaders.jsonic"
+primary: response: @"primary/response.jsonic"
+primary: spec: @"primary/spec.jsonic"
+

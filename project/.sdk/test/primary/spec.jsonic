@@ -1,0 +1,32 @@
+
+DEF: {
+  client: a: test: options: {
+    base: 'BASE-',
+    prefix: 'PREFIX-',
+    suffix: 'SUFFIX-',
+  }
+}
+
+
+basic: set: [
+  {
+    ctx: {
+      op:name: 'list'
+    },
+    client: a
+    match: ctx: spec: {
+      base: 'BASE-',
+      prefix: 'PREFIX-',
+      suffix: 'SUFFIX-',
+      method: 'GET',
+      params: {},
+      query: {},
+      headers: {
+        'content-type': 'application/json',
+      },
+      step: 'start',
+      alias: {}
+    }
+  }
+]
+
