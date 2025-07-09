@@ -1,12 +1,19 @@
 
 basic: set: [
   {
-    ctx: {response:{},spec:{}},
+    ctx:response:native:{
+      status: 201,
+      reason: 'OK1'
+      headers: {h1:v1}
+      body: {b:1}
+    }
+    ctx:spec:{}
     match:ctx:result: {
-      headers: {},
-      ok: true,
-      status: -1,
-      statusText: 'no-status'
+      ok: true
+      status: 201
+      reason: 'OK1'
+      headers: {h1:v1}
+      body: {b:1}
     }
   }
 ]

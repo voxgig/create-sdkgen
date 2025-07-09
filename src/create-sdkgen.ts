@@ -1,4 +1,4 @@
-/* Copyright (c) 2024 Richard Rodger, MIT License */
+/* Copyright (c) 2024-2025 Richard Rodger, MIT License */
 
 import * as Fs from 'node:fs'
 import Path from 'node:path'
@@ -56,18 +56,20 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
       log: log.child({ cmp: 'jostraca' }),
       meta: { spec },
       existing: {
-        // write: false,
-        // present: true,
-        merge: true
+        txt: {
+          merge: true
+        }
       }
     }
 
     const model = {
       name,
+      project_name: name,
       year: new Date().getFullYear(),
     }
 
     names(model, model.name)
+    names(model, model.name, 'project_name')
 
     log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) })
 

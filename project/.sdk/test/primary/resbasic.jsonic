@@ -1,18 +1,15 @@
 
 basic: set: [
-  { ctx:{response:{},result:{}}, out:{status:-1,statusText:'no-status'} }
-
-  { ctx:{response:{status:500},result:{}},
-    match:out:{status:500,statusText:'no-status',err:message:'request: 500: no-status'}
+  { ctx:{response:{native:{status:200,reason:'OK'}},result:{}},
+    out:{status:200,reason:'OK'}
   }
 
-  { ctx:{response:{status:200,statusText:'OK'},result:{}},
-    out:{status:200,statusText:'OK'}
+  { ctx:{response:{native:{status:500,reason:'r01'}},result:{}},
+    match:out:{status:500,reason:'r01',err:message:'request: 500: r01'}
   }
 
-  { ctx:{response:{status:400,statusText:'BAD'},result:{err:message:'Foo'}},
-    out:{status:400,statusText:'BAD',err:message:'Foo: request: 400: BAD'}
+  { ctx:{response:{native:{status:400,reason:'BAD'},err:message:'Foo'},result:{}},
+    out:{status:400,reason:'BAD',err:message:'Foo: request: 400: BAD'}
   }
-
 ]
 

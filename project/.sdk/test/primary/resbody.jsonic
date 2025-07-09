@@ -1,5 +1,5 @@
 
 basic: set: [
-  { ctx:{response:{a:A,b:B},result:{}}, out: {body:{a:A,b:B}} }
+  { ctx:{response:native:body:{a:A,b:B},result:{}}, out: {body:{a:A,b:B}} }
 ]
 

@@ -1,0 +1,13 @@
+# SDK Configuration
+
+main: sdk: config: {
+
+  # Authorization header token value prefix
+  auth: prefix: 'Bearer'
+
+
+  headers: {
+    'content-type': 'application/json'
+  }
+
+}

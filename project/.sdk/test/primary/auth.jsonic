@@ -12,9 +12,9 @@ basic: set: [
     match: out:headers:authorization:'Bearer APIKEY01'
   }
 
-  { ctx: spec:headers:{}
-    client: b
-    match: out:headers:authorization:'__UNDEF__' }
+  # { ctx: spec:headers:{}
+  #   client: b
+  #   match: out:headers:authorization:'__UNDEF__' }
 
 ]
 

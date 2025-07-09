@@ -1,7 +1,7 @@
 
 basic: set: [
   {
-    ctx: {}
+    in:prep: { config:{}, options:{} }
     match: out: {
       base: 'http://localhost:8000',
       entity: {},
@@ -11,16 +11,16 @@ basic: set: [
   }
 
   {
-    ctx: config: options: {
-      base: 'cbase',
+    in:prep: { options: {}, config: options: {
+      base: 'http://cbase.example',
       prefix: 'cpre-',
       suffix: 'csuf-',
       entity: {
         foo: {}
       }
-    }
+    }}
     match: out: {
-      base: 'cbase',
+      base: 'http://cbase.example',
       prefix: 'cpre-',
       suffix: 'csuf-',
       entity: {
@@ -32,16 +32,19 @@ basic: set: [
   }
 
   {
-    ctx: options: {
-      base: 'cbase',
-      prefix: 'cpre-',
-      suffix: 'csuf-',
-      entity: {
-        foo: {}
+    in:prep: {
+      options: {
+        base: 'http://cbase.example',
+        prefix: 'cpre-',
+        suffix: 'csuf-',
+        entity: {
+          foo: {}
+        }
       }
+      config: {}
     }
     match: out: {
-      base: 'cbase',
+      base: 'http://cbase.example',
       prefix: 'cpre-',
       suffix: 'csuf-',
       entity: {

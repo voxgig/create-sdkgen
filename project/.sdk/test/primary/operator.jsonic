@@ -36,10 +36,7 @@ basic: set: [
 
   {
     ctx: op: {}
-    err: `Expected string at name, found undefined
-Expected one of req, res at kind, found undefined
-Expected string at path, found undefined
-Expected string at entity, found undefined`
+    err: 'Invalid data: Expected field entity to be string, but found no value. | Expected field kind to be exactly equal to one of req, res, but found no value. | Expected field name to be string, but found no value. | Expected field path to be string, but found no value. | Expected field reqform to be one of string, object, function, but found no value. | Expected field resform to be one of string, object, function, but found no value.'
   }
 
   {
@@ -56,17 +53,7 @@ Expected string at entity, found undefined`
       resform: 77,
       check: 88
     }
-    err: `Invalid data: Expected string at name, found number: 22
-Expected one of req, res at kind, found undefined
-Expected string at path, found number: 33
-Expected string at entity, found number: 11
-Expected one of string, object, function at reqform, found number: 66
-Expected one of string, object, function at resform, found number: 77
-Expected string at alias.foo_id, found number: 55
-Expected object at match, found number: 101
-Expected one of {}, [] at data, found number: 102
-Expected object at state, found number: 103
-Expected object at check, found number: 88`
+    err: 'Invalid data: Expected field alias.foo_id to be string, but found number: 55. | Expected field check to be object, but found number: 88. | Expected field data to be one of {}, [], but found number: 102. | Expected field data to be array, but found number: 102. | Expected field entity to be string, but found number: 11. | Expected field kind to be exactly equal to one of req, res, but found no value. | Expected field match to be object, but found number: 101. | Expected field name to be string, but found number: 22. | Expected field path to be string, but found number: 33. | Expected field reqform to be one of string, object, function, but found number: 66. | Expected field resform to be one of string, object, function, but found number: 77. | Expected field state to be object, but found number: 103.'
   }
 
 ]

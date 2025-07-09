@@ -1,4 +1,13 @@
 
+log: {
+  in: { a: { c: 2, b: 1 } }
+  out: [
+    'k=b, v=1, p={b:1,c:2}, t=a.b',
+    'k=c, v=2, p={b:1,c:2}, t=a.c',
+    'k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a',
+    'k=, v={a:{b:1,c:2}}, p=, t=<root>'
+  ]
+}
 
 
 basic: {

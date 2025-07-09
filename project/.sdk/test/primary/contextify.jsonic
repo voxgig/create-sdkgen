@@ -1,0 +1,5 @@
+
+basic: set: [
+  { in:{op:{kind:req}}, match:out:{op:{kind:req}} }
+]
+

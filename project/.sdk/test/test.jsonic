@@ -16,11 +16,14 @@ struct: merge: @"struct/merge.jsonic"
 struct: transform: @"struct/transform.jsonic"
 struct: walk: @"struct/walk.jsonic"
 struct: validate: @"struct/validate.jsonic"
+struct: select: @"struct/select.jsonic"
 
 
 # Tests for the primary SDK utilities.
 primary: auth: @"primary/auth.jsonic"
 primary: body: @"primary/body.jsonic"
+primary: contextify: @"primary/contextify.jsonic"
+primary: done: @"primary/done.jsonic"
 primary: error: @"primary/error.jsonic"
 primary: findparam: @"primary/findparam.jsonic"
 primary: fullurl: @"primary/fullurl.jsonic"

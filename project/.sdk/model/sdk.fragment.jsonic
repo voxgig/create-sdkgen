@@ -1,35 +1,38 @@
 
+# Generation guide.
+@"guide.jsonic"
 
-# Defaults and type definitions
+
+# Model definitions.
 @"@voxgig/apidef/model/apidef.jsonic"
 @"@voxgig/sdkgen/model/sdkgen.jsonic"
 
 
-# SDK Details
+# SDK Details.
 name: 'NAME'
 def: 'DEF'
 
 
-# Generated API description (from external specificaton).
-@"api-generated.jsonic"
+# API Definition
+@"api/api-def.jsonic"
 
 
-# Original external specification.
-@"def-generated.jsonic"
+# API Entities
+@"api/api-entity-index.jsonic"
 
 
-# Generation guide.
-main: api: guide: @"guide.jsonic"
+# SDK Configuration.
+@"config.jsonic"
 
 
-# SDK Target details.
-main: sdk: target: {}
+# SDK Features.
+@"feature/feature-index.jsonic"
+ 
+
+# SDK Targets.
+@"target/target-index.jsonic"
 
 
-# SDK Entity details.
-main: sdk: entity: {}
-
-
-# SDK Faeture details.
-main: sdk: feature: {}
+# Operation workflows.
+@"flow/flow-index.jsonic"
 

@@ -11,7 +11,7 @@ basic: set: [
     ctx: {
       op: params: [],
       spec: {
-        base: 'base-',
+        base: 'http://localhost/base-',
         prefix: 'prefix-',
         suffix: 'suffix-',
         path: '/p0',
@@ -21,8 +21,10 @@ basic: set: [
       }      
     },
     client: a
-    out: {
-      status: 200
+
+    match:out: {
+      native: '__EXISTS__'
+      err: '__UNDEF__'
     }
   }
 ]
