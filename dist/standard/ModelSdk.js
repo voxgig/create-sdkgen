@@ -8,6 +8,7 @@ const ModelSdk = (0, jostraca_1.cmp)(function ModelSdk(props) {
         (0, jostraca_1.Fragment)({
             from: __dirname + '/../../project/.sdk/model/sdk.fragment.jsonic',
             replace: {
+                // TODO: should use ProjectName for consistency
                 NAME: spec.name,
                 DEF: spec.def,
             }

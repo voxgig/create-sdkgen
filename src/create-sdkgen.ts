@@ -90,12 +90,12 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 function logfiles(info: any, log: ReturnType<typeof Pino>) {
   const cwd = process.cwd()
 
-    ;['preserve', 'present', 'merge'].map(action => {
-      let entries = info.file[action]
+    ; Object.keys(info.files).map(action => {
+      let entries = info.files[action]
       if (0 < entries.length) {
         log.info({
           point: 'file-' + action, entries,
-          note: '\n' + entries.map((n: any) => n.path.replace(cwd, '.')).join('\n')
+          note: '\n' + entries.map((n: any) => n.replace(cwd, '.')).join('\n')
         })
       }
     })

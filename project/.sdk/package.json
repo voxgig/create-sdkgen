@@ -13,7 +13,8 @@
     "test": "echo no-test",
     "clean": "rm -rf node_modules yarn.lock package-lock.json",
     "reset": "npm run clean && npm i && npm run build && npm test",
-    "mock-server": "prism mock def/$DefinitionFile"
+    "add-target": "voxgig-sdkgen target add $npm_config_target",
+    "add-feature": "voxgig-sdkgen feature add $npm_config_feature"
   },
   "author": "",
   "license": "MIT",

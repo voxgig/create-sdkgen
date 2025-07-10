@@ -1,5 +1,5 @@
 "use strict";
-/* Copyright (c) 2024 Richard Rodger, MIT License */
+/* Copyright (c) 2024-2025 Richard Rodger, MIT License */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -63,16 +63,18 @@ function CreateSdkGen(opts) {
             log: log.child({ cmp: 'jostraca' }),
             meta: { spec },
             existing: {
-                // write: false,
-                // present: true,
-                merge: true
+                txt: {
+                    merge: true
+                }
             }
         };
         const model = {
             name,
+            project_name: name,
             year: new Date().getFullYear(),
         };
         names(model, model.name);
+        names(model, model.name, 'project_name');
         log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) });
         const info = await jostraca.generate(opts, () => Root({ model, spec }));
         logfiles(info, log);
@@ -84,12 +86,12 @@ function CreateSdkGen(opts) {
 }
 function logfiles(info, log) {
     const cwd = process.cwd();
-    ['preserve', 'present', 'merge'].map(action => {
-        let entries = info.file[action];
+    Object.keys(info.files).map(action => {
+        let entries = info.files[action];
         if (0 < entries.length) {
             log.info({
                 point: 'file-' + action, entries,
-                note: '\n' + entries.map((n) => n.path.replace(cwd, '.')).join('\n')
+                note: '\n' + entries.map((n) => n.replace(cwd, '.')).join('\n')
             });
         }
     });
