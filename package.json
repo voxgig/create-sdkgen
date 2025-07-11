@@ -42,7 +42,7 @@
   ],
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@types/node": "24.0.12",
+    "@types/node": "24.0.13",
     "esbuild": "^0.25.6",
     "memfs": "^4.17.2",
     "typescript": "^5.8.3"
@@ -52,6 +52,6 @@
     "aontu": "^0.28.0",
     "chokidar": "^4.0.3",
     "gubu": "^9.0.0",
-    "jostraca": "^0.20.0"
+    "jostraca": "^0.21.0"
   }
 }

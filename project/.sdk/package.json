@@ -19,16 +19,16 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "24.0.10",
+    "@types/node": "24.0.13",
     "typescript": "^5.8.3",
     "patch-package": "^8.0.0"
   },
   "dependencies": {
-    "@voxgig/apidef": "^2.0.0",
+    "@voxgig/apidef": "^2.0.2",
     "@voxgig/model": "^6.0.1",
-    "@voxgig/sdkgen": "^0.21.0",
+    "@voxgig/sdkgen": "^0.22.0",
     "@voxgig/util": "^0.0.10",
-    "@voxgig/struct": "^0.0.3",
-    "jostraca": "^0.20.0"
+    "@voxgig/struct": "^0.0.4",
+    "jostraca": "^0.21.0"
   }
 }
