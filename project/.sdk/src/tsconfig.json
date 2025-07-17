@@ -12,5 +12,5 @@
     "declaration": true,
     "declarationDir": "../dist"
   },
-  "exclude": ["cmp/ts/fragment/*.fragment.ts"]
+  "exclude": ["**/fragment/*.fragment.ts"]
 }
