@@ -4,7 +4,7 @@ const Path = require('node:path')
 const { statSync } = require('node:fs')
 const { parseArgs } = require('node:util')
 
-const { Gubu, Fault } = require('gubu')
+const { Gubu, Fault, One } = require('gubu')
 
 const Pkg = require('../package.json')
 
@@ -12,36 +12,40 @@ const { CreateSdkGen } = require('../dist/create-sdkgen.js')
 
 const rootpath = require.resolve('../dist/standard/Root')
 
-let CONSOLE = console
+let KONSOLE = global['con'+'sole']
 
 
-try {
-  let options = resolveOptions()
+run()
 
-  if(options.debug) {
-    DEBUG = true
+
+async function run() {
+  try {
+    let options = resolveOptions()
+
+    if(options.debug) {
+      DEBUG = true
+    }
+
+    if(options.version) {
+      version()
+    }
+
+    if(options.help) {
+      help()
+    }
+
+    if(options.version || options.help) {
+      exit()
+    }
+
+    options = validateOptions(options)
+
+    generate(options)
   }
-
-  if(options.version) {
-    version()
+  catch(err) {
+    handleError(err)
   }
-
-  if(options.help) {
-    help()
-  }
-
-  if(options.version || options.help) {
-    exit()
-  }
-
-  options = validateOptions(options)
-
-  generate(options)
 }
-catch(err) {
-  handleError(err)
-}
-
 
 
 function exit(err) {
@@ -63,6 +67,10 @@ function generate(options) {
     name: options.name,
     root: './standard/Root',
     def: options.def,
+    dryrun: options.dryrun,
+    install: options.install,
+    target: options.target,
+    feature: options.feature,
   }
   
   createSdkGen.generate(spec)
@@ -82,6 +90,29 @@ function resolveOptions() {
           type: 'string',
           short: 'd',
           default: ''
+        },
+
+        dryrun: {
+          type: 'boolean',
+          short: 'y',
+        },
+
+        install: {
+          type: 'boolean',
+          short: 'y',
+          default: true,
+        },
+
+        target: {
+          type: 'string',
+          short: 't',
+          multiple: true
+        },
+
+        feature: {
+          type: 'string',
+          short: 'f',
+          multiple: true
         },
 
         debug: {
@@ -114,11 +145,22 @@ function resolveOptions() {
   let name = args.positionals[0]
   name = null == name ? '' : name
   name = '' === name && (args.values.help || args.values.version) ? '__none__' : name
+
+  targets = args.values.target || []
+  if( 1 < args.positionals.length ) {
+    targets.push(args.positionals.slice(1))
+  }
+
+  features = args.values.feature || []
   
   const options = {
     name,
     def: args.values.def,
-    debug: !!args.values.debug,
+    dryrun: !!args.values.dryrun,
+    install: !!args.values.install,
+    target: targets,
+    feature: features,
+    debug: args.values.debug,
     help: !!args.values.help,
     version: !!args.values.version,
   }
@@ -131,7 +173,11 @@ function validateOptions(rawOptions) {
   const optShape = Gubu({
     name: Fault('The first argument must be the project name.', String),
     def: '',
-    debug: Boolean,
+    dryrun: Boolean,
+    install: Boolean,
+    target: [String],
+    feature: [String],
+    debug: One(Boolean,String),
     help: Boolean,
     version: Boolean,
   })
@@ -148,13 +194,13 @@ function validateOptions(rawOptions) {
 
 
 function handleError(err) {
-  CONSOLE.log('Voxgig Create SDK Error: '+err)
+  KONSOLE.log('Voxgig Create SDK Error: '+err)
   exit(err)
 }
 
 
 function version() {
-  CONSOLE.log(Pkg.version)
+  KONSOLE.log(Pkg.version)
 }
 
 
@@ -172,6 +218,9 @@ Usage: npm create @voxgig/sdkgen@latest <name> <args>
 
     --def        Path to the OpenAPI definition file (optional).
     -d            
+
+    --dryrun     Perform a dry run, where no files are modified.
+    -y
 
     --debug      Set log level (default: info): trace, error, debug, info, warn, fatal.
     -g             
@@ -192,5 +241,5 @@ Examples:
 See also: https://voxgig.com/sdkgen
 `
 
-  CONSOLE.log(s)
+  KONSOLE.log(s)
 }

@@ -9,6 +9,11 @@ type GenerateSpec = {
     name: string;
     def: string;
     root: string;
+    debug?: string;
+    dryrun?: boolean;
+    target?: string[];
+    feature?: string[];
+    install?: boolean;
 };
 declare function CreateSdkGen(opts: FullCreateSdkGenOptions): {
     generate: (spec: GenerateSpec) => Promise<void>;

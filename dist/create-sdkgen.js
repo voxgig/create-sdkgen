@@ -40,9 +40,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateSdkGen = CreateSdkGen;
 const Fs = __importStar(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+const child_process_1 = require("child_process");
 const util_1 = require("@voxgig/util");
 const JostracaModule = __importStar(require("jostraca"));
-const { each, names, Jostraca } = JostracaModule;
+const { names, Jostraca } = JostracaModule;
 function CreateSdkGen(opts) {
     const fs = opts.fs || Fs;
     const pino = (0, util_1.prettyPino)('create', opts);
@@ -66,6 +67,9 @@ function CreateSdkGen(opts) {
                 txt: {
                     merge: true
                 }
+            },
+            control: {
+                dryrun: spec.dryrun
             }
         };
         const model = {
@@ -78,18 +82,101 @@ function CreateSdkGen(opts) {
         log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) });
         const info = await jostraca.generate(opts, () => Root({ model, spec }));
         logfiles(info, log);
+        if (!spec.dryrun && spec.install) {
+            await installNpm(spec, opts, model);
+        }
         log.info({ point: 'generate-end' });
     }
     return {
         generate,
     };
 }
+async function installNpm(spec, opts, model) {
+    const folder = opts.folder;
+    const log = opts.log;
+    return new Promise((resolve, reject) => {
+        const cwd = node_path_1.default.resolve(folder, '.sdk');
+        log.info({ point: 'generate-install', install: 'npm', note: 'npm install # ' + cwd });
+        const env = {
+            ...process.env,
+            PATH: `${node_path_1.default.dirname(process.execPath)}${node_path_1.default.delimiter}${process.env.PATH}`,
+        };
+        const args = ['install'];
+        const spawn_opts = {
+            cwd,
+            env,
+            stdio: 'inherit', // Direct passthrough for real-time output
+        };
+        const child = (0, child_process_1.spawn)('npm', args, spawn_opts);
+        child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)));
+        child.on('close', async (code) => {
+            if (code !== 0) {
+                reject(new Error(`npm install exited with code ${code}`));
+            }
+            else {
+                await installTargets(spec, opts, model, spawn_opts);
+                await installFeatures(spec, opts, model, spawn_opts);
+                resolve(null);
+            }
+        });
+    });
+}
+async function installTargets(spec, opts, model, spawn_opts) {
+    const target = spec.target;
+    if (null == target || 0 === target.length) {
+        return;
+    }
+    const log = opts.log;
+    return new Promise((resolve, reject) => {
+        const targetlist = target.join(',');
+        log.info({
+            point: 'generate-target', target: targetlist,
+            note: 'npm run target-add ' + targetlist
+        });
+        const args = ['run', 'add-target', targetlist];
+        const child = (0, child_process_1.spawn)('npm', args, spawn_opts);
+        child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)));
+        child.on('close', async (code) => {
+            if (code !== 0) {
+                reject(new Error(`npm exited with code ${code}`));
+            }
+            else {
+                resolve(null);
+            }
+        });
+    });
+}
+async function installFeatures(spec, opts, model, spawn_opts) {
+    const feature = spec.feature;
+    if (null == feature || 0 === feature.length) {
+        return;
+    }
+    const log = opts.log;
+    return new Promise((resolve, reject) => {
+        const featurelist = feature.join(',');
+        log.info({
+            point: 'generate-feature', feature: featurelist,
+            note: 'npm run feature-add ' + featurelist
+        });
+        const args = ['run', 'add-feature', featurelist];
+        const child = (0, child_process_1.spawn)('npm', args, spawn_opts);
+        child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)));
+        child.on('close', async (code) => {
+            if (code !== 0) {
+                reject(new Error(`npm exited with code ${code}`));
+            }
+            else {
+                resolve(null);
+            }
+        });
+    });
+}
 function logfiles(info, log) {
     const cwd = process.cwd();
     Object.keys(info.files).map(action => {
         let entries = info.files[action];
         if (0 < entries.length) {
-            log.info({
+            log.debug({
                 point: 'file-' + action, entries,
                 note: '\n' + entries.map((n) => n.replace(cwd, '.')).join('\n')
             });

@@ -2,6 +2,7 @@
 
 import * as Fs from 'node:fs'
 import Path from 'node:path'
+import { spawn } from 'child_process'
 
 import { prettyPino, Pino } from '@voxgig/util'
 
@@ -23,10 +24,15 @@ type GenerateSpec = {
   name: string // Name of SDK project.
   def: string // Path to OpenAPI definition file, copied into SDK project.
   root: string // Path to Root template component.
+  debug?: string
+  dryrun?: boolean
+  target?: string[]
+  feature?: string[]
+  install?: boolean
 }
 
 
-const { each, names, Jostraca } = JostracaModule
+const { names, Jostraca } = JostracaModule
 
 
 function CreateSdkGen(opts: FullCreateSdkGenOptions) {
@@ -59,6 +65,9 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
         txt: {
           merge: true
         }
+      },
+      control: {
+        dryrun: spec.dryrun
       }
     }
 
@@ -77,6 +86,10 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     logfiles(info, log)
 
+    if (!spec.dryrun && spec.install) {
+      await installNpm(spec, opts, model)
+    }
+
     log.info({ point: 'generate-end' })
   }
 
@@ -87,13 +100,121 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 }
 
 
+async function installNpm(spec: GenerateSpec, opts: any, model: any) {
+  const folder = opts.folder
+  const log = opts.log
+
+  return new Promise((resolve, reject) => {
+    const cwd = Path.resolve(folder, '.sdk')
+    log.info({ point: 'generate-install', install: 'npm', note: 'npm install # ' + cwd })
+
+    const env = {
+      ...process.env,
+      PATH: `${Path.dirname(process.execPath)}${Path.delimiter}${process.env.PATH}`,
+    }
+
+    const args = ['install']
+
+    const spawn_opts: any = {
+      cwd,
+      env,
+      stdio: 'inherit', // Direct passthrough for real-time output
+    }
+
+    const child = spawn('npm', args, spawn_opts)
+
+    child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
+
+    child.on('close', async (code) => {
+      if (code !== 0) {
+        reject(new Error(`npm install exited with code ${code}`))
+      }
+      else {
+        await installTargets(spec, opts, model, spawn_opts)
+        await installFeatures(spec, opts, model, spawn_opts)
+        resolve(null)
+      }
+    })
+  })
+}
+
+
+async function installTargets(spec: GenerateSpec, opts: any, model: any, spawn_opts: any) {
+  const target = (spec.target as string[])
+
+  if (null == target || 0 === target.length) {
+    return
+  }
+
+  const log = opts.log
+  return new Promise((resolve, reject) => {
+    const targetlist = target.join(',')
+
+    log.info({
+      point: 'generate-target', target: targetlist,
+      note: 'npm run target-add ' + targetlist
+    })
+
+    const args = ['run', 'add-target', targetlist]
+
+    const child = spawn('npm', args, spawn_opts)
+
+    child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
+
+    child.on('close', async (code) => {
+      if (code !== 0) {
+        reject(new Error(`npm exited with code ${code}`))
+      }
+      else {
+        resolve(null)
+      }
+    })
+  })
+}
+
+
+async function installFeatures(spec: GenerateSpec, opts: any, model: any, spawn_opts: any) {
+  const feature = (spec.feature as string[])
+
+  if (null == feature || 0 === feature.length) {
+    return
+  }
+
+  const log = opts.log
+  return new Promise((resolve, reject) => {
+    const featurelist = feature.join(',')
+
+    log.info({
+      point: 'generate-feature', feature: featurelist,
+      note: 'npm run feature-add ' + featurelist
+    })
+
+    const args = ['run', 'add-feature', featurelist]
+
+    const child = spawn('npm', args, spawn_opts)
+
+    child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
+
+    child.on('close', async (code) => {
+      if (code !== 0) {
+        reject(new Error(`npm exited with code ${code}`))
+      }
+      else {
+        resolve(null)
+      }
+    })
+  })
+
+}
+
+
 function logfiles(info: any, log: ReturnType<typeof Pino>) {
   const cwd = process.cwd()
 
     ; Object.keys(info.files).map(action => {
       let entries = info.files[action]
       if (0 < entries.length) {
-        log.info({
+        log.debug({
           point: 'file-' + action, entries,
           note: '\n' + entries.map((n: any) => n.replace(cwd, '.')).join('\n')
         })
