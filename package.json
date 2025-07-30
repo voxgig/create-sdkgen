@@ -17,7 +17,7 @@
     "url": "git://github.com/voxgig/create-sdkgen.git"
   },
   "bin": {
-    "create-sdkgen": "bin/voxgig-create-sdkgen"
+    "create-sdkgen": "bin/create-sdkgen"
   },
   "scripts": {
     "test": "node --enable-source-maps --test dist-test",
