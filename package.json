@@ -1,6 +1,6 @@
 {
   "name": "@voxgig/create-sdkgen",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "main": "dist/create-sdkgen.js",
   "type": "commonjs",
   "types": "dist/create-sdkgen.d.ts",
@@ -17,7 +17,7 @@
     "url": "git://github.com/voxgig/create-sdkgen.git"
   },
   "bin": {
-    "create-sdkgen": "bin/voxgig-create-sdkgen.js"
+    "create-sdkgen": "bin/voxgig-create-sdkgen"
   },
   "scripts": {
     "test": "node --enable-source-maps --test dist-test",
