@@ -1,6 +1,6 @@
 {
   "name": "@voxgig/create-sdkgen",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "dist/create-sdkgen.js",
   "type": "commonjs",
   "types": "dist/create-sdkgen.d.ts",
@@ -52,6 +52,6 @@
     "aontu": "^0.28.0",
     "chokidar": "^4.0.3",
     "gubu": "^9.0.0",
-    "jostraca": "^0.22.1"
+    "jostraca": "^0.23.0"
   }
 }
