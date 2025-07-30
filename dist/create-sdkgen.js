@@ -41,8 +41,9 @@ exports.CreateSdkGen = CreateSdkGen;
 const Fs = __importStar(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const child_process_1 = require("child_process");
-const util_1 = require("@voxgig/util");
 const JostracaModule = __importStar(require("jostraca"));
+const util_1 = require("@voxgig/util");
+const package_json_1 = __importDefault(require("../package.json"));
 const { names, Jostraca } = JostracaModule;
 function CreateSdkGen(opts) {
     const fs = opts.fs || Fs;
@@ -51,14 +52,16 @@ function CreateSdkGen(opts) {
     const jostraca = Jostraca();
     async function generate(spec) {
         const start = Date.now();
-        log.info({ point: 'generate-start', start });
+        log.info({ point: 'generate-start', start, note: spec.project });
         log.debug({ point: 'generate-spec', spec, note: JSON.stringify(spec, null, 2) });
-        const rootModule = require(spec.root);
+        const projectFolder = resolveProjectFolder(spec);
+        const rootPath = node_path_1.default.join(projectFolder, spec.root);
+        const rootModule = require(rootPath);
         const Root = rootModule.Root;
         const name = spec.name;
         spec.def = (null == spec.def || '' === spec.def) ? name + '-openapi3.yml' : spec.def;
         const folder = node_path_1.default.join(process.cwd(), name + (name.endsWith('-sdk') ? '' : '-sdk'));
-        const opts = {
+        const jopts = {
             fs: () => fs,
             folder,
             log: log.child({ cmp: 'jostraca' }),
@@ -75,17 +78,32 @@ function CreateSdkGen(opts) {
         const model = {
             name,
             project_name: name,
+            project_kind: spec.project,
             year: new Date().getFullYear(),
+            create_version: package_json_1.default.version
         };
         names(model, model.name);
         names(model, model.name, 'project_name');
         log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) });
-        const info = await jostraca.generate(opts, () => Root({ model, spec }));
-        logfiles(info, log);
+        const jres = await jostraca.generate(jopts, () => Root({ model, spec }));
+        // logfiles(jres, log)
+        (0, util_1.showChanges)(jopts.log, 'generate-result', jres, node_path_1.default.dirname(process.cwd()));
         if (!spec.dryrun && spec.install) {
-            await installNpm(spec, opts, model);
+            await installNpm(spec, jopts, model);
         }
         log.info({ point: 'generate-end' });
+    }
+    function resolveProjectFolder(spec) {
+        let projectFolder = spec.project;
+        if (node_path_1.default.isAbsolute(projectFolder)) {
+            return projectFolder;
+        }
+        projectFolder = node_path_1.default.resolve(node_path_1.default.join(__dirname, 'project', spec.project));
+        // TODO: support auto install project npm package (specific version) in a special cache folder
+        if (!fs.existsSync(projectFolder)) {
+            projectFolder = spec.project;
+        }
+        return projectFolder;
     }
     return {
         generate,
@@ -169,18 +187,6 @@ async function installFeatures(spec, opts, model, spawn_opts) {
                 resolve(null);
             }
         });
-    });
-}
-function logfiles(info, log) {
-    const cwd = process.cwd();
-    Object.keys(info.files).map(action => {
-        let entries = info.files[action];
-        if (0 < entries.length) {
-            log.debug({
-                point: 'file-' + action, entries,
-                note: '\n' + entries.map((n) => n.replace(cwd, '.')).join('\n')
-            });
-        }
     });
 }
 //# sourceMappingURL=create-sdkgen.js.map

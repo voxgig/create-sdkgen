@@ -31,8 +31,13 @@ const Root = cmp(function Root(props: any) {
   ctx$.model = model
 
   Project({ folder }, () => {
+    const from =
+      Path.resolve(Path.join(__dirname + '..', '..', '..', '..', 'project', 'standard'))
+
+    // console.log('FROM', from)
+
     Copy({
-      from: __dirname + '/../../project',
+      from
     })
 
     const origdef = spec.def

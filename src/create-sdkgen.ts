@@ -4,10 +4,11 @@ import * as Fs from 'node:fs'
 import Path from 'node:path'
 import { spawn } from 'child_process'
 
-import { prettyPino, Pino } from '@voxgig/util'
-
 import * as JostracaModule from 'jostraca'
 
+import { showChanges, prettyPino, Pino } from '@voxgig/util'
+
+import Pkg from '../package.json'
 
 
 type FullCreateSdkGenOptions = {
@@ -24,6 +25,7 @@ type GenerateSpec = {
   name: string // Name of SDK project.
   def: string // Path to OpenAPI definition file, copied into SDK project.
   root: string // Path to Root template component.
+  project: string
   debug?: string
   dryrun?: boolean
   target?: string[]
@@ -45,10 +47,13 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
   async function generate(spec: GenerateSpec) {
     const start = Date.now()
 
-    log.info({ point: 'generate-start', start })
+    log.info({ point: 'generate-start', start, note: spec.project })
     log.debug({ point: 'generate-spec', spec, note: JSON.stringify(spec, null, 2) })
 
-    const rootModule: any = require(spec.root)
+    const projectFolder = resolveProjectFolder(spec)
+    const rootPath = Path.join(projectFolder, spec.root)
+
+    const rootModule: any = require(rootPath)
     const Root = rootModule.Root
 
     const name = spec.name
@@ -56,7 +61,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     const folder = Path.join(process.cwd(), name + (name.endsWith('-sdk') ? '' : '-sdk'))
 
-    const opts = {
+    const jopts = {
       fs: () => fs,
       folder,
       log: log.child({ cmp: 'jostraca' }),
@@ -74,7 +79,9 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
     const model = {
       name,
       project_name: name,
+      project_kind: spec.project,
       year: new Date().getFullYear(),
+      create_version: Pkg.version
     }
 
     names(model, model.name)
@@ -82,22 +89,46 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) })
 
-    const info = await jostraca.generate(opts, () => Root({ model, spec }))
+    const jres = await jostraca.generate(jopts, () => Root({ model, spec }))
 
-    logfiles(info, log)
+    // logfiles(jres, log)
+
+    showChanges(jopts.log, 'generate-result', jres, Path.dirname(process.cwd()))
 
     if (!spec.dryrun && spec.install) {
-      await installNpm(spec, opts, model)
+      await installNpm(spec, jopts, model)
     }
 
     log.info({ point: 'generate-end' })
   }
+
+
+  function resolveProjectFolder(spec: GenerateSpec) {
+    let projectFolder = spec.project
+
+    if (Path.isAbsolute(projectFolder)) {
+      return projectFolder
+    }
+
+    projectFolder = Path.resolve(Path.join(__dirname, 'project', spec.project))
+
+    // TODO: support auto install project npm package (specific version) in a special cache folder
+
+    if (!fs.existsSync(projectFolder)) {
+      projectFolder = spec.project
+    }
+
+    return projectFolder
+  }
+
 
   return {
     generate,
   }
 
 }
+
+
 
 
 async function installNpm(spec: GenerateSpec, opts: any, model: any) {
@@ -208,6 +239,7 @@ async function installFeatures(spec: GenerateSpec, opts: any, model: any, spawn_
 }
 
 
+/*
 function logfiles(info: any, log: ReturnType<typeof Pino>) {
   const cwd = process.cwd()
 
@@ -221,7 +253,7 @@ function logfiles(info: any, log: ReturnType<typeof Pino>) {
       }
     })
 }
-
+*/
 
 export type {
   CreateSdkGenOptions,

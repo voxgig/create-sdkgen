@@ -64,10 +64,12 @@ function generate(options) {
 
 
   const spec = {
+    root: 'Root',
+
     name: options.name,
-    root: './standard/Root',
     def: options.def,
     dryrun: options.dryrun,
+    project: options.project,
     install: options.install,
     target: options.target,
     feature: options.feature,
@@ -85,11 +87,18 @@ function resolveOptions() {
   try {
     args = parseArgs({
       allowPositionals: true,
+      allowNegative: true,
       options: {
         def: {
           type: 'string',
           short: 'd',
           default: ''
+        },
+
+        project: {
+          type: 'string',
+          short: 'p',
+          default: 'standard'
         },
 
         dryrun: {
@@ -156,6 +165,7 @@ function resolveOptions() {
   const options = {
     name,
     def: args.values.def,
+    project: args.values.project,
     dryrun: !!args.values.dryrun,
     install: !!args.values.install,
     target: targets,
@@ -165,6 +175,8 @@ function resolveOptions() {
     version: !!args.values.version,
   }
 
+  // console.log('ARGS', args, options)
+  
   return options
 }
 
@@ -173,11 +185,12 @@ function validateOptions(rawOptions) {
   const optShape = Gubu({
     name: Fault('The first argument must be the project name.', String),
     def: '',
+    project: String,
     dryrun: Boolean,
     install: Boolean,
     target: [String],
     feature: [String],
-    debug: One(Boolean,String),
+    debug: String,
     help: Boolean,
     version: Boolean,
   })
@@ -218,6 +231,9 @@ Usage: npm create @voxgig/sdkgen@latest <name> <args>
 
     --def        Path to the OpenAPI definition file (optional).
     -d            
+
+    --project    Project template (folder or package reference). Default: standard.
+    -p            
 
     --dryrun     Perform a dry run, where no files are modified.
     -y

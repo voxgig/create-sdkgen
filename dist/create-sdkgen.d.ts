@@ -9,6 +9,7 @@ type GenerateSpec = {
     name: string;
     def: string;
     root: string;
+    project: string;
     debug?: string;
     dryrun?: boolean;
     target?: string[];
