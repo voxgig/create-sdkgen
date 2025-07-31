@@ -26,6 +26,8 @@ const {
 } = PointUtil
 
 
+import { Top } from './Top'
+
 
 const Root = cmp(function Root(props: any) {
   const { model, ctx$ } = props
@@ -61,6 +63,9 @@ const Root = cmp(function Root(props: any) {
   // console.log('STDREP', stdrep)
 
   Project({}, () => {
+
+    // TODO: jostraca should accept no props
+    Top({})
 
     each(target, (target: any) => {
       names(target, target.name)

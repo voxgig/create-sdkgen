@@ -89,9 +89,11 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) })
 
+    // console.log('GENERATE', model, jopts)
+
     const jres = await jostraca.generate(jopts, () => Root({ model, spec }))
 
-    // logfiles(jres, log)
+    // console.log('JRES', jres)
 
     showChanges(jopts.log, 'generate-result', jres, Path.dirname(process.cwd()))
 

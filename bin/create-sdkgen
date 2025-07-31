@@ -74,6 +74,8 @@ function generate(options) {
     target: options.target,
     feature: options.feature,
   }
+
+  // console.log('OPTIONS', options)
   
   createSdkGen.generate(spec)
 }

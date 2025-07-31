@@ -85,8 +85,9 @@ function CreateSdkGen(opts) {
         names(model, model.name);
         names(model, model.name, 'project_name');
         log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) });
+        // console.log('GENERATE', model, jopts)
         const jres = await jostraca.generate(jopts, () => Root({ model, spec }));
-        // logfiles(jres, log)
+        // console.log('JRES', jres)
         (0, util_1.showChanges)(jopts.log, 'generate-result', jres, node_path_1.default.dirname(process.cwd()));
         if (!spec.dryrun && spec.install) {
             await installNpm(spec, jopts, model);
