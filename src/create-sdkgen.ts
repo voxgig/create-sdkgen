@@ -36,9 +36,12 @@ type GenerateSpec = {
 
 const { names, Jostraca } = JostracaModule
 
-
+// TODO: CreateSdkGen opts and generate opts should be mostly the same, and
+// generate should override
 function CreateSdkGen(opts: FullCreateSdkGenOptions) {
   const fs = opts.fs || Fs
+
+  const debug = opts.debug
   const pino = prettyPino('create', opts)
   const log = pino.child({ cmp: 'create' })
 
@@ -47,7 +50,13 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
   async function generate(spec: GenerateSpec) {
     const start = Date.now()
 
-    log.info({ point: 'generate-start', start, note: spec.project })
+    let dryrun = !!spec.dryrun
+
+    log.info({
+      point: 'generate-start',
+      start,
+      note: spec.project + (dryrun ? ' ** DRY RUN **' : '')
+    })
     log.debug({ point: 'generate-spec', spec, note: JSON.stringify(spec, null, 2) })
 
     const projectFolder = resolveProjectFolder(spec)
@@ -63,6 +72,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     const jopts = {
       fs: () => fs,
+      debug,
       folder,
       log: log.child({ cmp: 'jostraca' }),
       meta: { spec },
@@ -72,7 +82,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
         }
       },
       control: {
-        dryrun: spec.dryrun
+        dryrun,
       }
     }
 
@@ -87,17 +97,21 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
     names(model, model.name)
     names(model, model.name, 'project_name')
 
-    log.debug({ point: 'generate-model', model, note: JSON.stringify(model, null, 2) })
-
-    // console.log('GENERATE', model, jopts)
+    log.debug({
+      point: 'generate-jostraca',
+      jostraca: jopts,
+      note: JSON.stringify(jopts, null, 2)
+    })
 
     const jres = await jostraca.generate(jopts, () => Root({ model, spec }))
 
-    // console.log('JRES', jres)
-
     showChanges(jopts.log, 'generate-result', jres, Path.dirname(process.cwd()))
 
-    if (!spec.dryrun && spec.install) {
+    if (spec.dryrun || !spec.install) {
+      log.info({ point: 'generate-install', note: 'skipping npm install' })
+    }
+
+    if (!spec.dryrun) {
       await installNpm(spec, jopts, model)
     }
 
@@ -137,9 +151,8 @@ async function installNpm(spec: GenerateSpec, opts: any, model: any) {
   const folder = opts.folder
   const log = opts.log
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const cwd = Path.resolve(folder, '.sdk')
-    log.info({ point: 'generate-install', install: 'npm', note: 'npm install # ' + cwd })
 
     const env = {
       ...process.env,
@@ -154,20 +167,32 @@ async function installNpm(spec: GenerateSpec, opts: any, model: any) {
       stdio: 'inherit', // Direct passthrough for real-time output
     }
 
-    const child = spawn('npm', args, spawn_opts)
+    const postInstall = async () => {
+      await installTargets(spec, opts, model, spawn_opts)
+      await installFeatures(spec, opts, model, spawn_opts)
+    }
 
-    child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
+    if (spec.install) {
+      log.info({ point: 'generate-install', note: 'running npm install in ' + cwd })
 
-    child.on('close', async (code) => {
-      if (code !== 0) {
-        reject(new Error(`npm install exited with code ${code}`))
-      }
-      else {
-        await installTargets(spec, opts, model, spawn_opts)
-        await installFeatures(spec, opts, model, spawn_opts)
-        resolve(null)
-      }
-    })
+      const child = spawn('npm', args, spawn_opts)
+
+      child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
+
+      child.on('close', async (code) => {
+        if (code !== 0) {
+          reject(new Error(`npm install exited with code ${code}`))
+        }
+        else {
+          await postInstall()
+          return resolve(null)
+        }
+      })
+    }
+    else {
+      await postInstall()
+      return resolve(null)
+    }
   })
 }
 
@@ -190,6 +215,7 @@ async function installTargets(spec: GenerateSpec, opts: any, model: any, spawn_o
 
     const args = ['run', 'add-target', targetlist]
 
+    log.info({ point: 'generate-target', note: 'adding targets: ' + targetlist })
     const child = spawn('npm', args, spawn_opts)
 
     child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
@@ -224,6 +250,7 @@ async function installFeatures(spec: GenerateSpec, opts: any, model: any, spawn_
 
     const args = ['run', 'add-feature', featurelist]
 
+    log.info({ point: 'generate-feature', note: 'adding features: ' + featurelist })
     const child = spawn('npm', args, spawn_opts)
 
     child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
