@@ -10,7 +10,7 @@
 
 # SDK Details.
 name: 'NAME'
-origin: 'voxgig'
+origin: 'voxgig-sdk'
 def: 'DEF'
 
 
