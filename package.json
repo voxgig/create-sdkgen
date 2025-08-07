@@ -1,6 +1,6 @@
 {
   "name": "@voxgig/create-sdkgen",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "dist/create-sdkgen.js",
   "type": "commonjs",
   "types": "dist/create-sdkgen.d.ts",
@@ -42,9 +42,9 @@
   ],
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@types/node": "24.1.0",
+    "@types/node": "24.2.0",
     "esbuild": "^0.25.8",
-    "memfs": "^4.30.1",
+    "memfs": "^4.36.0",
     "typescript": "^5.9.2"
   },
   "dependencies": {
