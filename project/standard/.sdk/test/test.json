@@ -815,6 +815,22 @@
           {
             "in": {
               "val": {},
+              "key": "x",
+              "alt": "y"
+            },
+            "out": "y"
+          },
+          {
+            "in": {
+              "val": {},
+              "key": "x",
+              "alt": null
+            },
+            "out": null
+          },
+          {
+            "in": {
+              "val": {},
               "key": null,
               "alt": null
             },
@@ -1312,7 +1328,7 @@
             ],
             "out": [
               [
-                0,
+                "0",
                 11
               ]
             ]
@@ -1324,11 +1340,11 @@
             ],
             "out": [
               [
-                0,
+                "0",
                 11
               ],
               [
-                1,
+                "1",
                 22
               ]
             ]
@@ -1347,19 +1363,19 @@
             ],
             "out": [
               [
-                0,
+                "0",
                 {
                   "z": 1
                 }
               ],
               [
-                1,
+                "1",
                 {
                   "z": 2
                 }
               ],
               [
-                2,
+                "2",
                 {
                   "z": 3
                 }
@@ -1383,25 +1399,25 @@
             ],
             "out": [
               [
-                0,
+                "0",
                 [
                   111
                 ]
               ],
               [
-                1,
+                "1",
                 [
                   222
                 ]
               ],
               [
-                2,
+                "2",
                 [
                   333
                 ]
               ],
               [
-                3,
+                "3",
                 [
                   444
                 ]
@@ -4124,7 +4140,9 @@
             "out": "  \""
           }
         ]
-      }
+      },
+      "name": "minor",
+      "set": []
     },
     "getpath": {
       "basic": {
@@ -5268,7 +5286,9 @@
             "out": 44
           }
         ]
-      }
+      },
+      "name": "getpath",
+      "set": []
     },
     "inject": {
       "basic": {
@@ -5772,24 +5792,50 @@
             "out": null
           }
         ]
-      }
+      },
+      "name": "inject",
+      "set": []
     },
     "merge": {
       "basic": {
         "in": [
           {
             "a": 1,
-            "b": 2
+            "b": 2,
+            "k": [
+              10,
+              20
+            ],
+            "x": {
+              "y": 5,
+              "z": 6
+            }
           },
           {
             "b": 3,
-            "d": 4
+            "d": 4,
+            "e": 8,
+            "k": [
+              11
+            ],
+            "x": {
+              "y": 7
+            }
           }
         ],
         "out": {
           "a": 1,
           "b": 3,
-          "d": 4
+          "d": 4,
+          "e": 8,
+          "k": [
+            11,
+            20
+          ],
+          "x": {
+            "y": 7,
+            "z": 6
+          }
         }
       },
       "cases": {
@@ -5971,10 +6017,36 @@
           },
           {
             "in": [
+              {
+                "n0": []
+              },
+              {
+                "n0": {}
+              }
+            ],
+            "out": {
+              "n0": {}
+            }
+          },
+          {
+            "in": [
               [],
               {}
             ],
             "out": {}
+          },
+          {
+            "in": [
+              {
+                "n1": {}
+              },
+              {
+                "n1": []
+              }
+            ],
+            "out": {
+              "n1": []
+            }
           },
           {
             "in": [
@@ -6817,6 +6889,44 @@
                 "d": 4
               }
             }
+          },
+          {
+            "in": [
+              {
+                "a0": [
+                  1
+                ]
+              },
+              {
+                "a0": {
+                  "x": 1
+                }
+              }
+            ],
+            "out": {
+              "a0": {
+                "x": 1
+              }
+            }
+          },
+          {
+            "in": [
+              {
+                "a1": {
+                  "x": 2
+                }
+              },
+              {
+                "a1": [
+                  2
+                ]
+              }
+            ],
+            "out": {
+              "a1": [
+                2
+              ]
+            }
           }
         ]
       },
@@ -6857,9 +6967,173 @@
                 }
               ]
             }
+          },
+          {
+            "in": [
+              {
+                "a": {
+                  "b": 10
+                }
+              },
+              {
+                "a": {}
+              }
+            ],
+            "out": {
+              "a": {
+                "b": 10
+              }
+            },
+            "match": {
+              "in": [
+                {
+                  "a": {
+                    "b": 10
+                  }
+                },
+                {
+                  "a": {}
+                }
+              ]
+            }
+          },
+          {
+            "in": [
+              {
+                "a": {
+                  "b": 11
+                }
+              },
+              {
+                "a": {
+                  "c": 21
+                }
+              }
+            ],
+            "out": {
+              "a": {
+                "b": 11,
+                "c": 21
+              }
+            },
+            "match": {
+              "in": [
+                {
+                  "a": {
+                    "b": 11
+                  }
+                },
+                {
+                  "a": {
+                    "c": 21
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "in": [
+              {
+                "a": {}
+              },
+              {
+                "a": {
+                  "c": 22
+                }
+              }
+            ],
+            "out": {
+              "a": {
+                "c": 22
+              }
+            },
+            "match": {
+              "in": [
+                {
+                  "a": {}
+                },
+                {
+                  "a": {
+                    "c": 22
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "in": [
+              {
+                "a": {
+                  "b": {
+                    "c": 13
+                  }
+                }
+              },
+              {
+                "a": {}
+              }
+            ],
+            "out": {
+              "a": {
+                "b": {
+                  "c": 13
+                }
+              }
+            },
+            "match": {
+              "in": [
+                {
+                  "a": {
+                    "b": {
+                      "c": 13
+                    }
+                  }
+                },
+                {
+                  "a": {}
+                }
+              ]
+            }
+          },
+          {
+            "in": [
+              {
+                "a": {}
+              },
+              {
+                "a": {
+                  "c": {
+                    "e": 24
+                  }
+                }
+              }
+            ],
+            "out": {
+              "a": {
+                "c": {
+                  "e": 24
+                }
+              }
+            },
+            "match": {
+              "in": [
+                {
+                  "a": {}
+                },
+                {
+                  "a": {
+                    "c": {
+                      "e": 24
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
-      }
+      },
+      "name": "merge",
+      "set": []
     },
     "transform": {
       "basic": {
@@ -10497,7 +10771,9 @@
             }
           }
         ]
-      }
+      },
+      "name": "transform",
+      "set": []
     },
     "walk": {
       "log": {
@@ -10507,12 +10783,30 @@
             "b": 1
           }
         },
-        "out": [
-          "k=b, v=1, p={b:1,c:2}, t=a.b",
-          "k=c, v=2, p={b:1,c:2}, t=a.c",
-          "k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a",
-          "k=, v={a:{b:1,c:2}}, p=, t=<root>"
-        ]
+        "out": {
+          "before": [
+            "k=, v={a:{b:1,c:2}}, p=, t=<root>",
+            "k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a",
+            "k=b, v=1, p={b:1,c:2}, t=a.b",
+            "k=c, v=2, p={b:1,c:2}, t=a.c"
+          ],
+          "after": [
+            "k=b, v=1, p={b:1,c:2}, t=a.b",
+            "k=c, v=2, p={b:1,c:2}, t=a.c",
+            "k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a",
+            "k=, v={a:{b:1,c:2}}, p=, t=<root>"
+          ],
+          "both": [
+            "k=, v={a:{b:1,c:2}}, p=, t=<root>",
+            "k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a",
+            "k=b, v=1, p={b:1,c:2}, t=a.b",
+            "k=b, v=1, p={b:1,c:2}, t=a.b",
+            "k=c, v=2, p={b:1,c:2}, t=a.c",
+            "k=c, v=2, p={b:1,c:2}, t=a.c",
+            "k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a",
+            "k=, v={a:{b:1,c:2}}, p=, t=<root>"
+          ]
+        }
       },
       "basic": {
         "set": [
@@ -10898,7 +11192,165 @@
             }
           }
         ]
-      }
+      },
+      "depth": {
+        "set": [
+          {
+            "in": {
+              "src": {
+                "a": {
+                  "b": {
+                    "c": 1,
+                    "d": 11
+                  }
+                }
+              }
+            },
+            "out": {
+              "a": {
+                "b": {
+                  "c": 1,
+                  "d": 11
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "src": {
+                "a": {
+                  "b": {
+                    "c": 2,
+                    "d": 22
+                  }
+                }
+              },
+              "maxdepth": -1
+            },
+            "out": {
+              "a": {
+                "b": {
+                  "c": 2,
+                  "d": 22
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "src": {
+                "a": {
+                  "b": {
+                    "c": 3,
+                    "d": 33
+                  }
+                }
+              },
+              "maxdepth": 11
+            },
+            "out": {
+              "a": {
+                "b": {
+                  "c": 3,
+                  "d": 33
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "src": {
+                "a": {
+                  "b": {
+                    "c": 4,
+                    "d": 44
+                  }
+                }
+              },
+              "maxdepth": 4
+            },
+            "out": {
+              "a": {
+                "b": {
+                  "c": 4,
+                  "d": 44
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "src": {
+                "a": {
+                  "b": {
+                    "c": 5,
+                    "d": 55
+                  }
+                }
+              },
+              "maxdepth": 3
+            },
+            "out": {
+              "a": {
+                "b": {
+                  "c": 5,
+                  "d": 55
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "src": {
+                "a": {
+                  "b": {
+                    "c": 6,
+                    "d": 66
+                  }
+                }
+              },
+              "maxdepth": 2
+            },
+            "out": {
+              "a": {
+                "b": {}
+              }
+            }
+          },
+          {
+            "in": {
+              "src": {
+                "a": {
+                  "b": {
+                    "c": 7,
+                    "d": 77
+                  }
+                }
+              },
+              "maxdepth": 1
+            },
+            "out": {
+              "a": {}
+            }
+          },
+          {
+            "in": {
+              "src": {
+                "a": {
+                  "b": {
+                    "c": 8,
+                    "d": 88
+                  }
+                }
+              },
+              "maxdepth": 0
+            },
+            "out": {}
+          }
+        ]
+      },
+      "name": "walk",
+      "set": []
     },
     "validate": {
       "basic": {
@@ -11338,6 +11790,41 @@
               }
             },
             "err": "Expected field a2 to be object, but found array: []."
+          },
+          {
+            "in": {
+              "data": "",
+              "spec": "`$STRING`"
+            },
+            "err": "Empty string at <root>"
+          },
+          {
+            "in": {
+              "data": {
+                "s0": ""
+              },
+              "spec": {
+                "s0": "`$STRING`"
+              }
+            },
+            "err": "Empty string at s0"
+          },
+          {
+            "in": {
+              "data": {
+                "s1": ""
+              },
+              "spec": {
+                "s1": [
+                  "`$ONE`",
+                  "`$STRING`",
+                  ""
+                ]
+              }
+            },
+            "out": {
+              "s1": ""
+            }
           }
         ]
       },
@@ -12716,7 +13203,9 @@
             "err": "Value at field a.b.c: 4001 should equal 4002."
           }
         ]
-      }
+      },
+      "name": "validate",
+      "set": []
     },
     "select": {
       "basic": {
@@ -13907,23 +14396,20 @@
             ]
           }
         ]
-      }
+      },
+      "name": "select",
+      "set": []
     }
   },
   "primary": {
-    "auth": {
+    "check": {
       "DEF": {
         "client": {
           "a": {
             "test": {
               "options": {
-                "apikey": "APIKEY01"
+                "foo": 1
               }
-            }
-          },
-          "b": {
-            "test": {
-              "options": {}
             }
           }
         }
@@ -13932,1145 +14418,23 @@
         "set": [
           {
             "ctx": {
-              "spec": {
-                "headers": {}
+              "meta": {
+                "bar": "BAR0"
+              }
+            },
+            "out": {
+              "zed": "ZED_BAR0"
+            }
+          },
+          {
+            "ctx": {
+              "meta": {
+                "bar": "BAR1"
               }
             },
             "client": "a",
-            "match": {
-              "out": {
-                "headers": {
-                  "authorization": "Bearer APIKEY01"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "body": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "op": {
-                "kind": "req",
-                "reqform": "`data.foo`",
-                "check": {
-                  "nobody": true
-                },
-                "data": {
-                  "foo": {
-                    "x": 1
-                  }
-                }
-              }
-            },
             "out": {
-              "x": 1
-            }
-          },
-          {
-            "ctx": {
-              "op": {
-                "kind": "req",
-                "reqform": "`data.bar`",
-                "check": {
-                  "nobody": false
-                },
-                "data": {
-                  "foo": {
-                    "x": 2
-                  }
-                }
-              }
-            }
-          },
-          {
-            "ctx": {
-              "op": {
-                "kind": "req",
-                "reqform": "`data.bar`",
-                "check": {
-                  "nobody": true
-                },
-                "data": {
-                  "foo": {
-                    "x": 3
-                  }
-                }
-              }
-            },
-            "err": "empty"
-          }
-        ]
-      }
-    },
-    "contextify": {
-      "basic": {
-        "set": [
-          {
-            "in": {
-              "op": {
-                "kind": "req"
-              }
-            },
-            "match": {
-              "out": {
-                "op": {
-                  "kind": "req"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "done": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "result": {
-                "ok": true,
-                "resdata": {
-                  "x": 1
-                }
-              }
-            },
-            "out": {
-              "x": 1
-            }
-          },
-          {
-            "ctx": {
-              "result": {
-                "ok": false
-              }
-            },
-            "err": "unknown operation: unknown error"
-          }
-        ]
-      }
-    },
-    "error": {
-      "basic": {
-        "set": [
-          {
-            "args": [],
-            "err": "SDK: unknown operation: unknown error"
-          },
-          {
-            "args": [
-              {}
-            ],
-            "err": "SDK: unknown operation: unknown error"
-          },
-          {
-            "args": [
-              {},
-              {}
-            ],
-            "err": "SDK: unknown operation: unknown error"
-          },
-          {
-            "args": [
-              {
-                "op": {}
-              }
-            ],
-            "err": "SDK: unknown operation: unknown error"
-          },
-          {
-            "args": [
-              {
-                "op": {
-                  "name": "foo"
-                }
-              }
-            ],
-            "err": "SDK: foo: unknown error"
-          },
-          {
-            "args": [
-              {
-                "op": {
-                  "name": "foo"
-                },
-                "result": {}
-              }
-            ],
-            "err": "SDK: foo: unknown error"
-          },
-          {
-            "args": [
-              {
-                "op": {
-                  "name": "foo"
-                },
-                "result": {
-                  "err": {
-                    "message": "bar"
-                  }
-                }
-              }
-            ],
-            "err": "SDK: foo: bar"
-          },
-          {
-            "args": [
-              {
-                "op": {
-                  "name": "foo"
-                }
-              },
-              {
-                "message": "zed"
-              }
-            ],
-            "err": "SDK: foo: zed"
-          },
-          {
-            "args": [
-              {
-                "op": {
-                  "name": "o0"
-                }
-              },
-              {
-                "message": "e0"
-              }
-            ],
-            "err": "SDK: o0: e0",
-            "match": {
-              "err": {
-                "message": "SDK: o0: e0"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "findparam": {
-      "DEF": {
-        "ctx0": {
-          "op": {}
-        },
-        "ctx1": {
-          "op": {
-            "kind": "res"
-          }
-        },
-        "ctx2": {
-          "op": {
-            "match": {},
-            "kind": "res"
-          }
-        },
-        "ctx3": {
-          "op": {
-            "match": {
-              "a": "A"
-            },
-            "kind": "res"
-          }
-        },
-        "ctx4": {
-          "op": {
-            "alias": {},
-            "match": {
-              "a": "A"
-            },
-            "kind": "res"
-          }
-        },
-        "ctx5": {
-          "op": {
-            "alias": {
-              "b": "a"
-            },
-            "match": {
-              "a": "A"
-            },
-            "kind": "res"
-          },
-          "spec": {}
-        }
-      },
-      "basic": {
-        "set": [
-          {
-            "mark": 10,
-            "args": [
-              {
-                "op": {}
-              },
-              "a"
-            ]
-          },
-          {
-            "mark": 20,
-            "args": [
-              {
-                "op": {
-                  "kind": "res"
-                }
-              },
-              "a"
-            ]
-          },
-          {
-            "mark": 30,
-            "args": [
-              {
-                "op": {
-                  "match": {},
-                  "kind": "res"
-                }
-              },
-              "a"
-            ]
-          },
-          {
-            "mark": 40,
-            "args": [
-              {
-                "op": {
-                  "match": {
-                    "a": "A"
-                  },
-                  "kind": "res"
-                }
-              },
-              "a"
-            ],
-            "out": "A"
-          },
-          {
-            "mark": 50,
-            "args": [
-              {
-                "op": {
-                  "match": {
-                    "a": "A"
-                  },
-                  "kind": "res"
-                }
-              },
-              "b"
-            ]
-          },
-          {
-            "mark": 60,
-            "args": [
-              {
-                "op": {
-                  "alias": {},
-                  "match": {
-                    "a": "A"
-                  },
-                  "kind": "res"
-                }
-              },
-              "b"
-            ]
-          },
-          {
-            "mark": 70,
-            "args": [
-              {
-                "op": {
-                  "alias": {
-                    "b": "a"
-                  },
-                  "match": {
-                    "a": "A"
-                  },
-                  "kind": "res"
-                },
-                "spec": {}
-              },
-              "a"
-            ],
-            "out": "A"
-          },
-          {
-            "mark": 80,
-            "args": [
-              {
-                "op": {
-                  "alias": {
-                    "b": "a"
-                  },
-                  "match": {
-                    "a": "A"
-                  },
-                  "kind": "res"
-                },
-                "spec": {}
-              },
-              "b"
-            ],
-            "out": "A",
-            "match": {
-              "ctx": {
-                "spec": {
-                  "alias": {
-                    "a": "b"
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "fullurl": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ]
-              },
-              "spec": {
-                "base": "base-",
-                "prefix": "prefix-",
-                "suffix": "suffix-",
-                "path": "/p0/{a}",
-                "params": {
-                  "a": "A"
-                },
-                "query": {
-                  "b": "B"
-                },
-                "alias": {}
-              }
-            },
-            "out": "base-/prefix-/p0/A/suffix-?b=B"
-          },
-          {
-            "ctx": {
-              "op": {
-                "kind": "res",
-                "params": [
-                  "foo_id"
-                ],
-                "alias": {
-                  "foo_id": "id"
-                },
-                "match": {
-                  "id": "A"
-                }
-              },
-              "spec": {
-                "base": "base-",
-                "prefix": "prefix-",
-                "suffix": "suffix-",
-                "path": "/p0/{foo_id}",
-                "params": {},
-                "alias": {}
-              }
-            },
-            "out": "base-/prefix-/p0/A/suffix-"
-          }
-        ]
-      }
-    },
-    "headers": {
-      "DEF": {
-        "client": {
-          "a": {
-            "test": {
-              "options": {
-                "headers": {
-                  "foo": "FOO",
-                  "bar": "BAR",
-                  "accept": "*/*"
-                }
-              }
-            }
-          }
-        }
-      },
-      "basic": {
-        "set": [
-          {
-            "ctx": {},
-            "out": {
-              "content-type": "application/json",
-              "accept": "application/json"
-            }
-          },
-          {
-            "ctx": {},
-            "client": "a",
-            "out": {
-              "foo": "FOO",
-              "bar": "BAR",
-              "content-type": "application/json",
-              "accept": "*/*"
-            }
-          }
-        ]
-      }
-    },
-    "resform": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "result": {
-                "ok": true,
-                "body": {
-                  "foo": {
-                    "x": 1
-                  }
-                }
-              },
-              "spec": {
-                "step": ""
-              },
-              "op": {
-                "resform": "`body.foo`"
-              }
-            },
-            "out": {
-              "x": 1
-            },
-            "match": {
-              "ctx": {
-                "spec": {
-                  "step": "resform"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "method": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "op": {
-                "name": "create"
-              }
-            },
-            "out": "POST"
-          },
-          {
-            "ctx": {
-              "op": {
-                "name": "update"
-              }
-            },
-            "out": "PUT"
-          },
-          {
-            "ctx": {
-              "op": {
-                "name": "list"
-              }
-            },
-            "out": "GET"
-          },
-          {
-            "ctx": {
-              "op": {
-                "name": "load"
-              }
-            },
-            "out": "GET"
-          },
-          {
-            "ctx": {
-              "op": {
-                "name": "remove"
-              }
-            },
-            "out": "DELETE"
-          },
-          {
-            "ctx": {
-              "op": {
-                "name": "bad"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "operator": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "op": {
-                "entity": "Foo",
-                "name": "load",
-                "path": "/foo/{foo_id}",
-                "params": [
-                  "foo_id"
-                ],
-                "alias": {
-                  "foo_id": "id",
-                  "id": "foo_id"
-                },
-                "match": {},
-                "data": {},
-                "state": {},
-                "reqform": "`data`",
-                "resform": "`body`",
-                "check": {}
-              }
-            },
-            "match": {
-              "ctx": {
-                "op": {
-                  "kind": "",
-                  "entity": "Foo",
-                  "name": "load",
-                  "path": "/foo/{foo_id}",
-                  "params": [
-                    "foo_id"
-                  ],
-                  "alias": {
-                    "foo_id": "id",
-                    "id": "foo_id"
-                  },
-                  "match": {},
-                  "data": {},
-                  "state": {},
-                  "reqform": "`data`",
-                  "resform": "`body`",
-                  "check": {}
-                }
-              }
-            }
-          },
-          {
-            "ctx": {
-              "op": {}
-            },
-            "err": "Invalid data: Expected field entity to be string, but found no value. | Expected field kind to be exactly equal to one of req, res, but found no value. | Expected field name to be string, but found no value. | Expected field path to be string, but found no value. | Expected field reqform to be one of string, object, function, but found no value. | Expected field resform to be one of string, object, function, but found no value."
-          },
-          {
-            "ctx": {
-              "op": {
-                "entity": 11,
-                "name": 22,
-                "path": 33,
-                "params": [
-                  44
-                ],
-                "alias": {
-                  "foo_id": 55
-                },
-                "match": 101,
-                "data": 102,
-                "state": 103,
-                "reqform": 66,
-                "resform": 77,
-                "check": 88
-              }
-            },
-            "err": "Invalid data: Expected field alias.foo_id to be string, but found number: 55. | Expected field check to be object, but found number: 88. | Expected field data to be one of {}, [], but found number: 102. | Expected field data to be array, but found number: 102. | Expected field entity to be string, but found number: 11. | Expected field kind to be exactly equal to one of req, res, but found no value. | Expected field match to be object, but found number: 101. | Expected field name to be string, but found number: 22. | Expected field path to be string, but found number: 33. | Expected field reqform to be one of string, object, function, but found number: 66. | Expected field resform to be one of string, object, function, but found number: 77. | Expected field state to be object, but found number: 103."
-          }
-        ]
-      }
-    },
-    "options": {
-      "basic": {
-        "set": [
-          {
-            "in": {
-              "prep": {
-                "config": {},
-                "options": {}
-              }
-            },
-            "match": {
-              "out": {
-                "base": "http://localhost:8000",
-                "entity": {},
-                "prefix": "",
-                "suffix": ""
-              }
-            }
-          },
-          {
-            "in": {
-              "prep": {
-                "options": {},
-                "config": {
-                  "options": {
-                    "base": "http://cbase.example",
-                    "prefix": "cpre-",
-                    "suffix": "csuf-",
-                    "entity": {
-                      "foo": {}
-                    }
-                  }
-                }
-              }
-            },
-            "match": {
-              "out": {
-                "base": "http://cbase.example",
-                "prefix": "cpre-",
-                "suffix": "csuf-",
-                "entity": {
-                  "foo": {
-                    "alias": {}
-                  }
-                }
-              }
-            }
-          },
-          {
-            "in": {
-              "prep": {
-                "options": {
-                  "base": "http://cbase.example",
-                  "prefix": "cpre-",
-                  "suffix": "csuf-",
-                  "entity": {
-                    "foo": {}
-                  }
-                },
-                "config": {}
-              }
-            },
-            "match": {
-              "out": {
-                "base": "http://cbase.example",
-                "prefix": "cpre-",
-                "suffix": "csuf-",
-                "entity": {
-                  "foo": {
-                    "alias": {}
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "reqform": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "spec": {
-                "step": ""
-              },
-              "op": {
-                "reqform": "`data.foo`",
-                "data": {
-                  "foo": {
-                    "x": 1
-                  }
-                }
-              }
-            },
-            "out": {
-              "x": 1
-            },
-            "match": {
-              "ctx": {
-                "spec": {
-                  "step": "reqform"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "params": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "op": {}
-            },
-            "out": {}
-          },
-          {
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ]
-              }
-            },
-            "out": {}
-          },
-          {
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ],
-                "match": {
-                  "a": "A"
-                }
-              }
-            },
-            "out": {
-              "a": "A"
-            }
-          },
-          {
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ],
-                "match": {
-                  "b": "B"
-                }
-              }
-            },
-            "out": {}
-          },
-          {
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ],
-                "match": {
-                  "a": "A"
-                }
-              },
-              "b": "B"
-            },
-            "out": {
-              "a": "A"
-            }
-          }
-        ]
-      }
-    },
-    "query": {
-      "basic": {
-        "set": [
-          {
-            "mark": 10,
-            "ctx": {
-              "op": {}
-            },
-            "out": {}
-          },
-          {
-            "mark": 20,
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ]
-              }
-            },
-            "out": {}
-          },
-          {
-            "mark": 30,
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ],
-                "match": {
-                  "a": "A"
-                }
-              }
-            },
-            "out": {}
-          },
-          {
-            "mark": 40,
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ],
-                "match": {
-                  "b": "B"
-                }
-              }
-            },
-            "out": {
-              "b": "B"
-            }
-          },
-          {
-            "mark": 50,
-            "ctx": {
-              "op": {
-                "params": [
-                  "a"
-                ],
-                "match": {
-                  "a": "A",
-                  "b": "B"
-                }
-              }
-            },
-            "out": {
-              "b": "B"
-            }
-          }
-        ]
-      }
-    },
-    "request": {
-      "DEF": {
-        "client": {
-          "a": {
-            "test": {
-              "options": {
-                "base": "b0",
-                "system": {
-                  "fetch": "`fetch`"
-                }
-              }
-            }
-          }
-        }
-      },
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "op": {
-                "params": []
-              },
-              "spec": {
-                "base": "http://localhost/base-",
-                "prefix": "prefix-",
-                "suffix": "suffix-",
-                "path": "/p0",
-                "params": {},
-                "query": {},
-                "alias": {}
-              }
-            },
-            "client": "a",
-            "match": {
-              "out": {
-                "native": "__EXISTS__",
-                "err": "__UNDEF__"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "resbasic": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "response": {
-                "native": {
-                  "status": 200,
-                  "reason": "OK"
-                }
-              },
-              "result": {}
-            },
-            "out": {
-              "status": 200,
-              "reason": "OK"
-            }
-          },
-          {
-            "ctx": {
-              "response": {
-                "native": {
-                  "status": 500,
-                  "reason": "r01"
-                }
-              },
-              "result": {}
-            },
-            "match": {
-              "out": {
-                "status": 500,
-                "reason": "r01",
-                "err": {
-                  "message": "request: 500: r01"
-                }
-              }
-            }
-          },
-          {
-            "ctx": {
-              "response": {
-                "native": {
-                  "status": 400,
-                  "reason": "BAD"
-                },
-                "err": {
-                  "message": "Foo"
-                }
-              },
-              "result": {}
-            },
-            "out": {
-              "status": 400,
-              "reason": "BAD",
-              "err": {
-                "message": "Foo: request: 400: BAD"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "resbody": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "response": {
-                "native": {
-                  "body": {
-                    "a": "A",
-                    "b": "B"
-                  }
-                }
-              },
-              "result": {}
-            },
-            "out": {
-              "body": {
-                "a": "A",
-                "b": "B"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "resheaders": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "response": {
-                "native": {
-                  "headers": {
-                    "a": "A",
-                    "B": "B"
-                  }
-                }
-              },
-              "result": {}
-            },
-            "out": {
-              "headers": {
-                "a": "A",
-                "b": "B"
-              }
-            },
-            "match": {
-              "ctx": {
-                "result": {
-                  "headers": {
-                    "a": "A",
-                    "b": "B"
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "response": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "response": {
-                "native": {
-                  "status": 201,
-                  "reason": "OK1",
-                  "headers": {
-                    "h1": "v1"
-                  },
-                  "body": {
-                    "b": 1
-                  }
-                }
-              },
-              "spec": {}
-            },
-            "match": {
-              "ctx": {
-                "result": {
-                  "ok": true,
-                  "status": 201,
-                  "reason": "OK1",
-                  "headers": {
-                    "h1": "v1"
-                  },
-                  "body": {
-                    "b": 1
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "spec": {
-      "DEF": {
-        "client": {
-          "a": {
-            "test": {
-              "options": {
-                "base": "BASE-",
-                "prefix": "PREFIX-",
-                "suffix": "SUFFIX-"
-              }
-            }
-          }
-        }
-      },
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "op": {
-                "name": "list"
-              }
-            },
-            "client": "a",
-            "match": {
-              "ctx": {
-                "spec": {
-                  "base": "BASE-",
-                  "prefix": "PREFIX-",
-                  "suffix": "SUFFIX-",
-                  "method": "GET",
-                  "params": {},
-                  "query": {},
-                  "headers": {
-                    "content-type": "application/json"
-                  },
-                  "step": "start",
-                  "alias": {}
-                }
-              }
+              "zed": "ZED1_BAR1"
             }
           }
         ]
