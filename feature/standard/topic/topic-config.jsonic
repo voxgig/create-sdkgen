@@ -1,0 +1,20 @@
+# param: define the API request parameters for topics
+param: topicname: {
+  name: *topic | string   # topic name
+  kind: *query | string   # place in URL query: ?topic=my-topic
+  defval: "" | string
+}
+
+# option: SDK feature options specified when instantiating an SDK client
+option: debug: {
+  type: Boolean
+  required: false
+  defval: false
+} 
+
+# option to specify default topic
+option: topicname: {
+  type: String
+  required: false
+  defval: ""
+}
