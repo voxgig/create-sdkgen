@@ -42,16 +42,16 @@
   ],
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@types/node": "24.2.0",
-    "esbuild": "^0.25.8",
-    "memfs": "^4.36.0",
-    "typescript": "^5.9.2"
+    "@types/node": "25.0.2",
+    "esbuild": "^0.27.1",
+    "memfs": "^4.51.1",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@voxgig/util": "^0.2.0",
-    "aontu": "^0.28.0",
-    "chokidar": "^4.0.3",
+    "@voxgig/util": "^0.2.1",
+    "aontu": "^0.33.2",
+    "chokidar": "^5.0.0",
     "gubu": "^9.0.0",
-    "jostraca": "^0.24.1"
+    "jostraca": "^0.25.1"
   }
 }

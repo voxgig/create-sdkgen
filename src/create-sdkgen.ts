@@ -1,6 +1,7 @@
 /* Copyright (c) 2024-2025 Richard Rodger, MIT License */
 
 import * as Fs from 'node:fs'
+import * as Os from 'node:os'
 import Path from 'node:path'
 import { spawn } from 'child_process'
 
@@ -22,19 +23,27 @@ type CreateSdkGenOptions = Partial<FullCreateSdkGenOptions>
 
 
 type GenerateSpec = {
+  sdk_folder: string
+
   name: string // Name of SDK project.
   def: string // Path to OpenAPI definition file, copied into SDK project.
   root: string // Path to Root template component.
-  project: string
+  project: string // Project template name
   debug?: string
   dryrun?: boolean
   target?: string[]
   feature?: string[]
-  install?: boolean
+  install?: boolean // perform installation - run npm install
+  folder?: string // Target folder for project
+
 }
 
 
 const { names, Jostraca } = JostracaModule
+
+
+const SDK_FOLDER = '.sdk'
+
 
 // TODO: CreateSdkGen opts and generate opts should be mostly the same, and
 // generate should override
@@ -68,7 +77,16 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
     const name = spec.name
     spec.def = (null == spec.def || '' === spec.def) ? name + '-openapi3.yml' : spec.def
 
-    const folder = Path.join(process.cwd(), name + (name.endsWith('-sdk') ? '' : '-sdk'))
+    spec.sdk_folder = SDK_FOLDER
+
+    const cwd = process.cwd()
+
+    const folder = (null == spec.folder || '' == spec.folder) ?
+      Path.join(cwd, name + (name.endsWith('-sdk') ? '' : '-sdk')) :
+      Path.isAbsolute(spec.folder) ? spec.folder :
+        Path.join(cwd, spec.folder)
+
+    logCreate(folder)
 
     const jopts = {
       fs: () => fs,
@@ -138,6 +156,55 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
   }
 
 
+  function escapeShellArg(arg: string): string {
+    // If arg contains no special characters, return as-is
+    if (/^[~a-zA-Z0-9_\-\.\/]+$/.test(arg)) {
+      return arg
+    }
+
+    // Otherwise, wrap in single quotes and escape any single quotes
+    return "'" + arg.replace(/'/g, "'\\''") + "'"
+  }
+
+
+  function logCreate(folder: string) {
+    try {
+      const logFolder = Path.join(folder, SDK_FOLDER, 'log')
+
+      if (!fs.existsSync(logFolder)) {
+        fs.mkdirSync(logFolder, { recursive: true })
+      }
+
+      const now = new Date()
+      const utcTimestamp = '[' + now.toISOString() + ']'
+
+      const timezoneName = Intl.DateTimeFormat().resolvedOptions().timeZone
+      const localISOString = now.getFullYear() + '-' +
+        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+        String(now.getDate()).padStart(2, '0') + 'T' +
+        String(now.getHours()).padStart(2, '0') + ':' +
+        String(now.getMinutes()).padStart(2, '0') + ':' +
+        String(now.getSeconds()).padStart(2, '0') + '.' +
+        String(now.getMilliseconds()).padStart(3, '0')
+      const localTimestamp = timezoneName + '=' + localISOString
+
+      const homeDir = Os.homedir()
+      const command = process.argv
+        .map(arg => arg.replace(homeDir, '~'))
+        .map(escapeShellArg)
+        .join(' ')
+
+      const logLine = `${utcTimestamp}  ${localTimestamp}  CREATE  ${command}\n`
+
+      const logFile = Path.join(logFolder, 'create.log')
+      fs.appendFileSync(logFile, logLine, 'utf8')
+    }
+    catch (err) {
+      log.debug({ point: 'logCreate-error', err })
+    }
+  }
+
+
   return {
     generate,
   }
@@ -152,7 +219,7 @@ async function installNpm(spec: GenerateSpec, opts: any, model: any) {
   const log = opts.log
 
   return new Promise(async (resolve, reject) => {
-    const cwd = Path.resolve(folder, '.sdk')
+    const cwd = Path.resolve(folder, SDK_FOLDER)
 
     const env = {
       ...process.env,

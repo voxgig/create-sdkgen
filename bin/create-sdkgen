@@ -14,6 +14,7 @@ const rootpath = require.resolve('../dist/standard/Root')
 
 let KONSOLE = global['con'+'sole']
 
+console.log('ROOTPATH', rootpath)
 
 run()
 
@@ -70,6 +71,7 @@ function generate(options) {
     def: options.def,
     dryrun: options.dryrun,
     project: options.project,
+    folder: options.folder,
     install: options.install,
     target: options.target,
     feature: options.feature,
@@ -103,14 +105,19 @@ function resolveOptions() {
           default: 'standard'
         },
 
+        folder: {
+          type: 'string',
+          short: 'f',
+          default: ''
+        },
+
         dryrun: {
           type: 'boolean',
-          short: 'y',
+          default: false,
         },
 
         install: {
           type: 'boolean',
-          short: 'y',
           default: true,
         },
 
@@ -128,7 +135,6 @@ function resolveOptions() {
 
         debug: {
           type: 'string',
-          short: 'g',
           default: 'info'
         },
         
@@ -168,6 +174,7 @@ function resolveOptions() {
     name,
     def: args.values.def,
     project: args.values.project,
+    folder: args.values.folder,
     dryrun: !!args.values.dryrun,
     install: !!args.values.install,
     target: targets,
@@ -188,6 +195,7 @@ function validateOptions(rawOptions) {
     name: Fault('The first argument must be the project name.', String),
     def: '',
     project: String,
+    folder: String,
     dryrun: Boolean,
     install: Boolean,
     target: [String],
@@ -237,11 +245,15 @@ Usage: npm create @voxgig/sdkgen@latest <name> <args>
     --project    Project template (folder or package reference). Default: standard.
     -p            
 
-    --dryrun     Perform a dry run, where no files are modified.
-    -y
+    --folder     Target output folder. Default: ./<name>-sdk.
+    -f            
+
+    --install    Run installation scripts. Default: install.
+    --no-install
+
+    --dryrun     Perform a dry run, where no files are modified. Default: no-dryrun.
 
     --debug      Set log level (default: info): trace, error, debug, info, warn, fatal.
-    -g             
 
     --help       Print this help message.
     -h
@@ -254,7 +266,7 @@ Examples:
 
 # Basic usage
 > npm create @voxgig/sdkgen@latest foo
-# Creates the SDK Project in the folder ./foo
+# Creates the SDK Project in the folder ./foo-sdk
 
 See also: https://voxgig.com/sdkgen
 `

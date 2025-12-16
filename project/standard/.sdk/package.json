@@ -24,14 +24,12 @@
   "devDependencies": {
     "@types/node": ">=24",
     "typescript": ">=5",
-    "patch-package": ">=8"
-  },
-  "dependencies": {
-    "@voxgig/apidef": ">=2",
+    "@voxgig/apidef": ">=3",
     "@voxgig/model": ">=7",
     "@voxgig/sdkgen": ">=0",
     "@voxgig/util": ">=0",
     "@voxgig/struct": ">=0",
-    "jostraca": ">=0"
+    "jostraca": ">=0",
+    "aontu": ">=0"
   }
 }

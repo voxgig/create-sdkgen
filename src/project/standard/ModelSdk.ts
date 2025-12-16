@@ -14,7 +14,8 @@ const ModelSdk = cmp(function ModelSdk(props: any) {
 
   File({ name: 'sdk.jsonic' }, () => {
     Fragment({
-      from: __dirname + '/../../../project/standard/.sdk/model/sdk.fragment.jsonic',
+      from: __dirname + '/../../../project/standard/' + spec.sdk_folder +
+        '/model/sdk.fragment.jsonic',
       replace: {
         ProjectName: spec.name,
         NAME: spec.name,

@@ -6,7 +6,8 @@ const ModelSdk = (0, jostraca_1.cmp)(function ModelSdk(props) {
     const { spec } = props;
     (0, jostraca_1.File)({ name: 'sdk.jsonic' }, () => {
         (0, jostraca_1.Fragment)({
-            from: __dirname + '/../../../project/standard/.sdk/model/sdk.fragment.jsonic',
+            from: __dirname + '/../../../project/standard/' + spec.sdk_folder +
+                '/model/sdk.fragment.jsonic',
             replace: {
                 ProjectName: spec.name,
                 NAME: spec.name,

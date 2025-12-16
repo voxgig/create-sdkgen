@@ -6,6 +6,7 @@ type FullCreateSdkGenOptions = {
 };
 type CreateSdkGenOptions = Partial<FullCreateSdkGenOptions>;
 type GenerateSpec = {
+    sdk_folder: string;
     name: string;
     def: string;
     root: string;
@@ -15,6 +16,7 @@ type GenerateSpec = {
     target?: string[];
     feature?: string[];
     install?: boolean;
+    folder?: string;
 };
 declare function CreateSdkGen(opts: FullCreateSdkGenOptions): {
     generate: (spec: GenerateSpec) => Promise<void>;
