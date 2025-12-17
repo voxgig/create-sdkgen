@@ -10,11 +10,9 @@ const Pkg = require('../package.json')
 
 const { CreateSdkGen } = require('../dist/create-sdkgen.js') 
 
-const rootpath = require.resolve('../dist/standard/Root')
+// const rootpath = require.resolve('../dist/standard/CreateRoot')
 
 let KONSOLE = global['con'+'sole']
-
-console.log('ROOTPATH', rootpath)
 
 run()
 
@@ -65,7 +63,7 @@ function generate(options) {
 
 
   const spec = {
-    root: 'Root',
+    root: 'CreateRoot',
 
     name: options.name,
     def: options.def,

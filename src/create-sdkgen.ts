@@ -72,7 +72,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
     const rootPath = Path.join(projectFolder, spec.root)
 
     const rootModule: any = require(rootPath)
-    const Root = rootModule.Root
+    const CreateRoot = rootModule.CreateRoot
 
     const name = spec.name
     spec.def = (null == spec.def || '' === spec.def) ? name + '-openapi3.yml' : spec.def
@@ -121,7 +121,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
       note: JSON.stringify(jopts, null, 2)
     })
 
-    const jres = await jostraca.generate(jopts, () => Root({ model, spec }))
+    const jres = await jostraca.generate(jopts, () => CreateRoot({ model, spec }))
 
     showChanges(jopts.log, 'generate-result', jres, Path.dirname(process.cwd()))
 

@@ -14,6 +14,7 @@ import {
 } from '../'
 
 
+const aontu = new Aontu()
 
 describe('create-sdkgen', () => {
 
@@ -44,7 +45,7 @@ describe('create-sdkgen', () => {
 
 
   function makeModel() {
-    return Aontu(`
+    return aontu.generate(`
 a:1
 `).gen()
   }

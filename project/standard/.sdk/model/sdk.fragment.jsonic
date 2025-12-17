@@ -1,8 +1,4 @@
 
-# Generation guide.
-@"guide.jsonic"
-
-
 # Model definitions.
 @"@voxgig/apidef/model/apidef.jsonic"
 @"@voxgig/sdkgen/model/sdkgen.jsonic"

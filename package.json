@@ -26,7 +26,7 @@
     "build": "tsc --build src test",
     "test-model": "voxgig-model project/.sdk/test/test.jsonic",
     "test-model-watch": "voxgig-model -w project/.sdk/test/test.jsonic",
-    "clean": "rm -rf node_modules yarn.lock package-lock.json",
+    "clean": "rm -rf dist dist-test node_modules yarn.lock package-lock.json",
     "reset": "npm run clean && npm i && npm run build && npm test",
     "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
     "repo-publish": "npm run clean && npm i && npm run repo-publish-quick",
@@ -42,8 +42,8 @@
   ],
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@types/node": "25.0.2",
-    "esbuild": "^0.27.1",
+    "@types/node": "25.0.3",
+    "esbuild": "^0.27.2",
     "memfs": "^4.51.1",
     "typescript": "^5.9.3"
   },

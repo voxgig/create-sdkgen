@@ -1,7 +1,7 @@
 
 
 import Path from 'node:path'
-import * as Fs from 'node:fs'
+// import * as Fs from 'node:fs'
 
 import {
   names,
@@ -20,8 +20,9 @@ import { ModelSdk } from './ModelSdk'
 
 
 // TODO: rename to RootSdk
-const Root = cmp(function Root(props: any) {
+const CreateRoot = cmp(function CreateRoot(props: any) {
   const { ctx$, ctx$: { folder }, spec, model } = props
+  const fs = ctx$.fs()
 
   // TODO: move to @voxgig/util as duplicated
   model.const = { name: model.name }
@@ -37,7 +38,8 @@ const Root = cmp(function Root(props: any) {
     // console.log('FROM', from)
 
     Copy({
-      from
+      from,
+      exclude: [/\.fragment\./]
     })
 
     const origdef = spec.def
@@ -46,7 +48,8 @@ const Root = cmp(function Root(props: any) {
 
     Folder({ name: spec.sdk_folder }, () => {
       Folder({ name: 'def' }, () => {
-        if (Fs.existsSync(origdef)) {
+        // TODO: file existence check should be jostraca util
+        if (fs.existsSync(origdef)) {
           Copy({ from: origdef, to: projdef })
         }
         else {
@@ -66,5 +69,5 @@ const Root = cmp(function Root(props: any) {
 
 
 export {
-  Root
+  CreateRoot
 }

@@ -5,6 +5,7 @@ const code_1 = require("@hapi/code");
 const aontu_1 = require("aontu");
 const jostraca_1 = require("jostraca");
 const __1 = require("../");
+const aontu = new aontu_1.Aontu();
 (0, node_test_1.describe)('create-sdkgen', () => {
     (0, node_test_1.test)('happy', async () => {
         (0, code_1.expect)(__1.CreateSdkGen).exist();
@@ -31,7 +32,7 @@ const __1 = require("../");
             */
     });
     function makeModel() {
-        return (0, aontu_1.Aontu)(`
+        return aontu.generate(`
 a:1
 `).gen();
     }

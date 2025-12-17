@@ -1,4 +1,7 @@
 
+import Path from 'node:path'
+
+
 import {
   cmp,
   File,
@@ -11,11 +14,12 @@ import {
 const ModelSdk = cmp(function ModelSdk(props: any) {
   const { spec } = props
 
+  const from =
+    Path.resolve(Path.join(__dirname + '..', '..', '..', '..', 'project', 'standard'))
 
   File({ name: 'sdk.jsonic' }, () => {
     Fragment({
-      from: __dirname + '/../../../project/standard/' + spec.sdk_folder +
-        '/model/sdk.fragment.jsonic',
+      from: Path.join(from, spec.sdk_folder, 'model', 'sdk.fragment.jsonic'),
       replace: {
         ProjectName: spec.name,
         NAME: spec.name,
