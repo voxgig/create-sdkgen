@@ -183,6 +183,10 @@ function resolveOptions() {
   }
 
   // console.log('ARGS', args, options)
+
+  if(null == options.folder || '' == options.folder) {
+    options.folder = options.name + '-sdk'
+  }
   
   return options
 }
@@ -215,6 +219,9 @@ function validateOptions(rawOptions) {
 
 
 function handleError(err) {
+  console.log(err)
+  console.trace()
+  
   KONSOLE.log('Voxgig Create SDK Error: '+err)
   exit(err)
 }

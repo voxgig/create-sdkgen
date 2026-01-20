@@ -5,6 +5,9 @@ import {
 } from '@voxgig/sdkgen'
 
 
+import { KIT } from './Root'
+
+
 const Top = cmp(function Top(props: any) {
   const { ctx$ } = props
   const { model } = ctx$
@@ -18,7 +21,7 @@ const Top = cmp(function Top(props: any) {
 flowchart LR
 `)
 
-    const entityMap = model.main.api.entity
+    const entityMap = model.main[KIT].entity
 
     each(entityMap, (entity: any) => {
       const ancestors = entity.ancestors || []

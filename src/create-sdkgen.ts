@@ -123,7 +123,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     const jres = await jostraca.generate(jopts, () => CreateRoot({ model, spec }))
 
-    showChanges(jopts.log, 'generate-result', jres, Path.dirname(process.cwd()))
+    showChanges(jopts.log, 'generate-result', jres, process.cwd())
 
     if (spec.dryrun || !spec.install) {
       log.info({ point: 'generate-install', note: 'skipping npm install' })

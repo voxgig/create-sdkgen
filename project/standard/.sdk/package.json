@@ -12,7 +12,7 @@
     "watch": "tsc --build src -w",
     "build": "tsc --build src",
     "test": "echo no-test",
-    "clean": "rm -rf node_modules yarn.lock package-lock.json",
+    "clean": "rm -rf dist dist-test node_modules yarn.lock package-lock.json",
     "reset": "npm run clean && npm i && npm run build && npm test",
     "add-target": "voxgig-sdkgen target add",
     "dry-add-target": "voxgig-sdkgen -y target add",
@@ -22,7 +22,7 @@
   "author": "$$const.Name$$",
   "license": "$$const.License$$",
   "devDependencies": {
-    "@types/node": ">=24",
+    "@types/node": ">=25",
     "typescript": ">=5",
     "@voxgig/apidef": ">=3",
     "@voxgig/model": ">=7",

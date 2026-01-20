@@ -10,16 +10,16 @@ origin: 'voxgig-sdk'
 def: 'DEF'
 
 
-# API Definition
-@"api/api-def.jsonic"
-
-
-# API Entities
-@"api/api-entity-index.jsonic"
+# API Information
+@"api/api-info.jsonic"
 
 
 # SDK Configuration.
 @"config.jsonic"
+
+
+# SDK Entities
+@"entity/entity-index.jsonic"
 
 
 # SDK Features.

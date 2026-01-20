@@ -15,10 +15,18 @@ import {
 
 } from '@voxgig/sdkgen'
 
+import {
+  KIT
+} from '@voxgig/apidef'
+
 
 import { transform, select, ismap } from '@voxgig/struct'
 
 import { PointUtil, Content } from 'jostraca'
+
+
+import { Top } from './Top'
+
 
 const {
   buildPoints,
@@ -26,7 +34,6 @@ const {
 } = PointUtil
 
 
-import { Top } from './Top'
 
 
 const Root = cmp(function Root(props: any) {
@@ -42,9 +49,9 @@ const Root = cmp(function Root(props: any) {
 
   ctx$.model = model
 
-  const target = model.main.sdk.target || {}
-  const feature = model.main.sdk.feature || {}
-  const entity = model.main.api.entity || {}
+  const target = model.main[KIT].target || {}
+  const feature = model.main[KIT].feature || {}
+  const entity = model.main[KIT].entity || {}
 
   ctx$.log.debug({
     point: 'cmp-root', target, entity, feature, note: [
@@ -228,6 +235,7 @@ function makeFlowStep(
 
 
 export {
-  Root
+  KIT,
+  Root,
 }
 

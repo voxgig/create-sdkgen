@@ -34,6 +34,7 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
                     (0, jostraca_1.Copy)({ from: origdef, to: projdef });
                 }
                 else {
+                    console.log('DEF NOT FOUND: ', origdef);
                     (0, jostraca_1.File)({ name: projdef }, () => {
                         (0, jostraca_1.Content)('# OpenAPI Definition');
                     });
