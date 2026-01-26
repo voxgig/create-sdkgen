@@ -12,6 +12,7 @@ import {
   Entity,
   Feature,
   Readme,
+  Test,
 
 } from '@voxgig/sdkgen'
 
@@ -26,6 +27,7 @@ import { PointUtil, Content } from 'jostraca'
 
 
 import { Top } from './Top'
+import { BuildSDK } from './BuildSDK'
 
 
 const {
@@ -74,6 +76,8 @@ const Root = cmp(function Root(props: any) {
     // TODO: jostraca should accept no props
     Top({})
 
+    BuildSDK({})
+
     each(target, (target: any) => {
       names(target, target.name)
 
@@ -84,7 +88,6 @@ const Root = cmp(function Root(props: any) {
           Entity({ target, entity })
         })
 
-        // each(feature).filter((feature: any) => feature.active).map((feature: any) => {
         each(feature).filter((feature: any) => feature.active).map((feature: any) => {
           names(feature, feature.name)
           Feature({ target, feature })
@@ -94,6 +97,7 @@ const Root = cmp(function Root(props: any) {
 
         Readme({ target })
 
+        Test({ target })
       })
     })
 
