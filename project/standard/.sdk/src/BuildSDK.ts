@@ -43,7 +43,12 @@ const BuildSDK = cmp(function BuildSDK(props: any) {
 
 function makeEntityTestData(model: any, entity: ModelEntity) {
   const data: any = {
-    entity: {}
+    existing: {
+      [entity.name]: {}
+    },
+    new: {
+      [entity.name]: {}
+    }
   }
 
   const refs = [
@@ -54,25 +59,36 @@ function makeEntityTestData(model: any, entity: ModelEntity) {
 
   const idmap = refs.reduce((a: any, ref) => (a[ref] = ref.toUpperCase(), a), {})
 
-  refs.map((ref, i) => {
+  let i = 1
+
+  refs.map((ref) => {
     const id = idmap[ref]
-    const ent: any = data.entity[id] = {}
+    const ent: any = data.existing[entity.name][id] = {}
 
-    let num = (i * size(entity.fields) * 10)
-    each(entity.fields, (field: any) => {
-      ent[field.name] =
-        'number' === field.type ? num :
-          'boolean' === field.type ? 0 === num % 2 :
-            'object' === field.type ? {} :
-              'array' === field.type ? [] :
-                's' + (num.toString(16))
-      num++
-    })
-
+    makeEntityTestFields(entity, i++, ent)
     ent.id = id
   })
 
+  let id = entity.name + '_ref01'
+  const ent: any = data.new[entity.name][id] = {}
+  makeEntityTestFields(entity, i++, ent)
+  delete ent.id
+
   return data
+}
+
+
+function makeEntityTestFields(entity: ModelEntity, start: number, ent: any) {
+  let num = (start * size(entity.fields) * 10)
+  each(entity.fields, (field: any) => {
+    ent[field.name] =
+      'number' === field.type ? num :
+        'boolean' === field.type ? 0 === num % 2 :
+          'object' === field.type ? {} :
+            'array' === field.type ? [] :
+              's' + (num.toString(16))
+    num++
+  })
 }
 
 
