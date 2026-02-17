@@ -82,11 +82,13 @@ function makeEntityTestFields(entity: ModelEntity, start: number, ent: any) {
   let num = (start * size(entity.fields) * 10)
   each(entity.fields, (field: any) => {
     ent[field.name] =
-      'number' === field.type ? num :
-        'boolean' === field.type ? 0 === num % 2 :
-          'object' === field.type ? {} :
-            'array' === field.type ? [] :
-              's' + (num.toString(16))
+      field.name.endsWith('_id') ?
+        field.name.substring(0, field.name.length - 3).toUpperCase() + '01' :
+        'number' === field.type ? num :
+          'boolean' === field.type ? 0 === num % 2 :
+            'object' === field.type ? {} :
+              'array' === field.type ? [] :
+                's' + (num.toString(16))
     num++
   })
 }
