@@ -284,13 +284,32 @@ each: {
       out: [{x0:y0:0},{x0:y0:1}]
     }
 
-      
+
+    {
+      in: data: ['a','b','c']
+      in: spec: ['`$EACH`','','`$COPY`']
+      out: ['a','b','c']
+    }
+
+    {
+      in: data: ['a','b','c']
+      in: spec: ['`$EACH`','',['`$FORMAT`','upper','`$COPY`']]
+      out: ['A','B','C']
+    }
   ]
 }
 
 
 pack: {
   set: [
+    { in: { data: {x:[{y:0,k:'K0'},{y:1,k:'K1'}]},
+            spec: {z:{'`$PACK`':['x',{'`$KEY`':'k', y:'`.y`',p:'P0'}]}} },
+      out: {z:{K0:{y:0,p:'P0'},K1:{y:1,p:'P0'}}} }
+
+    { in: { data: {x:[{y:0,k:'K0'},{y:1,k:'K1'}]},
+            spec: {z:{'`$PACK`':['x',{'`$KEY`':'k', '`$VAL`':{y:'`.y`',p:'P1'}}]}} },
+      out: {z:{K0:{y:0,p:'P1'},K1:{y:1,p:'P1'}}} }
+
     { in: { data: {x:[{y:0,k:'K0'},{y:1,k:'K1'}]},
             spec: {z:{'`$PACK`':['x',{'`$KEY`':'k', y:'`$COPY`',q:'Q0'}]}} },
       out: {z:{K0:{y:0,q:'Q0'},K1:{y:1,q:'Q0'}}} }
@@ -325,6 +344,32 @@ pack: {
       out: {a:{b:{c:{d:{e:{K0:{y:0,q:'Q7'}}}}}}} }
 
 
+    { in: { data: ['a','b','c'],
+            spec: {'`$PACK`':['',{'`$VAL`': '`$COPY`'}]}},
+      out: {0:a,1:b,2:c} }
+
+    { in: { data: ['a','b','c'],
+            spec: {'`$PACK`':['','`$COPY`']}},
+      out: {0:a,1:b,2:c} }
+
+    { in: { data: ['a','b','c'],
+      spec: {'`$PACK`':['','X']}},
+      out: {0:X,1:X,2:X} }
+
+    { in: { data: ['a','b','c'],
+            spec: {'`$PACK`':['',{'`$KEY`':'`$COPY`', '`$VAL`': '`$COPY`'}]}},
+      out: {a:a,b:b,c:c} }
+
+    { in: { data: ['a','b','c'],
+            spec: {'`$PACK`':['',{'`$KEY`':'`$COPY`', x:'`$KEY`'}]}},
+      out: {a:x:a,b:x:b,c:x:c} }
+
+    { in: { data: ['a','b','c'],
+            spec: {'`$PACK`':['',{'`$KEY`': '`$COPY`',
+                                  '`$VAL`': ['`$FORMAT`','upper','`$COPY`'] }]}},
+      out: {a:A,b:B,c:C} }
+
+      
     { in: { data: {x:[{y:0,k:'K0'}]},
           spec: {a:{b:{c:{d:{e:{'`$PACK`':['x',{'`$KEY`':'k', y:'`$COPY`',q:'Q8'}]}}}}}} },
       out: {a:{b:{c:{d:{e:{K0:{y:0,q:'Q8'}}}}}}} }
@@ -336,6 +381,8 @@ pack: {
     { in: { data: {v100:11,x100:[{y:0,k:'K0'},{y:1,k:'K1'}]},
             spec: {a:{b:{'`$PACK`':['x100',{'`$KEY`':'k', y:'`.y`',p:'`...v100`'}]}}} },
       out: {a:{b:{K0:{y:0,p:11}, K1:{y:1,p:11}}}} }
+
+      
       
   ]
 }
@@ -450,4 +497,56 @@ ref: {
     }
 
   ]
+}
+
+
+format: {
+  set: [
+    { in: { data: null, spec:['`$FORMAT`','upper',a] } out: A }
+    { in: { data: null, spec:x:['`$FORMAT`','upper',b] } out: x:B }
+    { in: { data: null, spec:x:[['`$FORMAT`','upper',1]] } out: x:['1'] }
+    { in: { data: null, spec:x:y:['`$FORMAT`','upper',true] } out: x:y:TRUE }
+    { in: { data: null, spec:x:y:[[['`$FORMAT`','upper',null]]] } out: x:y:[['NULL']] }
+    { in: { data: null, spec:['`$FORMAT`','upper',[]] } out: [] }
+    { in: { data: null, spec:['`$FORMAT`','upper',{}] } out: {} }
+    { in: { data: null, spec:['`$FORMAT`','upper',[c]] } out: [C] }
+    { in: { data: null, spec:['`$FORMAT`','upper',{c:d}] } out: {c:D} }
+    { in: { data: null, spec:['`$FORMAT`','upper',[e,[f]]] } out: [E,[F]] }
+    { in: { data: null, spec:['`$FORMAT`','upper',{g:h,i:j:k}] } out: {g:H,i:j:K} }
+
+    { in: { data: null, spec:['`$FORMAT`','not-a-format',a] }
+      err: '$FORMAT: unknown format: not-a-format.' }
+
+    { in: { data: null, spec:['`$FORMAT`','identity',1] } out: 1 }
+    { in: { data: null, spec:['`$FORMAT`','identity',[1]] } out: [1] }
+    { in: { data: null, spec:['`$FORMAT`','identity',{x:1}] } out: {x:1} }
+    
+    { in: { data: null, spec:['`$FORMAT`','lower',A] } out: a }
+    { in: { data: null, spec:['`$FORMAT`','string',1.2] } out: '1.2' }
+    { in: { data: null, spec:['`$FORMAT`','number','3.4'] } out: 3.4 }
+    { in: { data: null, spec:['`$FORMAT`','integer',[1,2.3,'4','5.6']] } out: [1,2,4,5] }
+    { in: { data: null, spec:['`$FORMAT`','number',{a:1,b:2.3,c:'4',d:'5.6'}] }
+      out: {a:1 b:2.3 c:4 d:5.6}  }
+
+    { in: { data: null, spec:['`$FORMAT`','concat',[a,b]] } out: ab }
+    { in: { data: null, spec:['`$FORMAT`','concat',[c,1,d,null,false,{},[]]] }
+      out: c1dnullfalse }
+  ]
+}
+
+
+apply: {
+  set: [
+    { in: { data: {}, spec:['`$APPLY`','not-a-function','ignored'] }
+      err: '$APPLY: invalid argument: '+
+           'not-a-function (string at position 1) is not of type: function.' }
+
+    { in: { data: {}, spec:{'`$APPLY`':1} }
+      err: '$APPLY: invalid placement as key, expected: value.' }
+
+    { in: { data: {}, spec:{x:'`$APPLY`'} }
+      err: '$APPLY: invalid placement in parent map, expected: list.' }
+      
+  ]
+
 }

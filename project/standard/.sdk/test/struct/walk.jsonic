@@ -1,12 +1,30 @@
 
 log: {
   in: { a: { c: 2, b: 1 } }
-  out: [
-    'k=b, v=1, p={b:1,c:2}, t=a.b',
-    'k=c, v=2, p={b:1,c:2}, t=a.c',
-    'k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a',
-    'k=, v={a:{b:1,c:2}}, p=, t=<root>'
-  ]
+  out: {
+    before: [
+      'k=, v={a:{b:1,c:2}}, p=, t=<root>'
+      'k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a',
+      'k=b, v=1, p={b:1,c:2}, t=a.b',
+      'k=c, v=2, p={b:1,c:2}, t=a.c',
+    ]
+    after: [
+      'k=b, v=1, p={b:1,c:2}, t=a.b',
+      'k=c, v=2, p={b:1,c:2}, t=a.c',
+      'k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a',
+      'k=, v={a:{b:1,c:2}}, p=, t=<root>'
+    ]
+    both: [
+      'k=, v={a:{b:1,c:2}}, p=, t=<root>',
+      'k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a',
+      'k=b, v=1, p={b:1,c:2}, t=a.b',
+      'k=b, v=1, p={b:1,c:2}, t=a.b',
+      'k=c, v=2, p={b:1,c:2}, t=a.c',
+      'k=c, v=2, p={b:1,c:2}, t=a.c',
+      'k=a, v={b:1,c:2}, p={a:{b:1,c:2}}, t=a',
+      'k=, v={a:{b:1,c:2}}, p=, t=<root>'
+    ]
+  }
 }
 
 
@@ -51,6 +69,39 @@ basic: {
 
     { in: {x1:{}}, out: {x1:{}} }
     { in: {x2:[]}, out: {x2:[]} }
+  ]
+}
+
+
+depth: {
+  set: [
+    { in: { src: { a:b:{c:1,d:11} } } out: { a:b:{c:1,d:11} } }
+    { in: { src: { a:b:{c:2,d:22} } maxdepth:-1 }, out: { a:b:{c:2,d:22} } }
+    { in: { src: { a:b:{c:3,d:33} } maxdepth:11 }, out: { a:b:{c:3,d:33} } }
+    { in: { src: { a:b:{c:4,d:44} } maxdepth:4 }, out: { a:b:{c:4,d:44} } }
+    { in: { src: { a:b:{c:5,d:55} } maxdepth:3 }, out: { a:b:{c:5,d:55} } }
+    { in: { src: { a:b:{c:6,d:66} } maxdepth:2 }, out: { a:b:{} } }
+    { in: { src: { a:b:{c:7,d:77} } maxdepth:1 }, out: { a:{} } }
+    { in: { src: { a:b:{c:8,d:88} } maxdepth:0 }, out: {} }
+  ]
+}
+
+
+copy: {
+  set: [
+    { in: {a0:0} out: {a0:0} }
+    { in: [1] out: [1] }
+    { in: {} out: {} }
+    { in: [] out: [] }
+    { in: null out: null }
+    { }
+    { in: {a1:{b1:1}} out: {a1:{b1:1}} }
+
+    { in:  {a2:{b2:2},c2:{d2:{e2:22,f2:222}},g2:2222}
+      out: {a2:{b2:2},c2:{d2:{e2:22,f2:222}},g2:2222} }
+
+    { in: [[3],[33],[[333],[3333]]]
+      out: [[3],[33],[[333],[3333]]] }
   ]
 }
 

@@ -165,6 +165,8 @@ getprop: {
     { in: { val: true } }
     { in: { val: null } }
     { in: { val: {}, key: null } }
+    { in: { val: {}, key: x, alt: y }, out: y }
+    { in: { val: {}, key: x, alt: null }, out: null }
     { in: { val: {}, key: null, alt: null }, out: null }
     { in: {} }
   ]
@@ -235,10 +237,10 @@ items: {
     { in: {a:{x:{y:1}},b:{x:{y:2}},c:{x:{y:3}},d:{x:{y:4}},e:{x:{y:5}}},
       out: [['a',{x:{y:1}}],['b',{x:{y:2}}],['c',{x:{y:3}}],['d',{x:{y:4}}],['e',{x:{y:5}}]] }
 
-    { in: [11], out: [[0,11]] }
-    { in: [11,22], out: [[0,11],[1,22]] }
-    { in: [{z:1},{z:2},{z:3}], out: [[0,{z:1}],[1,{z:2}],[2,{z:3}]] }
-    { in: [[111],[222],[333],[444]], out: [[0,[111]],[1,[222]],[2,[333]],[3,[444]]] }
+    { in: [11], out: [['0',11]] }
+    { in: [11,22], out: [['0',11],['1',22]] }
+    { in: [{z:1},{z:2},{z:3}], out: [['0',{z:1}],['1',{z:2}],['2',{z:3}]] }
+    { in: [[111],[222],[333],[444]], out: [['0',[111]],['1',[222]],['2',[333]],['3',[444]]] }
     
     { in: 1, out: [] }
     { in: 'a', out: [] }
@@ -381,19 +383,23 @@ stringify: {
 
 jsonify: {
   set: [
-    { in: 1, out: '1' }
-    { in: 'a', out: '"a"' }
-    { in: true, out: 'true' }
-    { in: false, out: 'false' }
-    { in: null, out: 'null' }
-    { out: 'null' }
-    { in: [], out: '[]' }
-    { in: {}, out: '{}' }
-    { in: [1,2,3], out: '[\n  1,\n  2,\n  3\n]' }
-    { in: {a:1}, out: '{\n  "a": 1\n}' }
-    { in: {a:1,b:2}, out: '{\n  "a": 1,\n  "b": 2\n}' }
-    { in: {x:{y:1}}, out: '{\n  "x": {\n    "y": 1\n  }\n}' }
-    { in: [{a:1},{b:2}], out: '[\n  {\n    "a": 1\n  },\n  {\n    "b": 2\n  }\n]' }
+    { in: {val:1} out: '1' }
+    { in: {val:'a'} out: '"a"' }
+    { in: {val:true} out: 'true' }
+    { in: {val:false} out: 'false' }
+    { in: {val:null} out: 'null' }
+    { in: {} out: 'null' }
+    { in: {val:[]} out: '[]' }
+    { in: {val:{}} out: '{}' }
+    { in: {val:[1,2,3]} out: '[\n  1,\n  2,\n  3\n]' }
+    { in: {val:{a:1}} out: '{\n  "a": 1\n}' }
+    { in: {val:{a:1,b:2}} out: '{\n  "a": 1,\n  "b": 2\n}' }
+    { in: {val:{x:{y:1}}} out: '{\n  "x": {\n    "y": 1\n  }\n}' }
+    { in: {val:[{a:1},{b:2}]} out: '[\n  {\n    "a": 1\n  },\n  {\n    "b": 2\n  }\n]' }
+
+    { in: {val:{x:{y:2}}, flags:{indent:4}}, out: '{\n    "x": {\n        "y": 2\n    }\n}' }
+    { in: {val:{x:{y:2}}, flags:{indent:1,offset:2}},
+      out: '{\n   "x": {\n    "y": 2\n   }\n  }' }
   ]
 }
 
@@ -460,34 +466,69 @@ escurl: {
 }
 
 
-joinurl: {
+join: {
   set: [
-    { out: 'a' in: ['a'] }
-    { out: 'a/b' in: ['a','b'] }
-    { out: 'a/b' in: ['a',null,'b'] }
-    { out: 'a/b' in: ['a/','b'] }
-    { out: 'a/b' in: ['a','/b'] }
-    { out: 'a/b' in: ['a/','/b'] }
-    { out: 'a/b' in: ['a/','//b'] }
-    { out: 'a/b/c/d' in: ['a','b','c//d'] }
-    { out: '//a/b' in: ['//a','/b'] }
-    { in: ['https://www.example.com/','/a','/b/','/c','d'],
+    { out: 'a' in: { val: ['a'] } }
+    { out: 'cQdQe' in: { val: [c,d,e] sep:'Q'} }
+    { out: 'C|D|E' in: { val: [C,D,E] sep:'|'} }
+    { out: 'a,b' in: { val: ['a','b'] } }
+    { out: 'a,b' in: { val: ['a',null,'b'] } }
+    { out: 'a,b' in: { val: ['a,','b'] } }
+    { out: 'a,b' in: { val: ['a',',b'] } }
+    { out: 'a,b' in: { val: ['a,',',b'] } }
+    { out: 'a,b' in: { val: ['a,',',,b'] } }
+    { out: 'a/b/c/d' in: { val: ['a','b','c//d'], sep:'/' } }
+    { out: '//a/b' in: { val: ['//a','/b'], sep: '/' } }
+    { in: { val: ['https://www.example.com/','/a','/b/','/c','d'], sep:'/', url: true }
       out: 'https://www.example.com/a/b/c/d' }
+    { in: { val: ['https://www.example.com/','e/'], sep:'/', url: true }
+      out: 'https://www.example.com/e/' }
   ]
 }
 
+
+flatten: {
+  set: [
+    { in: {val:[1,2,3]}, out: [1,2,3] }
+    { in: {val:[1,[2],3]}, out: [1,2,3] }
+    { in: {val:[1,[[2],3]]}, out: [1,[2],3] }
+    { in: {val:[1,[[2],3]], depth:2}, out: [1,2,3] }
+  ]
+}
+
+
+filter: {
+  set: [
+    { in: {val:[1,2,3,4,5],check:'gt3'}, out: [4,5] }
+    { in: {val:[1,2,3,4,5],check:'lt3'}, out: [1,2] }
+  ]
+}
+
+
+typename: {
+  set: [
+    { in: 8192, out: 'map' }
+    { in: 8192+64, out: 'map' }
+    { in: 16384, out: 'list' }
+    { in: 16384+64, out: 'list' }
+    { in: 201326720, out: 'integer' }
+    { in: 335544448, out: 'decimal' }
+  ]
+}
+
+
 typify: {
   set: [
-    { in: {a:1}, out: 'object' }
-    { in: [1], out: 'array' }
-    { in: 1, out: 'number' }
-    { in: 3.14159, out: 'number' }
-    { in: -0.5, out: 'number' }
-    { in: 'a', out: 'string' }
-    { in: true, out: 'boolean' }
-    { in: false, out: 'boolean' }
-    { in: null, out: 'null' }
-    { out: 'null' }
+    { in: {a:1}, out: 8192+64 }
+    { in: [1], out: 16384+64 }
+    { in: 1, out: 201326720 }
+    { in: 3.14159, out: 335544448 }
+    { in: -0.5, out: 335544448 }
+    { in: 'a', out: 33554560 }
+    { in: true, out: 536871040 }
+    { in: false, out: 536871040 }
+    { in: null, out: 4194432 }
+    { out: 1073741824 }
   ]
 }
 
@@ -584,6 +625,7 @@ slice: {
     { in: {val:[226], start:-5}, out: [] }
 
     { in: {val:[33,34,35], start:2, end:1}, out: [] }
+    { in: {val:[43,44,45], end:2}, out: [43,44] }
 
     { in: {val:'abc'}, out: 'abc' }
     { in: {val:'ABC', start:1}, out: 'BC' }
@@ -688,6 +730,32 @@ pad: {
     { in: {val:'"', pad:-3}, out: '  "' }
 
   ]
+}
+
+
+setpath: {
+  set: [
+    { in: { store:{x:1} path:'x', val:2 }, out: {x:2},
+      match:args:0:store:x:2 }
+
+    { in: { store:{x:y:1} path:'x.y', val:2 }, out: {y:2},
+      match:args:0:store:x:y:2 }
+
+    { in: { store:{x:{}} path:'x.y', val:3 }, out: {y:3},
+      match:args:0:store:x:y:3 }
+
+    { in: { store:{} path:'x.y', val:4 }, out: {y:4},
+      match:args:0:store:x:y:4 }
+
+    { in: { store:{} path:'x.y.0', val:5 }, out: {'0':5},
+      match:args:0:store:x:y:0:5 }
+
+    { in: { store:{} path:['x','y',0], val:6 }, out: [6],
+      match:args:0:store:x:y:[6] }
+
+    { in: { store:{x:1} val:7 },
+      match:args:0:store:x:1 }
+  ]  
 }
 
 

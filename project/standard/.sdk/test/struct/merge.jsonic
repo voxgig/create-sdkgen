@@ -3,11 +3,11 @@
 
 basic: {
   in: [
-    {a:1,b:2},
-    {b:3,d:4},
+    { a:1, b:2, k:[10,20], x:{y:5,z:6} }
+    { b:3, d:4, e:8, k:[11], x:{y:7} }
   ]
   out: {
-    a: 1, b: 3, d: 4
+    a:1, b:3, d:4, e:8, k:[11,20], x:{y:7, z:6}
   }
 }
 
@@ -58,8 +58,13 @@ cases: {
     { in: [1,2,3], out: 3 }
     { in: [{},4], out: 4 }
     { in: [[],5], out: 5 }
+
+    { in: [{n0:[]},{n0:{}}], out: {n0:{}} }
     { in: [[],{}], out: {} }
+
+    { in: [{n1:{}},{n1:[]}], out: {n1:[]} }
     { in: [{},[]], out: [] }
+
     { in: [[6],{x:7}], out: {x:7} }
     { in: [{x:8},[9]], out: [9] }
 
@@ -96,6 +101,9 @@ cases: {
     { in: [{},{},{s2:''}], out: {s2:''} }
     { in: [{s3:''},{},{}], out: {s3:''} }
     { in: [{},{s4:''},{}], out: {s4:''} }
+
+    { in: [1,2.3], out: 2.3 }
+    { in: [4.5,6], out: 6 }
   ]
 }
 
@@ -147,6 +155,9 @@ array: {
       
     { in: [ {a:[1,2], b:{c:3,d:4}}, {a:[11],  b:{c:33}} ],
       out: { a: [ 11, 2 ], b: { c: 33, d: 4 } } }
+
+    { in: [{a0:[1]},{a0:{x:1}}], out: {a0:{x:1}} }
+    { in: [{a1:{x:2}},{a1:[2]}], out: {a1:[2]} }
   ]
 }
 
@@ -155,7 +166,94 @@ integrity: {
   set: [
     { in: [{e:5},{a:1,d:4},{a:2,b:3}],
       out: {a:2,b:3,d:4,e:5},
-      match:in:[{e:5},{a:1,d:4},{a:2,b:3}]
+      match:args:0:[{e:5},{a:1,d:4},{a:2,b:3}]
     }
+
+    { in: [{a:{b:10}},{a:{}}],
+      out: {a:{b:10}},
+      match:args:0:[{a:{b:10}},{a:{}}]
+    }
+
+    { in: [{a:{b:11}},{a:{c:21}}],
+      out: {a:{b:11,c:21}},
+      match:args:0:[{a:{b:11}},{a:{c:21}}]
+    }
+
+    { in: [{a:{}},{a:{c:22}}],
+      out: {a:{c:22}},
+      match:args:0:[{a:{}},{a:{c:22}}]
+    }
+
+    { in: [{a:{b:{c:13}}},{a:{}}],
+      out: {a:{b:{c:13}}},
+      match:args:0:[{a:{b:{c:13}}},{a:{}}]
+    }
+
+    { in: [{a:{}},{a:{c:{e:24}}}],
+      out: {a:{c:{e:24}}},
+      match:args:0:[{a:{}},{a:{c:{e:24}}}]
+    }
+    
+  ]
+}
+
+
+
+depth: {
+  set: [
+    { in: { val:[] depth:-1 } }
+    { in: { val:[] depth:0 } }
+    { in: { val:[] depth:1 } }
+    { in: { val:[] depth:2 } }
+    { in: { val:[] depth:3 } }
+
+    { in: { val:[{}] depth:-1 } out: {} }
+    { in: { val:[{}] depth:0 }  out: {} }
+    { in: { val:[{}] depth:1 }  out: {} }
+    { in: { val:[{}] depth:2 }  out: {} }
+    { in: { val:[{}] depth:3 }  out: {} }
+
+    { in: { val:[{},10] depth:-1 } out: 10 }
+    { in: { val:[{},20] depth:0 }  out: 20 }
+    { in: { val:[{},30] depth:1 }  out: 30 }
+    { in: { val:[{},40] depth:2 }  out: 40 }
+    { in: { val:[{},50] depth:3 }  out: 50 }
+
+    { in: { val:[11,{}] depth:-1 } out: {} }
+    { in: { val:[21,{}] depth:0 }  out: {} }
+    { in: { val:[31,{}] depth:1 }  out: {} }
+    { in: { val:[41,{}] depth:2 }  out: {} }
+    { in: { val:[51,{}] depth:3 }  out: {} }
+
+    { in: { val:[[],12] depth:-1 } out: 12 }
+    { in: { val:[[],22] depth:0 }  out: 22 }
+    { in: { val:[[],32] depth:1 }  out: 32 }
+    { in: { val:[[],42] depth:2 }  out: 42 }
+    { in: { val:[[],52] depth:3 }  out: 52 }
+
+    { in: { val:[13,[]] depth:-1 } out: [] }
+    { in: { val:[23,[]] depth:0 }  out: [] }
+    { in: { val:[33,[]] depth:1 }  out: [] }
+    { in: { val:[43,[]] depth:2 }  out: [] }
+    { in: { val:[53,[]] depth:3 }  out: [] }
+
+    { in: { val:[{},[]] depth:-1 } out: [] }
+    { in: { val:[{},[]] depth:0 }  out: [] }
+    { in: { val:[{},[]] depth:1 }  out: [] }
+    { in: { val:[{},[]] depth:2 }  out: [] }
+    { in: { val:[{},[]] depth:3 }  out: [] }
+
+    { in: { val:[[],{}] depth:-1 } out: {} }
+    { in: { val:[[],{}] depth:0 }  out: {} }
+    { in: { val:[[],{}] depth:1 }  out: {} }
+    { in: { val:[[],{}] depth:2 }  out: {} }
+    { in: { val:[[],{}] depth:3 }  out: {} }
+
+    
+    { in: { val:[{x0:{y0:0,y1:1}},{x0:{y0:2,y2:3}}] depth:-1 } out: {} }
+    { in: { val:[{x0:{y0:0,y1:1}},{x0:{y0:2,y2:3}}] depth:0 } out: {} }
+    { in: { val:[{x0:{y0:0,y1:1}},{x0:{y0:2,y2:3}}] depth:1 } out: {x0:{y0:2,y2:3}} }
+    { in: { val:[{x0:{y0:0,y1:1}},{x0:{y0:2,y2:3}}] depth:2 } out: {x0:{y0:2,y1:1,y2:3}} }
+    { in: { val:[{x0:{y0:0,y1:1}},{x0:{y0:2,y2:3}}] depth:3 } out: {x0:{y0:2,y1:1,y2:3}} }
   ]
 }

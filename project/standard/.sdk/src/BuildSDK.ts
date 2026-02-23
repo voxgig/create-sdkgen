@@ -2,15 +2,21 @@
 import { size } from '@voxgig/struct'
 
 
-
 import {
-  cmp, each, Line, File, Content, Folder
+  Content,
+  File,
+  Folder,
+  cmp,
+  each,
 } from '@voxgig/sdkgen'
 
 
 import type {
-  ModelEntity
+  Model,
+  ModelEntity,
+  ModelField,
 } from '@voxgig/apidef'
+
 
 import {
   KIT,
@@ -20,19 +26,23 @@ import {
 
 
 const BuildSDK = cmp(function BuildSDK(props: any) {
-  const { ctx$ } = props
-  const { model } = ctx$
+  const ctx$ = props.ctx$
+  const model: Model = ctx$.model
+
+  // TODO: should come from ctx$ options
+  const sdkBuildFolder = '.sdk'
 
   const entityMap: ModelEntity = getModelPath(model, `main.${KIT}.entity`)
 
-  Folder({ name: '.sdk' }, () => {
-
+  Folder({ name: sdkBuildFolder }, () => {
     each(entityMap, (entity: ModelEntity) => {
       Folder({ name: 'test' }, () => {
-        Folder({ name: entity.name }, () => {
-          File({ name: nom(entity, 'Name') + 'TestData.json' }, () => {
-            const entityTestData = makeEntityTestData(model, entity)
-            Content(JSON.stringify(entityTestData, null, 2))
+        Folder({ name: 'entity' }, () => {
+          Folder({ name: entity.name }, () => {
+            File({ name: nom(entity, 'Name') + 'TestData.json' }, () => {
+              const entityTestData = makeEntityTestData(model, entity)
+              Content(JSON.stringify(entityTestData, null, 2))
+            })
           })
         })
       })
@@ -41,7 +51,7 @@ const BuildSDK = cmp(function BuildSDK(props: any) {
 })
 
 
-function makeEntityTestData(model: any, entity: ModelEntity) {
+function makeEntityTestData(_model: Model, entity: ModelEntity) {
   const data: any = {
     existing: {
       [entity.name]: {}
@@ -51,11 +61,10 @@ function makeEntityTestData(model: any, entity: ModelEntity) {
     }
   }
 
-  const refs = [
-    `${entity.name}01`,
-    `${entity.name}02`,
-    `${entity.name}03`,
-  ]
+  const idcount = 3
+
+  const refs = [...Array(idcount).keys()].reduce((a, _x, i) =>
+    (a.push(`${entity.name}${String(i).padStart(2, "0")}`), a), [] as string[])
 
   const idmap = refs.reduce((a: any, ref) => (a[ref] = ref.toUpperCase(), a), {})
 
@@ -78,10 +87,11 @@ function makeEntityTestData(model: any, entity: ModelEntity) {
 }
 
 
-function makeEntityTestFields(entity: ModelEntity, start: number, ent: any) {
+function makeEntityTestFields(entity: ModelEntity, start: number, entdata: Record<string, any>) {
+  entdata = entdata ?? {}
   let num = (start * size(entity.fields) * 10)
-  each(entity.fields, (field: any) => {
-    ent[field.name] =
+  each(entity.fields, (field: ModelField) => {
+    entdata[field.name] =
       field.name.endsWith('_id') ?
         field.name.substring(0, field.name.length - 3).toUpperCase() + '01' :
         'number' === field.type ? num :
@@ -91,6 +101,7 @@ function makeEntityTestFields(entity: ModelEntity, start: number, ent: any) {
                 's' + (num.toString(16))
     num++
   })
+  return entdata
 }
 
 
