@@ -94,11 +94,13 @@ function makeEntityTestFields(entity: ModelEntity, start: number, entdata: Recor
     entdata[field.name] =
       field.name.endsWith('_id') ?
         field.name.substring(0, field.name.length - 3).toUpperCase() + '01' :
-        'number' === field.type ? num :
-          'boolean' === field.type ? 0 === num % 2 :
-            'object' === field.type ? {} :
-              'array' === field.type ? [] :
-                's' + (num.toString(16))
+        '`$NUMBER`' === field.type ? num :
+          '`$BOOLEAN`' === field.type ? 0 === num % 2 :
+            '`$OBJECT`' === field.type ? {} :
+              '`$MAP`' === field.type ? {} :
+                '`$ARRAY`' === field.type ? [] :
+                  '`$LIST`' === field.type ? [] :
+                    's' + (num.toString(16))
     num++
   })
   return entdata

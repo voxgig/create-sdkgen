@@ -68,7 +68,7 @@ const Root = cmp(function Root(props: any) {
 
   // Standard Replacements
   ctx$.stdrep = {}
-  names(ctx$.stdrep, model.Name, 'ProjectName')
+  names(ctx$.stdrep, model.Name, 'Project' + 'Name')
   // console.log('STDREP', stdrep)
 
   Project({}, () => {
