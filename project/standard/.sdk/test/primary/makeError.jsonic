@@ -1,0 +1,16 @@
+
+basic: set: [
+  { args:[{}], err:'SolardemoSDK: unknown operation: unknown error' }
+  { args:[{},{}], err:'SolardemoSDK: unknown operation: unknown error' }
+
+  { args:[{opname:foo}], err:'SolardemoSDK: foo: unknown error' }
+  { args:[{opname:foo,result:{}}], err:'SolardemoSDK: foo: unknown error' }
+
+  { args:[{opname:foo,result:{err:{message:bar}}}], err:'SolardemoSDK: foo: bar' }
+  { args:[{opname:foo}, {message:zed}], err:'SolardemoSDK: foo: zed' }
+
+  { args:[{opname:o0}, {message:e0}], err:'SolardemoSDK: o0: e0'
+    match: err:message:'SolardemoSDK: o0: e0'
+  }
+
+]

@@ -16631,91 +16631,9 @@
         ]
       }
     },
-    "auth": {
-      "DEF": {
-        "setup": {
-          "a": {
-            "apikey": "APIKEY01"
-          }
-        }
-      },
+    "clean": {
       "basic": {
-        "set": [
-          {
-            "ctx": {
-              "spec": {
-                "headers": {}
-              }
-            },
-            "match": {
-              "ctx": {
-                "spec": {
-                  "headers": {
-                    "authorization": " APIKEY01"
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "body": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "opname": "create",
-              "target": {
-                "transform": {
-                  "req": "`reqdata.foo`"
-                }
-              },
-              "reqdata": {
-                "foo": {
-                  "x": 1
-                }
-              }
-            },
-            "out": {
-              "x": 1
-            }
-          },
-          {
-            "ctx": {
-              "opname": "create",
-              "target": {
-                "transform": {
-                  "req": "`reqdata.bar`"
-                }
-              },
-              "reqdata": {
-                "foo": {
-                  "x": 2
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "context": {
-      "basic": {
-        "set": [
-          {
-            "in": {
-              "opname": "create"
-            },
-            "match": {
-              "out": {
-                "op": {
-                  "name": "create",
-                  "input": "data"
-                }
-              }
-            }
-          }
-        ]
+        "set": []
       }
     },
     "done": {
@@ -16745,21 +16663,60 @@
         ]
       }
     },
-    "error": {
+    "featureAdd": {
+      "basic": {
+        "set": []
+      }
+    },
+    "featureHook": {
+      "basic": {
+        "set": []
+      }
+    },
+    "featureInit": {
+      "basic": {
+        "set": []
+      }
+    },
+    "fetcher": {
+      "basic": {
+        "set": []
+      }
+    },
+    "makeContext": {
+      "basic": {
+        "set": [
+          {
+            "in": {
+              "opname": "create"
+            },
+            "match": {
+              "out": {
+                "op": {
+                  "name": "create",
+                  "input": "data"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "makeError": {
       "basic": {
         "set": [
           {
             "args": [
               {}
             ],
-            "err": "ProjectNameSDK: unknown operation: unknown error"
+            "err": "SolardemoSDK: unknown operation: unknown error"
           },
           {
             "args": [
               {},
               {}
             ],
-            "err": "ProjectNameSDK: unknown operation: unknown error"
+            "err": "SolardemoSDK: unknown operation: unknown error"
           },
           {
             "args": [
@@ -16767,7 +16724,7 @@
                 "opname": "foo"
               }
             ],
-            "err": "ProjectNameSDK: foo: unknown error"
+            "err": "SolardemoSDK: foo: unknown error"
           },
           {
             "args": [
@@ -16776,7 +16733,7 @@
                 "result": {}
               }
             ],
-            "err": "ProjectNameSDK: foo: unknown error"
+            "err": "SolardemoSDK: foo: unknown error"
           },
           {
             "args": [
@@ -16789,7 +16746,7 @@
                 }
               }
             ],
-            "err": "ProjectNameSDK: foo: bar"
+            "err": "SolardemoSDK: foo: bar"
           },
           {
             "args": [
@@ -16800,7 +16757,7 @@
                 "message": "zed"
               }
             ],
-            "err": "ProjectNameSDK: foo: zed"
+            "err": "SolardemoSDK: foo: zed"
           },
           {
             "args": [
@@ -16811,17 +16768,267 @@
                 "message": "e0"
               }
             ],
-            "err": "ProjectNameSDK: o0: e0",
+            "err": "SolardemoSDK: o0: e0",
             "match": {
               "err": {
-                "message": "ProjectNameSDK: o0: e0"
+                "message": "SolardemoSDK: o0: e0"
               }
             }
           }
         ]
       }
     },
-    "findparam": {
+    "makeFetchDef": {
+      "basic": {
+        "set": []
+      }
+    },
+    "makeOptions": {
+      "basic": {
+        "set": [
+          {
+            "in": {
+              "config": {},
+              "options": {}
+            },
+            "match": {
+              "out": {
+                "base": "http://localhost:8000",
+                "entity": {},
+                "prefix": "",
+                "suffix": ""
+              }
+            }
+          },
+          {
+            "in": {
+              "options": {},
+              "config": {
+                "options": {
+                  "base": "http://cbase.example",
+                  "prefix": "cpre-",
+                  "suffix": "csuf-",
+                  "entity": {
+                    "foo": {}
+                  }
+                }
+              }
+            },
+            "match": {
+              "out": {
+                "base": "http://cbase.example",
+                "prefix": "cpre-",
+                "suffix": "csuf-",
+                "entity": {
+                  "foo": {
+                    "alias": {}
+                  }
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "options": {
+                "base": "http://cbase.example",
+                "prefix": "cpre-",
+                "suffix": "csuf-",
+                "entity": {
+                  "foo": {}
+                }
+              },
+              "config": {}
+            },
+            "match": {
+              "out": {
+                "base": "http://cbase.example",
+                "prefix": "cpre-",
+                "suffix": "csuf-",
+                "entity": {
+                  "foo": {
+                    "alias": {}
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "makeRequest": {
+      "basic": {
+        "set": [
+          {
+            "ctx": {
+              "spec": {
+                "base": "http://localhost/base-",
+                "prefix": "prefix-",
+                "suffix": "suffix-",
+                "path": "/p0",
+                "params": {},
+                "query": {},
+                "headers": {},
+                "method": "GET",
+                "body": "__UNDEF__",
+                "alias": {}
+              }
+            },
+            "match": {
+              "ctx": {
+                "response": "__EXISTS__",
+                "result": "__EXISTS__"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "makeResponse": {
+      "basic": {
+        "set": [
+          {
+            "ctx": {
+              "response": {
+                "status": 201,
+                "statusText": "OK1",
+                "headers": {
+                  "h1": "v1"
+                },
+                "body": {
+                  "b": 1
+                }
+              },
+              "spec": {
+                "step": ""
+              },
+              "result": {
+                "ok": false,
+                "status": -1,
+                "statusText": ""
+              },
+              "target": {
+                "transform": {}
+              }
+            },
+            "match": {
+              "ctx": {
+                "result": {
+                  "ok": true,
+                  "status": 201,
+                  "statusText": "OK1",
+                  "body": {
+                    "b": 1
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "makeResult": {
+      "basic": {
+        "set": []
+      }
+    },
+    "makeSpec": {
+      "DEF": {
+        "setup": {
+          "a": {
+            "base": "BASE-",
+            "prefix": "PREFIX-",
+            "suffix": "SUFFIX-"
+          }
+        }
+      },
+      "basic": {
+        "set": [
+          {
+            "ctx": {
+              "opname": "list",
+              "target": {
+                "parts": [],
+                "args": {
+                  "params": []
+                },
+                "params": [],
+                "alias": {},
+                "transform": {}
+              }
+            },
+            "match": {
+              "ctx": {
+                "spec": {
+                  "base": "BASE-",
+                  "prefix": "PREFIX-",
+                  "suffix": "SUFFIX-",
+                  "method": "GET",
+                  "params": {},
+                  "query": {},
+                  "headers": {
+                    "content-type": "application/json"
+                  },
+                  "step": "start"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "makeTarget": {
+      "basic": {
+        "set": []
+      }
+    },
+    "makeUrl": {
+      "basic": {
+        "set": [
+          {
+            "ctx": {
+              "spec": {
+                "base": "base-",
+                "prefix": "prefix-",
+                "suffix": "suffix-",
+                "path": "/p0/{a}",
+                "params": {
+                  "a": "A"
+                },
+                "query": {},
+                "alias": {}
+              },
+              "result": {
+                "resmatch": {}
+              }
+            },
+            "out": "base-/prefix-/p0/A/suffix-"
+          }
+        ]
+      }
+    },
+    "operator": {
+      "basic": {
+        "set": [
+          {
+            "in": {
+              "entity": "Foo",
+              "name": "load",
+              "input": "match",
+              "targets": []
+            },
+            "match": {
+              "out": {
+                "entity": "Foo",
+                "name": "load",
+                "input": "match",
+                "targets": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    "param": {
       "DEF": {
         "ctx0": {
           "target": {
@@ -17000,50 +17207,87 @@
         ]
       }
     },
-    "fullurl": {
+    "prepareAuth": {
+      "DEF": {
+        "setup": {
+          "a": {
+            "apikey": "APIKEY01"
+          }
+        }
+      },
       "basic": {
         "set": [
           {
             "ctx": {
               "spec": {
-                "base": "base-",
-                "prefix": "prefix-",
-                "suffix": "suffix-",
-                "path": "/p0/{a}",
-                "params": {
-                  "a": "A"
-                },
-                "query": {},
-                "alias": {}
-              },
-              "result": {
-                "resmatch": {}
+                "headers": {}
               }
             },
-            "out": "base-/prefix-/p0/A/suffix-"
-          }
-        ]
-      }
-    },
-    "headers": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {},
-            "out": {
-              "content-type": "application/json",
-              "accept": "application/json"
+            "match": {
+              "ctx": {
+                "spec": {
+                  "headers": {
+                    "authorization": " APIKEY01"
+                  }
+                }
+              }
             }
           }
         ]
       }
     },
-    "inward": {
+    "prepareBody": {
       "basic": {
-        "set": []
+        "set": [
+          {
+            "ctx": {
+              "opname": "create",
+              "target": {
+                "transform": {
+                  "req": "`reqdata.foo`"
+                }
+              },
+              "reqdata": {
+                "foo": {
+                  "x": 1
+                }
+              }
+            },
+            "out": {
+              "x": 1
+            }
+          },
+          {
+            "ctx": {
+              "opname": "create",
+              "target": {
+                "transform": {
+                  "req": "`reqdata.bar`"
+                }
+              },
+              "reqdata": {
+                "foo": {
+                  "x": 2
+                }
+              }
+            }
+          }
+        ]
       }
     },
-    "method": {
+    "prepareHeaders": {
+      "basic": {
+        "set": [
+          {
+            "ctx": {},
+            "out": {
+              "content-type": "application/json"
+            }
+          }
+        ]
+      }
+    },
+    "prepareMethod": {
       "basic": {
         "set": [
           {
@@ -17084,106 +17328,7 @@
         ]
       }
     },
-    "operator": {
-      "basic": {
-        "set": [
-          {
-            "in": {
-              "entity": "Foo",
-              "name": "load",
-              "input": "match",
-              "targets": []
-            },
-            "match": {
-              "out": {
-                "entity": "Foo",
-                "name": "load",
-                "input": "match",
-                "targets": []
-              }
-            }
-          }
-        ]
-      }
-    },
-    "options": {
-      "basic": {
-        "set": [
-          {
-            "in": {
-              "config": {},
-              "options": {}
-            },
-            "match": {
-              "out": {
-                "base": "http://localhost:8000",
-                "entity": {},
-                "prefix": "",
-                "suffix": ""
-              }
-            }
-          },
-          {
-            "in": {
-              "options": {},
-              "config": {
-                "options": {
-                  "base": "http://cbase.example",
-                  "prefix": "cpre-",
-                  "suffix": "csuf-",
-                  "entity": {
-                    "foo": {}
-                  }
-                }
-              }
-            },
-            "match": {
-              "out": {
-                "base": "http://cbase.example",
-                "prefix": "cpre-",
-                "suffix": "csuf-",
-                "entity": {
-                  "foo": {
-                    "alias": {}
-                  }
-                }
-              }
-            }
-          },
-          {
-            "in": {
-              "options": {
-                "base": "http://cbase.example",
-                "prefix": "cpre-",
-                "suffix": "csuf-",
-                "entity": {
-                  "foo": {}
-                }
-              },
-              "config": {}
-            },
-            "match": {
-              "out": {
-                "base": "http://cbase.example",
-                "prefix": "cpre-",
-                "suffix": "csuf-",
-                "entity": {
-                  "foo": {
-                    "alias": {}
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "outward": {
-      "basic": {
-        "set": []
-      }
-    },
-    "params": {
+    "prepareParams": {
       "basic": {
         "set": [
           {
@@ -17288,7 +17433,12 @@
         ]
       }
     },
-    "query": {
+    "preparePath": {
+      "basic": {
+        "set": []
+      }
+    },
+    "prepareQuery": {
       "basic": {
         "set": [
           {
@@ -17368,68 +17518,7 @@
         ]
       }
     },
-    "reqform": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "spec": {
-                "step": ""
-              },
-              "target": {
-                "transform": {
-                  "req": "`reqdata.foo`"
-                }
-              },
-              "reqdata": {
-                "foo": {
-                  "x": 1
-                }
-              }
-            },
-            "out": {
-              "x": 1
-            },
-            "match": {
-              "ctx": {
-                "spec": {
-                  "step": "reqform"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "request": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "spec": {
-                "base": "http://localhost/base-",
-                "prefix": "prefix-",
-                "suffix": "suffix-",
-                "path": "/p0",
-                "params": {},
-                "query": {},
-                "headers": {},
-                "method": "GET",
-                "body": "__UNDEF__",
-                "alias": {}
-              }
-            },
-            "match": {
-              "ctx": {
-                "response": "__EXISTS__",
-                "result": "__EXISTS__"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "resbasic": {
+    "resultBasic": {
       "basic": {
         "set": [
           {
@@ -17490,7 +17579,7 @@
         ]
       }
     },
-    "resbody": {
+    "resultBody": {
       "basic": {
         "set": [
           {
@@ -17517,7 +17606,67 @@
         ]
       }
     },
-    "resform": {
+    "resultHeaders": {
+      "basic": {
+        "set": [
+          {
+            "ctx": {
+              "response": {
+                "headers": {
+                  "a": "A",
+                  "B": "B"
+                }
+              },
+              "result": {}
+            },
+            "match": {
+              "ctx": {
+                "result": {
+                  "headers": {
+                    "a": "A",
+                    "b": "B"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "transformRequest": {
+      "basic": {
+        "set": [
+          {
+            "ctx": {
+              "spec": {
+                "step": ""
+              },
+              "target": {
+                "transform": {
+                  "req": "`reqdata.foo`"
+                }
+              },
+              "reqdata": {
+                "foo": {
+                  "x": 1
+                }
+              }
+            },
+            "out": {
+              "x": 1
+            },
+            "match": {
+              "ctx": {
+                "spec": {
+                  "step": "reqform"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "transformResponse": {
       "basic": {
         "set": [
           {
@@ -17546,121 +17695,6 @@
               "ctx": {
                 "spec": {
                   "step": "resform"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "resheaders": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "response": {
-                "headers": {
-                  "a": "A",
-                  "B": "B"
-                }
-              },
-              "result": {}
-            },
-            "match": {
-              "ctx": {
-                "result": {
-                  "headers": {
-                    "a": "A",
-                    "b": "B"
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "response": {
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "response": {
-                "status": 201,
-                "statusText": "OK1",
-                "headers": {
-                  "h1": "v1"
-                },
-                "body": {
-                  "b": 1
-                }
-              },
-              "spec": {
-                "step": ""
-              },
-              "result": {
-                "ok": false,
-                "status": -1,
-                "statusText": ""
-              },
-              "target": {
-                "transform": {}
-              }
-            },
-            "match": {
-              "ctx": {
-                "result": {
-                  "ok": true,
-                  "status": 201,
-                  "statusText": "OK1",
-                  "body": {
-                    "b": 1
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "spec": {
-      "DEF": {
-        "setup": {
-          "a": {
-            "base": "BASE-",
-            "prefix": "PREFIX-",
-            "suffix": "SUFFIX-"
-          }
-        }
-      },
-      "basic": {
-        "set": [
-          {
-            "ctx": {
-              "opname": "list",
-              "target": {
-                "parts": [],
-                "args": {
-                  "params": []
-                },
-                "params": [],
-                "alias": {},
-                "transform": {}
-              }
-            },
-            "match": {
-              "ctx": {
-                "spec": {
-                  "base": "BASE-",
-                  "prefix": "PREFIX-",
-                  "suffix": "SUFFIX-",
-                  "method": "GET",
-                  "params": {},
-                  "query": {},
-                  "headers": {
-                    "content-type": "application/json"
-                  },
-                  "step": "start"
                 }
               }
             }

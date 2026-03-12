@@ -1,4 +1,0 @@
-
-basic: set: [
-  { ctx: {}, out: { 'content-type': 'application/json', 'accept': 'application/json' } }
-]
