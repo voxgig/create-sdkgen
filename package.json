@@ -42,14 +42,14 @@
   ],
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@types/node": "25.3.3",
-    "esbuild": "^0.27.3",
-    "memfs": "^4.56.10",
+    "@types/node": "25.5.0",
+    "esbuild": "^0.27.4",
+    "memfs": "^4.56.11",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@voxgig/util": "^0.2.2",
-    "aontu": "^0.36.0",
+    "aontu": "^0.37.0",
     "chokidar": "^5.0.0",
     "gubu": "^9.0.0",
     "jostraca": "^0.25.1"
