@@ -1,9 +1,8 @@
 
 basic: set: [
   {
-    ctx: { spec:step:'' op:reqform:'`data.foo`' op:data:foo:x:1 }
+    ctx: { spec:{step:''}, target:{transform:{req:'`reqdata.foo`'}}, reqdata:{foo:{x:1}} }
     out: {x:1}
     match: ctx:spec:step:reqform
   }
 ]
-

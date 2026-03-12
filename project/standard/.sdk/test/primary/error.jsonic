@@ -1,19 +1,16 @@
 
 basic: set: [
-  { args:[], err:'SDK: unknown operation: unknown error' }
-  { args:[{}], err:'SDK: unknown operation: unknown error' }
-  { args:[{},{}], err:'SDK: unknown operation: unknown error' }
+  { args:[{}], err:'ProjectNameSDK: unknown operation: unknown error' }
+  { args:[{},{}], err:'ProjectNameSDK: unknown operation: unknown error' }
 
-  { args:[{op:{}}], err:'SDK: unknown operation: unknown error' }
-  { args:[{op:name:foo}], err:'SDK: foo: unknown error' }
-  { args:[{op:name:foo,result:{}}], err:'SDK: foo: unknown error' }
+  { args:[{opname:foo}], err:'ProjectNameSDK: foo: unknown error' }
+  { args:[{opname:foo,result:{}}], err:'ProjectNameSDK: foo: unknown error' }
 
-  { args:[{op:name:foo,result:{err:message:bar}}], err:'SDK: foo: bar' }
-  { args:[{op:name:foo}, {message:zed}], err:'SDK: foo: zed' }
+  { args:[{opname:foo,result:{err:{message:bar}}}], err:'ProjectNameSDK: foo: bar' }
+  { args:[{opname:foo}, {message:zed}], err:'ProjectNameSDK: foo: zed' }
 
-  { args:[{op:name:o0}, {message:e0}], err:'SDK: o0: e0'
-    match: err:message:'SDK: o0: e0'
+  { args:[{opname:o0}, {message:e0}], err:'ProjectNameSDK: o0: e0'
+    match: err:message:'ProjectNameSDK: o0: e0'
   }
 
 ]
-

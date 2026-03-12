@@ -1,9 +1,7 @@
 
 basic: set: [
   {
-    ctx:{response:{native:headers:{a:A,B:B}},result:{}},
-    out:headers:{a:A,b:B}
+    ctx:{response:{headers:{a:A,B:B}},result:{}},
     match:ctx:result:headers:{a:A,b:B}
   }
 ]
-

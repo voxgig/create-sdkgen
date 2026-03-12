@@ -1,11 +1,10 @@
 
 basic: set: [
-  { ctx: { op:name:create }, out: POST }
-  { ctx: { op:name:update }, out: PUT }
-  { ctx: { op:name:list }, out: GET }
-  { ctx: { op:name:load }, out: GET }
-  { ctx: { op:name:remove }, out: DELETE }
+  { ctx: { opname:create }, out: POST }
+  { ctx: { opname:update }, out: PUT }
+  { ctx: { opname:list }, out: GET }
+  { ctx: { opname:load }, out: GET }
+  { ctx: { opname:remove }, out: DELETE }
 
-  { ctx: { op:name:bad } }
+  { ctx: { opname:bad } }
 ]
-

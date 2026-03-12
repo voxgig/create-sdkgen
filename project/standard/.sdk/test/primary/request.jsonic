@@ -1,15 +1,8 @@
 
 
-DEF: {
-  client: a: test: options: { base: 'b0', system: fetch: '`fetch`' }
-}
-
-
-
 basic: set: [
   {
     ctx: {
-      op: params: [],
       spec: {
         base: 'http://localhost/base-',
         prefix: 'prefix-',
@@ -17,15 +10,16 @@ basic: set: [
         path: '/p0',
         params: {},
         query: {},
+        headers: {},
+        method: 'GET',
+        body: '__UNDEF__',
         alias: {},
-      }      
+      }
     },
-    client: a
 
-    match:out: {
-      native: '__EXISTS__'
-      err: '__UNDEF__'
+    match:ctx: {
+      response: '__EXISTS__'
+      result: '__EXISTS__'
     }
   }
 ]
-

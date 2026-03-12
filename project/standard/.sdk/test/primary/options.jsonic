@@ -1,7 +1,7 @@
 
 basic: set: [
   {
-    in:prep: { config:{}, options:{} }
+    in: { config:{}, options:{} }
     match: out: {
       base: 'http://localhost:8000',
       entity: {},
@@ -11,14 +11,14 @@ basic: set: [
   }
 
   {
-    in:prep: { options: {}, config: options: {
+    in: { options: {}, config: { options: {
       base: 'http://cbase.example',
       prefix: 'cpre-',
       suffix: 'csuf-',
       entity: {
         foo: {}
       }
-    }}
+    }}}
     match: out: {
       base: 'http://cbase.example',
       prefix: 'cpre-',
@@ -32,7 +32,7 @@ basic: set: [
   }
 
   {
-    in:prep: {
+    in: {
       options: {
         base: 'http://cbase.example',
         prefix: 'cpre-',
@@ -55,6 +55,5 @@ basic: set: [
     }
   }
 
-  
-]
 
+]

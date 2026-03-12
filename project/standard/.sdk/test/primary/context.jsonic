@@ -1,5 +1,4 @@
 
 basic: set: [
-  { in:{op:{kind:req}}, match:out:{op:{kind:req}} }
+  { in:{opname:create}, match:out:{op:{name:create,input:data}} }
 ]
-

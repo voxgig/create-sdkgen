@@ -1,9 +1,8 @@
 
 basic: set: [
-  { mark:10, ctx: {op:{}}, out: {} }
-  { mark:20, ctx: {op:params:[a]}, out: {} }
-  { mark:30, ctx: {op:params:[a],op:match:a:A}, out: {} }
-  { mark:40, ctx: {op:params:[a],op:match:b:B}, out: {b:B} }
-  { mark:50, ctx: {op:params:[a],op:match:{a:A,b:B}}, out: {b:B} }
+  { mark:10, ctx: {target:{params:[],alias:{}},reqmatch:{}}, out: {} }
+  { mark:20, ctx: {target:{params:[a],alias:{}},reqmatch:{}}, out: {} }
+  { mark:30, ctx: {target:{params:[a],alias:{}},reqmatch:{a:A}}, out: {} }
+  { mark:40, ctx: {target:{params:[a],alias:{}},reqmatch:{b:B}}, out: {b:B} }
+  { mark:50, ctx: {target:{params:[a],alias:{}},reqmatch:{a:A,b:B}}, out: {b:B} }
 ]
-

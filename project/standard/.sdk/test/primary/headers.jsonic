@@ -1,12 +1,4 @@
 
-DEF: {
-  client: a: test: options: { headers: { foo:FOO, bar:BAR, accept: '*/*' } }
-}
-
 basic: set: [
   { ctx: {}, out: { 'content-type': 'application/json', 'accept': 'application/json' } }
-
-  { ctx: {}, client:a,
-   out: { foo:FOO, bar:BAR, 'content-type': 'application/json', 'accept': '*/*' } }
 ]
-

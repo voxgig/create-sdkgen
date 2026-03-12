@@ -1,6 +1,6 @@
 
 DEF: {
-  client: a: test: options: {
+  setup: a: {
     base: 'BASE-',
     prefix: 'PREFIX-',
     suffix: 'SUFFIX-',
@@ -11,9 +11,15 @@ DEF: {
 basic: set: [
   {
     ctx: {
-      op:name: 'list'
+      opname: 'list'
+      target: {
+        parts: [],
+        args: { params: [] },
+        params: [],
+        alias: {},
+        transform: {},
+      }
     },
-    client: a
     match: ctx: spec: {
       base: 'BASE-',
       prefix: 'PREFIX-',
@@ -25,8 +31,6 @@ basic: set: [
         'content-type': 'application/json',
       },
       step: 'start',
-      alias: {}
     }
   }
 ]
-

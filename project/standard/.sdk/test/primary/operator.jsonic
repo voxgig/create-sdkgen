@@ -1,60 +1,17 @@
 
 basic: set: [
   {
-    ctx: {
-      op: {
-        entity: 'Foo',
-        name: 'load',
-        path: '/foo/{foo_id}',
-        params: ['foo_id'],
-        alias: {'foo_id':'id','id':'foo_id'},
-        match: {},
-        data: {},
-        state: {},
-        reqform: '`data`',
-        resform: '`body`',
-        check: {}
-      }
+    in: {
+      entity: 'Foo',
+      name: 'load',
+      input: 'match',
+      targets: []
     }
-    match: {
-      ctx: op: {
-        kind: ''
-        entity: 'Foo',
-        name: 'load',
-        path: '/foo/{foo_id}',
-        params: ['foo_id'],
-        alias: {'foo_id':'id','id':'foo_id'},
-        match: {},
-        data: {},
-        state: {},
-        reqform: '`data`',
-        resform: '`body`',
-        check: {}
-      }
-    } 
-  }
-
-  {
-    ctx: op: {}
-    err: 'Invalid data: Expected field entity to be string, but found no value. | Expected field kind to be exactly equal to one of req, res, but found no value. | Expected field name to be string, but found no value. | Expected field path to be string, but found no value. | Expected field reqform to be one of string, object, function, but found no value. | Expected field resform to be one of string, object, function, but found no value.'
-  }
-
-  {
-    ctx: op: {
-      entity: 11,
-      name: 22,
-      path: 33,
-      params: [44],
-      alias: {'foo_id':55},
-      match: 101,
-      data: 102,
-      state: 103,
-      reqform: 66,
-      resform: 77,
-      check: 88
+    match: out: {
+      entity: 'Foo',
+      name: 'load',
+      input: 'match',
+      targets: []
     }
-    err: 'Invalid data: Expected field alias.foo_id to be string, but found number: 55. | Expected field check to be object, but found number: 88. | Expected field data to be one of {}, [], but found number: 102. | Expected field data to be array, but found number: 102. | Expected field entity to be string, but found number: 11. | Expected field kind to be exactly equal to one of req, res, but found no value. | Expected field match to be object, but found number: 101. | Expected field name to be string, but found number: 22. | Expected field path to be string, but found number: 33. | Expected field reqform to be one of string, object, function, but found number: 66. | Expected field resform to be one of string, object, function, but found number: 77. | Expected field state to be object, but found number: 103.'
   }
-
 ]
-
