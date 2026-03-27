@@ -10,7 +10,7 @@ basic: set: [
       }
       spec: {step:''}
       result: {ok:false,status:-1,statusText:''}
-      target: {transform:{}}
+      point: {transform:{}}
     }
     match:ctx:result: {
       ok: true

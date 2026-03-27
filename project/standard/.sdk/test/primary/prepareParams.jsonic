@@ -1,9 +1,9 @@
 
 basic: set: [
-  { ctx: {target:{args:{params:[]},params:[],alias:{}}}, out:{} }
-  { ctx: {target:{args:{params:[{name:a}]},params:[a],alias:{}},reqmatch:{}}, out:{} }
-  { ctx: {target:{args:{params:[{name:a}]},params:[a],alias:{}},reqmatch:{a:A}}, out:{a:A} }
-  { ctx: {target:{args:{params:[{name:a}]},params:[a],alias:{}},reqmatch:{b:B}}, out:{} }
-  { ctx: {target:{args:{params:[{name:a}]},params:[a],alias:{}},reqmatch:{a:A,b:B}}, out:{a:A} }
+  { ctx: {point:{args:{params:[]},params:[],alias:{}}}, out:{} }
+  { ctx: {point:{args:{params:[{name:a}]},params:[a],alias:{}},reqmatch:{}}, out:{} }
+  { ctx: {point:{args:{params:[{name:a}]},params:[a],alias:{}},reqmatch:{a:A}}, out:{a:A} }
+  { ctx: {point:{args:{params:[{name:a}]},params:[a],alias:{}},reqmatch:{b:B}}, out:{} }
+  { ctx: {point:{args:{params:[{name:a}]},params:[a],alias:{}},reqmatch:{a:A,b:B}}, out:{a:A} }
 
 ]

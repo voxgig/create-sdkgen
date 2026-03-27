@@ -2,7 +2,7 @@
 basic: set: [
   {
     ctx: {
-      opname:create, target:{transform:{req:'`reqdata.foo`'}},
+      opname:create, point:{transform:{req:'`reqdata.foo`'}},
       reqdata:{foo:{x:1}}
     }
     out: {x:1}
@@ -10,7 +10,7 @@ basic: set: [
 
   {
     ctx: {
-      opname:create, target:{transform:{req:'`reqdata.bar`'}},
+      opname:create, point:{transform:{req:'`reqdata.bar`'}},
       reqdata:{foo:{x:2}}
     }
   }

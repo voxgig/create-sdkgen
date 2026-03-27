@@ -5,13 +5,13 @@ basic: set: [
       entity: 'Foo',
       name: 'load',
       input: 'match',
-      targets: []
+      points: []
     }
     match: out: {
       entity: 'Foo',
       name: 'load',
       input: 'match',
-      targets: []
+      points: []
     }
   }
 ]

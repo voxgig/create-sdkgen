@@ -1,12 +1,12 @@
 
 
 DEF: {
-  ctx0: {target:{alias:{}}}
+  ctx0: {point:{alias:{}}}
   ctx1: .ctx0
   ctx2: .ctx1 & {reqmatch:{}}
   ctx3: .ctx2 & {reqmatch:{a:'A'}}
   ctx4: .ctx3
-  ctx5: .ctx4 & {target:{alias:{b:a}},spec:{alias:{}}}
+  ctx5: .ctx4 & {point:{alias:{b:a}},spec:{alias:{}}}
 }
 
 basic: set: [
