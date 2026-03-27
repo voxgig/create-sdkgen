@@ -16709,14 +16709,14 @@
             "args": [
               {}
             ],
-            "err": "SolardemoSDK: unknown operation: unknown error"
+            "err": "/\\w+SDK: unknown operation: unknown error/"
           },
           {
             "args": [
               {},
               {}
             ],
-            "err": "SolardemoSDK: unknown operation: unknown error"
+            "err": "/\\w+SDK: unknown operation: unknown error/"
           },
           {
             "args": [
@@ -16724,7 +16724,7 @@
                 "opname": "foo"
               }
             ],
-            "err": "SolardemoSDK: foo: unknown error"
+            "err": "/\\w+SDK: foo: unknown error/"
           },
           {
             "args": [
@@ -16733,7 +16733,7 @@
                 "result": {}
               }
             ],
-            "err": "SolardemoSDK: foo: unknown error"
+            "err": "/\\w+SDK: foo: unknown error/"
           },
           {
             "args": [
@@ -16746,7 +16746,7 @@
                 }
               }
             ],
-            "err": "SolardemoSDK: foo: bar"
+            "err": "/\\w+SDK: foo: bar/"
           },
           {
             "args": [
@@ -16757,7 +16757,7 @@
                 "message": "zed"
               }
             ],
-            "err": "SolardemoSDK: foo: zed"
+            "err": "/\\w+SDK: foo: zed/"
           },
           {
             "args": [
@@ -16768,10 +16768,10 @@
                 "message": "e0"
               }
             ],
-            "err": "SolardemoSDK: o0: e0",
+            "err": "/\\w+SDK: o0: e0/",
             "match": {
               "err": {
-                "message": "SolardemoSDK: o0: e0"
+                "message": "/\\w+SDK: o0: e0/"
               }
             }
           }
