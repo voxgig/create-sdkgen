@@ -16906,7 +16906,7 @@
                 "status": -1,
                 "statusText": ""
               },
-              "target": {
+              "point": {
                 "transform": {}
               }
             },
@@ -16946,7 +16946,7 @@
           {
             "ctx": {
               "opname": "list",
-              "target": {
+              "point": {
                 "parts": [],
                 "args": {
                   "params": []
@@ -16976,7 +16976,7 @@
         ]
       }
     },
-    "makeTarget": {
+    "makePoint": {
       "basic": {
         "set": []
       }
@@ -17014,14 +17014,14 @@
               "entity": "Foo",
               "name": "load",
               "input": "match",
-              "targets": []
+              "points": []
             },
             "match": {
               "out": {
                 "entity": "Foo",
                 "name": "load",
                 "input": "match",
-                "targets": []
+                "points": []
               }
             }
           }
@@ -17031,23 +17031,23 @@
     "param": {
       "DEF": {
         "ctx0": {
-          "target": {
+          "point": {
             "alias": {}
           }
         },
         "ctx1": {
-          "target": {
+          "point": {
             "alias": {}
           }
         },
         "ctx2": {
-          "target": {
+          "point": {
             "alias": {}
           },
           "reqmatch": {}
         },
         "ctx3": {
-          "target": {
+          "point": {
             "alias": {}
           },
           "reqmatch": {
@@ -17055,7 +17055,7 @@
           }
         },
         "ctx4": {
-          "target": {
+          "point": {
             "alias": {}
           },
           "reqmatch": {
@@ -17063,7 +17063,7 @@
           }
         },
         "ctx5": {
-          "target": {
+          "point": {
             "alias": {
               "b": "a"
             }
@@ -17082,7 +17082,7 @@
             "mark": 10,
             "args": [
               {
-                "target": {
+                "point": {
                   "alias": {}
                 }
               },
@@ -17093,7 +17093,7 @@
             "mark": 20,
             "args": [
               {
-                "target": {
+                "point": {
                   "alias": {}
                 }
               },
@@ -17104,7 +17104,7 @@
             "mark": 30,
             "args": [
               {
-                "target": {
+                "point": {
                   "alias": {}
                 },
                 "reqmatch": {}
@@ -17116,7 +17116,7 @@
             "mark": 40,
             "args": [
               {
-                "target": {
+                "point": {
                   "alias": {}
                 },
                 "reqmatch": {
@@ -17131,7 +17131,7 @@
             "mark": 50,
             "args": [
               {
-                "target": {
+                "point": {
                   "alias": {}
                 },
                 "reqmatch": {
@@ -17145,7 +17145,7 @@
             "mark": 60,
             "args": [
               {
-                "target": {
+                "point": {
                   "alias": {}
                 },
                 "reqmatch": {
@@ -17159,7 +17159,7 @@
             "mark": 70,
             "args": [
               {
-                "target": {
+                "point": {
                   "alias": {
                     "b": "a"
                   }
@@ -17179,7 +17179,7 @@
             "mark": 80,
             "args": [
               {
-                "target": {
+                "point": {
                   "alias": {
                     "b": "a"
                   }
@@ -17242,7 +17242,7 @@
           {
             "ctx": {
               "opname": "create",
-              "target": {
+              "point": {
                 "transform": {
                   "req": "`reqdata.foo`"
                 }
@@ -17260,7 +17260,7 @@
           {
             "ctx": {
               "opname": "create",
-              "target": {
+              "point": {
                 "transform": {
                   "req": "`reqdata.bar`"
                 }
@@ -17333,7 +17333,7 @@
         "set": [
           {
             "ctx": {
-              "target": {
+              "point": {
                 "args": {
                   "params": []
                 },
@@ -17345,7 +17345,7 @@
           },
           {
             "ctx": {
-              "target": {
+              "point": {
                 "args": {
                   "params": [
                     {
@@ -17364,7 +17364,7 @@
           },
           {
             "ctx": {
-              "target": {
+              "point": {
                 "args": {
                   "params": [
                     {
@@ -17387,7 +17387,7 @@
           },
           {
             "ctx": {
-              "target": {
+              "point": {
                 "args": {
                   "params": [
                     {
@@ -17408,7 +17408,7 @@
           },
           {
             "ctx": {
-              "target": {
+              "point": {
                 "args": {
                   "params": [
                     {
@@ -17444,7 +17444,7 @@
           {
             "mark": 10,
             "ctx": {
-              "target": {
+              "point": {
                 "params": [],
                 "alias": {}
               },
@@ -17455,7 +17455,7 @@
           {
             "mark": 20,
             "ctx": {
-              "target": {
+              "point": {
                 "params": [
                   "a"
                 ],
@@ -17468,7 +17468,7 @@
           {
             "mark": 30,
             "ctx": {
-              "target": {
+              "point": {
                 "params": [
                   "a"
                 ],
@@ -17483,7 +17483,7 @@
           {
             "mark": 40,
             "ctx": {
-              "target": {
+              "point": {
                 "params": [
                   "a"
                 ],
@@ -17500,7 +17500,7 @@
           {
             "mark": 50,
             "ctx": {
-              "target": {
+              "point": {
                 "params": [
                   "a"
                 ],
@@ -17641,7 +17641,7 @@
               "spec": {
                 "step": ""
               },
-              "target": {
+              "point": {
                 "transform": {
                   "req": "`reqdata.foo`"
                 }
@@ -17682,7 +17682,7 @@
               "spec": {
                 "step": ""
               },
-              "target": {
+              "point": {
                 "transform": {
                   "res": "`body.foo`"
                 }
