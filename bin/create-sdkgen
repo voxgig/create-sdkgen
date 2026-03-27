@@ -159,7 +159,7 @@ function resolveOptions() {
 
   let targets = args.values.target || []
   if( 1 < args.positionals.length ) {
-    targets.push(args.positionals.slice(1))
+    targets.push(...args.positionals.slice(1))
   }
 
   let features = args.values.feature || []

@@ -23,8 +23,8 @@
   "license": "$$const.License$$",
   "devDependencies": {
     "@types/node": ">=25",
-    "typescript": ">=5",
-    "@voxgig/apidef": ">=3",
+    "typescript": ">=6",
+    "@voxgig/apidef": ">=5",
     "@voxgig/model": ">=7",
     "@voxgig/sdkgen": ">=0",
     "@voxgig/util": ">=0",
