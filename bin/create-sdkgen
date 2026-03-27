@@ -4,7 +4,7 @@ const Path = require('node:path')
 const { statSync } = require('node:fs')
 const { parseArgs } = require('node:util')
 
-const { Gubu, Fault, One } = require('gubu')
+const { Shape, Fault, One } = require('shape')
 
 const Pkg = require('../package.json')
 
@@ -20,10 +20,6 @@ run()
 async function run() {
   try {
     let options = resolveOptions()
-
-    if(options.debug) {
-      DEBUG = true
-    }
 
     if(options.version) {
       version()
@@ -105,7 +101,7 @@ function resolveOptions() {
 
         folder: {
           type: 'string',
-          short: 'f',
+          short: 'o',
           default: ''
         },
 
@@ -161,12 +157,12 @@ function resolveOptions() {
   name = null == name ? '' : name
   name = '' === name && (args.values.help || args.values.version) ? '__none__' : name
 
-  targets = args.values.target || []
+  let targets = args.values.target || []
   if( 1 < args.positionals.length ) {
     targets.push(args.positionals.slice(1))
   }
 
-  features = args.values.feature || []
+  let features = args.values.feature || []
   
   const options = {
     name,
@@ -193,7 +189,7 @@ function resolveOptions() {
 
 
 function validateOptions(rawOptions) {
-  const optShape = Gubu({
+  const optShape = Shape({
     name: Fault('The first argument must be the project name.', String),
     def: '',
     project: String,
@@ -245,13 +241,16 @@ Usage: npm create @voxgig/sdkgen@latest <name> <args>
   <args> are the command arguments:
 
     --def        Path to the OpenAPI definition file (optional).
-    -d            
+    -d
 
     --project    Project template (folder or package reference). Default: standard.
-    -p            
+    -p
 
     --folder     Target output folder. Default: ./<name>-sdk.
-    -f            
+    -o
+
+    --feature    Features to add. Can be specified multiple times.
+    -f
 
     --install    Run installation scripts. Default: install.
     --no-install

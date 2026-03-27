@@ -1,6 +1,6 @@
 
 import { test, describe } from 'node:test'
-import { expect } from '@hapi/code'
+import assert from 'node:assert'
 
 import { Aontu } from 'aontu'
 import { memfs } from 'memfs'
@@ -19,7 +19,7 @@ const aontu = new Aontu()
 describe('create-sdkgen', () => {
 
   test('happy', async () => {
-    expect(CreateSdkGen).exist()
+    assert.ok(CreateSdkGen)
     /*
         const { fs, vol } = memfs({})
         const createsdkgen = CreateSdkGen({
