@@ -22,14 +22,14 @@
   "author": "$$const.Name$$",
   "license": "$$const.License$$",
   "devDependencies": {
-    "@types/node": ">=25",
-    "typescript": ">=5",
-    "@voxgig/apidef": ">=5",
-    "@voxgig/model": ">=7",
-    "@voxgig/sdkgen": ">=0",
-    "@voxgig/util": ">=0",
-    "@voxgig/struct": ">=0",
-    "jostraca": ">=0",
-    "aontu": ">=0"
+    "@types/node": ">=25.6",
+    "typescript": ">=5.9",
+    "@voxgig/apidef": ">=5.5",
+    "@voxgig/model": ">=7.6",
+    "@voxgig/sdkgen": ">=0.38",
+    "@voxgig/util": ">=0.4",
+    "@voxgig/struct": ">=0.0.10",
+    "jostraca": ">=0.28",
+    "aontu": ">=0.39"
   }
 }
