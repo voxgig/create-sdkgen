@@ -42,14 +42,14 @@
   ],
   "devDependencies": {
     "@types/node": "25.6.0",
-    "memfs": "^4.57.2",
-    "typescript": "^6.0.3"
+    "memfs": "4.57.2",
+    "typescript": "6.0.3"
   },
   "dependencies": {
-    "@voxgig/util": "^0.4.0",
-    "aontu": "^0.41.0",
-    "chokidar": "^5.0.0",
-    "jostraca": "^0.29.1",
-    "shape": "^10.0.1"
+    "@voxgig/util": "0.4.0",
+    "aontu": "0.43.0",
+    "chokidar": "5.0.0",
+    "jostraca": "0.29.1",
+    "shape": "10.1.0"
   }
 }
