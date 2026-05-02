@@ -10,6 +10,8 @@ import {
   each,
 } from '@voxgig/sdkgen'
 
+import { camelify, lcf } from 'jostraca'
+
 
 import type {
   Model,
@@ -68,6 +70,12 @@ function makeEntityTestData(_model: Model, entity: ModelEntity) {
 
   const idmap = refs.reduce((a: any, ref) => (a[ref] = ref.toUpperCase(), a), {})
 
+  // Path params required across the entity's ops (excluding the entity's own
+  // id and any param renamed-to-id). The in-memory test mock's buildArgs
+  // searches existing entities by these fields, so they need to be present
+  // with values that match what the test code sends via setup.idmap.
+  const pathParams = collectEntityPathParams(entity)
+
   let i = 1
 
   refs.map((ref) => {
@@ -75,6 +83,12 @@ function makeEntityTestData(_model: Model, entity: ModelEntity) {
     const ent: any = data.existing[entity.name][id] = {}
 
     makeEntityTestFields(entity, i++, ent)
+    for (const [paramName, paramValue] of pathParams) {
+      // Don't overwrite a real entity field with the same name.
+      if (ent[paramName] === undefined) {
+        ent[paramName] = paramValue
+      }
+    }
     ent.id = id
   })
 
@@ -84,6 +98,37 @@ function makeEntityTestData(_model: Model, entity: ModelEntity) {
   delete ent.id
 
   return data
+}
+
+
+// Walk every op point on the entity, collect the names of path params, and
+// pair each with its canonical idmap value. The canonical value mirrors the
+// flow generator's path-param defaulting in apidef:
+//   `step.match[name] = name.replace(/_id$/,'') + '01'`
+// Then setup.idmap maps that lower ref to upper:  `company01 → COMPANY01`.
+// So the value seeded into existing test data is the upper form: `COMPANY01`.
+function collectEntityPathParams(entity: any): [string, string][] {
+  const out = new Map<string, string>()
+  const ops = entity?.op || {}
+  for (const opname of Object.keys(ops)) {
+    const op = ops[opname]
+    const points = op?.points || []
+    for (const point of points) {
+      const params = point?.args?.params || []
+      const renameMap: Record<string, string> = point?.rename?.param || {}
+      for (const param of params) {
+        if (!param?.name) continue
+        if ('id' === param.name) continue
+        // Skip params that ARE the entity's own id under URL rename.
+        const camel = lcf(camelify(param.name))
+        if ('id' === renameMap[camel]) continue
+        if (out.has(param.name)) continue
+        const baseName = param.name.replace(/_id$/, '')
+        out.set(param.name, baseName.toUpperCase() + '01')
+      }
+    }
+  }
+  return Array.from(out.entries())
 }
 
 
