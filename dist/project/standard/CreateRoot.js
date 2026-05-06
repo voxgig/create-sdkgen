@@ -8,6 +8,43 @@ const node_path_1 = __importDefault(require("node:path"));
 // import * as Fs from 'node:fs'
 const jostraca_1 = require("jostraca");
 const ModelSdk_1 = require("./ModelSdk");
+const GITIGNORE_TOP = `# Local config / secrets
+*.local.*
+*.local
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+
+# Editor
+*~
+*.swp
+`;
+const GITIGNORE_SDK = `# Local config / secrets
+*.local.*
+*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-test/
+*.tsbuildinfo
+
+# Generated logs
+log/
+*.log
+
+# OS
+.DS_Store
+`;
 // TODO: rename to RootSdk
 const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
     const { ctx$, ctx$: { folder }, spec, model } = props;
@@ -24,10 +61,16 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
             from,
             exclude: [/\.fragment\./]
         });
+        (0, jostraca_1.File)({ name: '.gitignore' }, () => {
+            (0, jostraca_1.Content)(GITIGNORE_TOP);
+        });
         const origdef = spec.def;
         const projdef = node_path_1.default.basename(origdef);
         spec.def = projdef;
         (0, jostraca_1.Folder)({ name: spec.sdk_folder }, () => {
+            (0, jostraca_1.File)({ name: '.gitignore' }, () => {
+                (0, jostraca_1.Content)(GITIGNORE_SDK);
+            });
             (0, jostraca_1.Folder)({ name: 'def' }, () => {
                 // TODO: file existence check should be jostraca util
                 if (fs.existsSync(origdef)) {

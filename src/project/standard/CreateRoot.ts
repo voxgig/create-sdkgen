@@ -19,6 +19,47 @@ import {
 import { ModelSdk } from './ModelSdk'
 
 
+const GITIGNORE_TOP = `# Local config / secrets
+*.local.*
+*.local
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+
+# Editor
+*~
+*.swp
+`
+
+
+const GITIGNORE_SDK = `# Local config / secrets
+*.local.*
+*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-test/
+*.tsbuildinfo
+
+# Generated logs
+log/
+*.log
+
+# OS
+.DS_Store
+`
+
+
 // TODO: rename to RootSdk
 const CreateRoot = cmp(function CreateRoot(props: any) {
   const { ctx$, ctx$: { folder }, spec, model } = props
@@ -42,11 +83,19 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
       exclude: [/\.fragment\./]
     })
 
+    File({ name: '.gitignore' }, () => {
+      Content(GITIGNORE_TOP)
+    })
+
     const origdef = spec.def
     const projdef = Path.basename(origdef)
     spec.def = projdef
 
     Folder({ name: spec.sdk_folder }, () => {
+      File({ name: '.gitignore' }, () => {
+        Content(GITIGNORE_SDK)
+      })
+
       Folder({ name: 'def' }, () => {
         // TODO: file existence check should be jostraca util
         if (fs.existsSync(origdef)) {
