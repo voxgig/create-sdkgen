@@ -76,6 +76,8 @@ function makeEntityTestData(_model: Model, entity: ModelEntity) {
   // with values that match what the test code sends via setup.idmap.
   const pathParams = collectEntityPathParams(entity)
 
+  const hasEntId = null != (entity as any).id
+
   let i = 1
 
   refs.map((ref) => {
@@ -89,7 +91,12 @@ function makeEntityTestData(_model: Model, entity: ModelEntity) {
         ent[paramName] = paramValue
       }
     }
-    ent.id = id
+    // Only inject a fixture id when the spec actually models one for this
+    // entity. Public APIs (e.g. read-only feeds) without ids leave fixtures
+    // bare so test generators don't synthesise bogus id assertions.
+    if (hasEntId) {
+      ent.id = id
+    }
   })
 
   let id = entity.name + '_ref01'
