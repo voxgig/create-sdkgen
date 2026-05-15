@@ -1,6 +1,6 @@
 {
   "name": "@voxgig/create-sdkgen",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "main": "dist/create-sdkgen.js",
   "type": "commonjs",
   "types": "dist/create-sdkgen.d.ts",
@@ -41,7 +41,7 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "@types/node": "25.6.0",
+    "@types/node": "25.8.0",
     "memfs": "4.57.2",
     "typescript": "6.0.3"
   },
