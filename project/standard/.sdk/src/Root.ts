@@ -83,26 +83,33 @@ const Root = cmp(function Root(props: any) {
 
       Folder({ name: target.name }, () => {
 
-        // Per-phase opt-out lets a target's jsonic configure which
-        // generation steps run. CLI-style targets that only emit a
-        // single program consuming the sibling SDK typically set:
-        //   entity: false   (no per-entity files)
-        //   feature: false  (no per-feature files)
-        //   readme: false   (Main emits its own README if needed)
-        //   test: false     (no generated test suite)
-        // Mirrors the existing `srcfeature: false` convention used by
-        // the standard targets to suppress feature source emission.
-        // Defaults are inclusive — omit the property to keep current
-        // behaviour for the six standard SDK targets.
+        // Per-generation-phase activation. A target's jsonic carries
+        // a `phase` map mirroring the feature pattern:
+        //
+        //   phase: {
+        //     entity:  { active: false }
+        //     feature: { active: false }
+        //     readme:  { active: false }
+        //     test:    { active: false }
+        //   }
+        //
+        // Defaults are inclusive — when a phase entry is absent (or
+        // active is not explicitly false), the phase runs. Existing
+        // standard targets don't declare `phase` and keep current
+        // behaviour. A CLI-style target switches all four off and
+        // only emits Main.
+        const phase = target.phase || {}
+        const phaseActive = (name: string): boolean =>
+          false !== (phase[name] && phase[name].active)
 
-        if (false !== target.entity) {
+        if (phaseActive('entity')) {
           each(entity, (entity: any) => {
             names(entity, entity.name)
             Entity({ target, entity })
           })
         }
 
-        if (false !== target.feature) {
+        if (phaseActive('feature')) {
           each(feature).filter((feature: any) => feature.active).map((feature: any) => {
             names(feature, feature.name)
             Feature({ target, feature })
@@ -111,11 +118,11 @@ const Root = cmp(function Root(props: any) {
 
         Main({ target })
 
-        if (false !== target.readme) {
+        if (phaseActive('readme')) {
           Readme({ target })
         }
 
-        if (false !== target.test) {
+        if (phaseActive('test')) {
           Test({ target })
         }
       })
