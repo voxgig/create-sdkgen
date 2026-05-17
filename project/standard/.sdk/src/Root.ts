@@ -83,21 +83,41 @@ const Root = cmp(function Root(props: any) {
 
       Folder({ name: target.name }, () => {
 
-        each(entity, (entity: any) => {
-          names(entity, entity.name)
-          Entity({ target, entity })
-        })
+        // Per-phase opt-out lets a target's jsonic configure which
+        // generation steps run. CLI-style targets that only emit a
+        // single program consuming the sibling SDK typically set:
+        //   entity: false   (no per-entity files)
+        //   feature: false  (no per-feature files)
+        //   readme: false   (Main emits its own README if needed)
+        //   test: false     (no generated test suite)
+        // Mirrors the existing `srcfeature: false` convention used by
+        // the standard targets to suppress feature source emission.
+        // Defaults are inclusive — omit the property to keep current
+        // behaviour for the six standard SDK targets.
 
-        each(feature).filter((feature: any) => feature.active).map((feature: any) => {
-          names(feature, feature.name)
-          Feature({ target, feature })
-        })
+        if (false !== target.entity) {
+          each(entity, (entity: any) => {
+            names(entity, entity.name)
+            Entity({ target, entity })
+          })
+        }
+
+        if (false !== target.feature) {
+          each(feature).filter((feature: any) => feature.active).map((feature: any) => {
+            names(feature, feature.name)
+            Feature({ target, feature })
+          })
+        }
 
         Main({ target })
 
-        Readme({ target })
+        if (false !== target.readme) {
+          Readme({ target })
+        }
 
-        Test({ target })
+        if (false !== target.test) {
+          Test({ target })
+        }
       })
     })
 
