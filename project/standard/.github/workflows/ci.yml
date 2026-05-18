@@ -1,12 +1,12 @@
 name: ci
 
-# Unit tests only. No live API calls.
+# Unit tests only — strictly offline. No live API calls.
 # Each per-language job runs the mocked unit-test suite for that target.
 # Each step after checkout is gated by hashFiles() so a job auto-skips
-# all its work when the target directory is absent in the repo.
+# all its work when the target directory is absent.
 #
-# Live API verification is NOT run from this workflow. It happens in the
-# central rebuild pipeline (freepublicapis-sdk-builder) under controlled
+# Live API verification is NOT run here. It happens in the central
+# rebuild pipeline (freepublicapis-sdk-builder) under controlled
 # conditions, with per-API auth and rate-limit handling.
 
 on:
@@ -27,9 +27,33 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-          cache-dependency-path: go/go.sum
       - if: hashFiles('go/go.mod') != ''
         run: make -C go test
+
+  # NOTE: go-cli does not currently run in CI. The generated
+  # go-cli/go.mod uses `replace github.com/aql-lang/aql/eng =>
+  # <dev-absolute-path>` because aql/eng/go is not yet published as a
+  # versioned Go module. The aql repo is private, so CI in a public
+  # SDK repo cannot cross-checkout it with the default GITHUB_TOKEN.
+  # When aql/eng/go is published with a proper subdir tag, drop the
+  # replace from the go-cli template and add a job here that mirrors
+  # go-mcp below.
+
+  go-mcp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: hashFiles('go-mcp/go.mod') != ''
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - if: hashFiles('go-mcp/go.mod') != ''
+        run: |
+          cd go-mcp
+          go mod tidy
+          go vet ./...
+          go build ./...
+          go test ./...
 
   ts:
     runs-on: ubuntu-latest
@@ -39,10 +63,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: npm
-          cache-dependency-path: ts/package-lock.json
       - if: hashFiles('ts/package.json') != ''
-        run: cd ts && npm ci
+        run: cd ts && npm install --no-audit --no-fund
       - if: hashFiles('ts/package.json') != ''
         run: cd ts && npm test
 
