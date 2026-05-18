@@ -1,0 +1,87 @@
+name: ci
+
+# Unit tests only. No live API calls.
+# Each per-language job runs the mocked unit-test suite for that target.
+# Jobs auto-skip when the target's directory is absent in the repo.
+#
+# Live API verification is NOT run from this workflow. It happens in the
+# central rebuild pipeline (freepublicapis-sdk-builder) under controlled
+# conditions, with per-API auth and rate-limit handling.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    if: hashFiles('go/go.mod') != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache-dependency-path: go/go.sum
+      - run: make -C go test
+
+  ts:
+    if: hashFiles('ts/package.json') != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: ts/package-lock.json
+      - run: cd ts && npm ci
+      - run: cd ts && npm test
+
+  py:
+    if: hashFiles('py/Makefile') != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install pytest
+      - run: make -C py test
+
+  rb:
+    if: hashFiles('rb/Makefile') != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+      - run: make -C rb test
+
+  php:
+    if: hashFiles('php/composer.json') != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - run: cd php && composer install --no-interaction --no-progress
+      - run: make -C php test
+
+  lua:
+    if: hashFiles('lua/Makefile') != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: '5.4'
+      - uses: leafo/gh-actions-luarocks@v4
+      - run: luarocks install busted
+      - run: make -C lua test
