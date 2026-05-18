@@ -6,8 +6,8 @@ name: ci
 # all its work when the target directory is absent.
 #
 # Live API verification is NOT run here. It happens in the central
-# rebuild pipeline (freepublicapis-sdk-builder) under controlled
-# conditions, with per-API auth and rate-limit handling.
+# rebuild pipeline under controlled conditions, with per-API auth and
+# rate-limit handling.
 
 on:
   push:
