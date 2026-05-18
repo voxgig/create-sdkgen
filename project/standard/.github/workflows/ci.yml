@@ -30,14 +30,28 @@ jobs:
       - if: hashFiles('go/go.mod') != ''
         run: make -C go test
 
-  # NOTE: go-cli does not currently run in CI. The generated
-  # go-cli/go.mod uses `replace github.com/aql-lang/aql/eng =>
-  # <dev-absolute-path>` because aql/eng/go is not yet published as a
-  # versioned Go module. The aql repo is private, so CI in a public
-  # SDK repo cannot cross-checkout it with the default GITHUB_TOKEN.
-  # When aql/eng/go is published with a proper subdir tag, drop the
-  # replace from the go-cli template and add a job here that mirrors
-  # go-mcp below.
+  go-cli:
+    runs-on: ubuntu-latest
+    # aql/eng/go is served via proxy.golang.org but its source repo
+    # (aql-lang/aql) is currently private, so sum.golang.org can't
+    # checksum-verify it. GOSUMDB=off lets `go mod tidy` use the
+    # committed go.sum without re-checking the public sum DB. Once
+    # aql-lang/aql goes public this env can be removed.
+    env:
+      GOSUMDB: 'off'
+    steps:
+      - uses: actions/checkout@v4
+      - if: hashFiles('go-cli/go.mod') != ''
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - if: hashFiles('go-cli/go.mod') != ''
+        run: |
+          cd go-cli
+          go mod tidy
+          go vet ./...
+          go build ./...
+          go test ./...
 
   go-mcp:
     runs-on: ubuntu-latest
