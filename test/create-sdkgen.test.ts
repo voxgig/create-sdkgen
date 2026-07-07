@@ -99,7 +99,7 @@ describe('create-sdkgen', () => {
       '.github/workflows/ci.yml',
       '.sdk/.gitignore',
       '.sdk/package.json',
-      '.sdk/model/sdk.jsonic',
+      '.sdk/model/sdk.aontu',
       '.sdk/src/BuildSDK.ts',
       '.sdk/def/petstore.yml',
     ]) {
@@ -152,9 +152,9 @@ describe('create-sdkgen', () => {
   })
 
 
-  test('sdk-jsonic-substitutes-name-and-def', async () => {
+  test('sdk-aontu-substitutes-name-and-def', async () => {
     const s = await scaffold({ name: 'petstore' })
-    const sdk = s.read('.sdk/model/sdk.jsonic')
+    const sdk = s.read('.sdk/model/sdk.aontu')
 
     // Fragment placeholders NAME/DEF are replaced with the real values.
     assert.match(sdk, /name:\s*'petstore'/)
@@ -169,7 +169,7 @@ describe('create-sdkgen', () => {
   test('dryrun-writes-no-scaffold', async () => {
     const s = await scaffold({ dryrun: true })
     // The scaffold itself is not written on a dry run.
-    assert.equal(s.exists('.sdk/model/sdk.jsonic'), false)
+    assert.equal(s.exists('.sdk/model/sdk.aontu'), false)
     assert.equal(s.exists('.sdk/package.json'), false)
     assert.equal(s.exists('.gitignore'), false)
   })
@@ -197,7 +197,7 @@ describe('create-sdkgen', () => {
         project: 'standard', folder: '', install: false,
       } as any)
       assert.ok(
-        Fs.existsSync(Path.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.jsonic')),
+        Fs.existsSync(Path.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.aontu')),
         'alpha -> alpha-sdk')
 
       // Name already ending `-sdk` -> not doubled.
@@ -206,7 +206,7 @@ describe('create-sdkgen', () => {
         project: 'standard', folder: '', install: false,
       } as any)
       assert.ok(
-        Fs.existsSync(Path.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.jsonic')),
+        Fs.existsSync(Path.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.aontu')),
         'beta-sdk -> beta-sdk')
       assert.equal(
         Fs.existsSync(Path.join(work, 'beta-sdk-sdk')), false,

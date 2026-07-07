@@ -17,12 +17,12 @@ One source of truth — a **model** — drives everything. You edit the model;
 every SDK is regenerated from it.
 
 ```
-OpenAPI 3 spec  ──apidef──▶  model (.sdk/model/*.jsonic)  ──sdkgen──▶  ts/  py/  go/  php/  rb/  lua/  (+ go-cli, go-mcp)
+OpenAPI 3 spec  ──apidef──▶  model (.sdk/model/*.aontu)  ──sdkgen──▶  ts/  py/  go/  php/  rb/  lua/  (+ go-cli, go-mcp)
    (your API)                (the source of truth you edit)             (generated SDK source — NEVER hand-edit)
 ```
 
 - **`@voxgig/apidef`** parses your OpenAPI spec into the model (entities, ops, fields, types). See [apidef/AGENTS.md](https://github.com/voxgig/apidef/blob/main/AGENTS.md).
-- **The model** (`.sdk/model/`, `.jsonic` files, unified by `aontu`) is what you edit to shape the SDK.
+- **The model** (`.sdk/model/`, `.aontu` files, unified by `aontu`) is what you edit to shape the SDK.
 - **`@voxgig/sdkgen`** renders the model into idiomatic per-language SDK source via `jostraca`. See [sdkgen/AGENTS.md](https://github.com/voxgig/sdkgen/blob/main/AGENTS.md).
 
 The API surface is exposed as **semantic entities** (Capitalised — e.g.
@@ -67,17 +67,20 @@ npx voxgig-sdkgen feature add test                 # offline test mode — REQUI
 ```
 
 Available targets include `ts`, `js`, `py`, `go`, `php`, `rb`, `lua`, plus
-`go-cli` and `go-mcp`. `target add` / `feature add` edit `.sdk/model/config.jsonic`.
+`go-cli` and `go-mcp`. `target add` / `feature add` edit `.sdk/model/config.aontu`.
 
 ### 3. Generate the SDK source
 
 ```
-npx voxgig-model model/sdk.jsonic
+npm run generate
 ```
 
-`voxgig-model` compiles the model (`aontu` unification) and runs the generator,
-writing SDK source into the per-language directories (`../ts`, `../py`, …).
-Re-run this whenever you change the model.
+`generate` first compiles the `.sdk` build sources (`tsc --build src` —
+required; `voxgig-model` loads the compiled `.sdk/dist/` components), then
+runs `voxgig-model model/sdk.aontu`, which compiles the model (`aontu`
+unification) and runs the generator, writing SDK source into the
+per-language directories (`../ts`, `../py`, …). Re-run this whenever you
+change the model.
 
 ### 4. Verify — run the tests
 
@@ -90,7 +93,7 @@ cd ../ts  && npm install && npm run build && npm test
 cd ../py  && python3 -m pytest test/
 cd ../go  && go test ./...
 cd ../php && composer install && vendor/bin/phpunit test/
-cd ../rb  && ruby -Itest test/*_test.rb
+cd ../rb  && make test
 cd ../lua && busted -p _test test/
 ```
 
@@ -102,9 +105,9 @@ Green tests mean the SDK works and its documentation is correct.
 
 | Path | Role | Edit it? |
 | --- | --- | --- |
-| `.sdk/model/sdk.jsonic` | Model entry — name, spec ref (`def`), imports | Yes (rarely) |
-| `.sdk/model/entity/*.jsonic` | **Entities** — the semantic surface (ops, fields, types) | **Yes — this is the main lever** |
-| `.sdk/model/config.jsonic` | Active targets + features | Yes (or via `target add`/`feature add`) |
+| `.sdk/model/sdk.aontu` | Model entry — name, spec ref (`def`), imports | Yes (rarely) |
+| `.sdk/model/entity/*.aontu` | **Entities** — the semantic surface (ops, fields, types) | **Yes — this is the main lever** |
+| `.sdk/model/config.aontu` | Active targets + features | Yes (or via `target add`/`feature add`) |
 | `.sdk/model/api/*` | OpenAPI-derived info | Regenerated from the spec — avoid hand-editing |
 | `ts/  py/  go/  php/  rb/  lua/` | **Generated SDK source** | **Never** — overwritten on every generate |
 | `<target>/README.md`, `REFERENCE.md` | Generated docs | Never — driven by the model |
@@ -115,7 +118,7 @@ Anything under a target directory is output and will be overwritten.
 ### The edit loop
 
 ```
-edit .sdk/model/entity/*.jsonic  →  (cd .sdk && npx voxgig-model model/sdk.jsonic)  →  re-run the target tests
+edit .sdk/model/entity/*.aontu  →  (cd .sdk && npm run generate)  →  re-run the target tests
 ```
 
 Commit before regenerating — generation is destructive to the target dirs.
@@ -176,7 +179,7 @@ work on the generated packages.
 
 1. Have an OpenAPI 3 spec? → `create-sdkgen <name> -d <spec> -o <dir>`.
 2. `cd <dir>/.sdk` → `target add <langs>` → `feature add test`.
-3. `voxgig-model model/sdk.jsonic` → generates target dirs.
+3. `npm run generate` (builds `.sdk` sources, then runs the generator) → generates target dirs.
 4. Run each target's tests → **all green** (incl. doc-example tests).
-5. Shape the API? → edit `.sdk/model/entity/*.jsonic`, regenerate, re-test — never edit generated output.
+5. Shape the API? → edit `.sdk/model/entity/*.aontu`, regenerate, re-test — never edit generated output.
 6. Publish per-language packages when green.

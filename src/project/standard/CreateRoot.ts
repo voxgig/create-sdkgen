@@ -102,8 +102,6 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
           Copy({ from: origdef, to: projdef })
         }
         else {
-          console.log('DEF NOT FOUND: ', origdef)
-
           File({ name: projdef }, () => {
             Content('# OpenAPI Definition')
           })

@@ -108,7 +108,7 @@ async function scaffold(over = {}) {
             '.github/workflows/ci.yml',
             '.sdk/.gitignore',
             '.sdk/package.json',
-            '.sdk/model/sdk.jsonic',
+            '.sdk/model/sdk.aontu',
             '.sdk/src/BuildSDK.ts',
             '.sdk/def/petstore.yml',
         ]) {
@@ -145,9 +145,9 @@ async function scaffold(over = {}) {
         const s = await scaffold({ name: 'petstore', def: '' });
         node_assert_1.default.ok(s.exists('.sdk/def/petstore-openapi3.yml'), 'expected defaulted def filename in .sdk/def/');
     });
-    (0, node_test_1.test)('sdk-jsonic-substitutes-name-and-def', async () => {
+    (0, node_test_1.test)('sdk-aontu-substitutes-name-and-def', async () => {
         const s = await scaffold({ name: 'petstore' });
-        const sdk = s.read('.sdk/model/sdk.jsonic');
+        const sdk = s.read('.sdk/model/sdk.aontu');
         // Fragment placeholders NAME/DEF are replaced with the real values.
         node_assert_1.default.match(sdk, /name:\s*'petstore'/);
         node_assert_1.default.match(sdk, /def:\s*'petstore\.yml'/);
@@ -158,7 +158,7 @@ async function scaffold(over = {}) {
     (0, node_test_1.test)('dryrun-writes-no-scaffold', async () => {
         const s = await scaffold({ dryrun: true });
         // The scaffold itself is not written on a dry run.
-        node_assert_1.default.equal(s.exists('.sdk/model/sdk.jsonic'), false);
+        node_assert_1.default.equal(s.exists('.sdk/model/sdk.aontu'), false);
         node_assert_1.default.equal(s.exists('.sdk/package.json'), false);
         node_assert_1.default.equal(s.exists('.gitignore'), false);
     });
@@ -179,13 +179,13 @@ async function scaffold(over = {}) {
                 root: 'CreateRoot', name: 'alpha', def,
                 project: 'standard', folder: '', install: false,
             });
-            node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.jsonic')), 'alpha -> alpha-sdk');
+            node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.aontu')), 'alpha -> alpha-sdk');
             // Name already ending `-sdk` -> not doubled.
             await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
                 root: 'CreateRoot', name: 'beta-sdk', def,
                 project: 'standard', folder: '', install: false,
             });
-            node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.jsonic')), 'beta-sdk -> beta-sdk');
+            node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.aontu')), 'beta-sdk -> beta-sdk');
             node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(work, 'beta-sdk-sdk')), false, 'no double -sdk suffix');
         }
         finally {

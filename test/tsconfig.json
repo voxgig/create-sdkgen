@@ -8,6 +8,11 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
-    "target": "ES2021"
+    "target": "ES2021",
+
+    // @types/node >=26 dropped worker_threads.TransferListItem, which a
+    // dependency's own .d.ts (thread-stream via pino) still references. Only
+    // test is our code, so skip lib checking of node_modules type declarations.
+    "skipLibCheck": true
   }
 }

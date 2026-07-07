@@ -9,6 +9,12 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2021",
+
+    // @types/node >=26 dropped worker_threads.TransferListItem, which a
+    // dependency's own .d.ts (thread-stream via pino) still references. Only
+    // src is our code, so skip lib checking of node_modules type declarations.
+    "skipLibCheck": true,
+
     "declaration": true,
     "declarationDir": "../dist"
   }

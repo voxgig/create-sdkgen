@@ -249,6 +249,10 @@ Usage: npm create @voxgig/sdkgen@latest <name> <args>
     --folder     Target output folder. Default: ./<name>-sdk.
     -o
 
+    --target     Language targets to add (e.g. ts, py, go, rb). Can be
+    -t           specified multiple times; extra positional arguments
+                 after <name> are also treated as targets.
+
     --feature    Features to add. Can be specified multiple times.
     -f
 

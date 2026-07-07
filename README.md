@@ -15,11 +15,11 @@ cd my-api-sdk/.sdk
 npx voxgig-sdkgen target add ts py go
 npx voxgig-sdkgen feature add test
 
-# 3. Generate the SDKs
-npx voxgig-model model/sdk.jsonic
+# 3. Generate the SDKs (builds the .sdk sources, then runs the generator)
+npm run generate
 
 # 4. Verify
-cd ../ts && npm install && npm test
+cd ../ts && npm install && npm run build && npm test
 ```
 
 You shape the SDK by editing the **model** in `.sdk/model/` (entities, ops,
