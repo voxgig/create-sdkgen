@@ -166,6 +166,18 @@ describe('create-sdkgen', () => {
   })
 
 
+  test('sdk-package-json-substitutes-name', async () => {
+    const s = await scaffold({ name: 'petstore' })
+    const pkg = JSON.parse(s.read('.sdk/package.json'))
+
+    // `$$const.name$$` etc. are replaced from the model.
+    assert.equal(pkg.name, 'build-petstore-sdk')
+
+    // No unresolved jostraca placeholders remain anywhere in the file.
+    assert.doesNotMatch(s.read('.sdk/package.json'), /\$\$/)
+  })
+
+
   test('dryrun-writes-no-scaffold', async () => {
     const s = await scaffold({ dryrun: true })
     // The scaffold itself is not written on a dry run.

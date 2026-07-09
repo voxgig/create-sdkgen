@@ -69,12 +69,15 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
   model.const = { name: model.name }
   names(model.const, model.name)
   model.const.year = new Date().getFullYear()
+  // Scaffold is MIT-licensed (matches the emitted LICENSE and tm/LICENSE);
+  // set directly rather than via names() so the value stays 'MIT', not 'Mit'.
+  model.const.License = 'MIT'
 
   ctx$.model = model
 
   Project({ folder }, () => {
     const from =
-      Path.resolve(Path.join(__dirname + '..', '..', '..', '..', 'project', 'standard'))
+      Path.resolve(Path.join(__dirname, '..', '..', '..', 'project', 'standard'))
 
     // console.log('FROM', from)
 

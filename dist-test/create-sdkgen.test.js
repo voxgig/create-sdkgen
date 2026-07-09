@@ -155,6 +155,14 @@ async function scaffold(over = {}) {
         node_assert_1.default.doesNotMatch(sdk, /'NAME'/);
         node_assert_1.default.doesNotMatch(sdk, /'DEF'/);
     });
+    (0, node_test_1.test)('sdk-package-json-substitutes-name', async () => {
+        const s = await scaffold({ name: 'petstore' });
+        const pkg = JSON.parse(s.read('.sdk/package.json'));
+        // `$$const.name$$` etc. are replaced from the model.
+        node_assert_1.default.equal(pkg.name, 'build-petstore-sdk');
+        // No unresolved jostraca placeholders remain anywhere in the file.
+        node_assert_1.default.doesNotMatch(s.read('.sdk/package.json'), /\$\$/);
+    });
     (0, node_test_1.test)('dryrun-writes-no-scaffold', async () => {
         const s = await scaffold({ dryrun: true });
         // The scaffold itself is not written on a dry run.

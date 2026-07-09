@@ -53,9 +53,12 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
     model.const = { name: model.name };
     (0, jostraca_1.names)(model.const, model.name);
     model.const.year = new Date().getFullYear();
+    // Scaffold is MIT-licensed (matches the emitted LICENSE and tm/LICENSE);
+    // set directly rather than via names() so the value stays 'MIT', not 'Mit'.
+    model.const.License = 'MIT';
     ctx$.model = model;
     (0, jostraca_1.Project)({ folder }, () => {
-        const from = node_path_1.default.resolve(node_path_1.default.join(__dirname + '..', '..', '..', '..', 'project', 'standard'));
+        const from = node_path_1.default.resolve(node_path_1.default.join(__dirname, '..', '..', '..', 'project', 'standard'));
         // console.log('FROM', from)
         (0, jostraca_1.Copy)({
             from,

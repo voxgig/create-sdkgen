@@ -170,44 +170,40 @@ function CreateSdkGen(opts) {
         generate,
     };
 }
+// Run `npm <args>` to completion, rejecting on spawn error or non-zero exit.
+function runNpm(args, spawn_opts) {
+    return new Promise((resolve, reject) => {
+        const child = (0, child_process_1.spawn)('npm', args, spawn_opts);
+        child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)));
+        child.on('close', (code) => {
+            if (code !== 0) {
+                reject(new Error(`npm ${args.join(' ')} exited with code ${code}`));
+            }
+            else {
+                resolve(null);
+            }
+        });
+    });
+}
 async function installNpm(spec, opts, model) {
     const folder = opts.folder;
     const log = opts.log;
-    return new Promise(async (resolve, reject) => {
-        const cwd = node_path_1.default.resolve(folder, SDK_FOLDER);
-        const env = {
-            ...process.env,
-            PATH: `${node_path_1.default.dirname(process.execPath)}${node_path_1.default.delimiter}${process.env.PATH}`,
-        };
-        const args = ['install'];
-        const spawn_opts = {
-            cwd,
-            env,
-            stdio: 'inherit', // Direct passthrough for real-time output
-        };
-        const postInstall = async () => {
-            await installTargets(spec, opts, model, spawn_opts);
-            await installFeatures(spec, opts, model, spawn_opts);
-        };
-        if (spec.install) {
-            log.info({ point: 'generate-install', note: 'running npm install in ' + cwd });
-            const child = (0, child_process_1.spawn)('npm', args, spawn_opts);
-            child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)));
-            child.on('close', async (code) => {
-                if (code !== 0) {
-                    reject(new Error(`npm install exited with code ${code}`));
-                }
-                else {
-                    await postInstall();
-                    return resolve(null);
-                }
-            });
-        }
-        else {
-            await postInstall();
-            return resolve(null);
-        }
-    });
+    const cwd = node_path_1.default.resolve(folder, SDK_FOLDER);
+    const env = {
+        ...process.env,
+        PATH: `${node_path_1.default.dirname(process.execPath)}${node_path_1.default.delimiter}${process.env.PATH}`,
+    };
+    const spawn_opts = {
+        cwd,
+        env,
+        stdio: 'inherit', // Direct passthrough for real-time output
+    };
+    if (spec.install) {
+        log.info({ point: 'generate-install', note: 'running npm install in ' + cwd });
+        await runNpm(['install'], spawn_opts);
+    }
+    await installTargets(spec, opts, model, spawn_opts);
+    await installFeatures(spec, opts, model, spawn_opts);
 }
 async function installTargets(spec, opts, model, spawn_opts) {
     const target = spec.target;
@@ -215,25 +211,12 @@ async function installTargets(spec, opts, model, spawn_opts) {
         return;
     }
     const log = opts.log;
-    return new Promise((resolve, reject) => {
-        const targetlist = target.join(',');
-        log.info({
-            point: 'generate-target', target: targetlist,
-            note: 'npm run target-add ' + targetlist
-        });
-        const args = ['run', 'add-target', targetlist];
-        log.info({ point: 'generate-target', note: 'adding targets: ' + targetlist });
-        const child = (0, child_process_1.spawn)('npm', args, spawn_opts);
-        child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)));
-        child.on('close', async (code) => {
-            if (code !== 0) {
-                reject(new Error(`npm exited with code ${code}`));
-            }
-            else {
-                resolve(null);
-            }
-        });
+    const targetlist = target.join(',');
+    log.info({
+        point: 'generate-target', target: targetlist,
+        note: 'adding targets: ' + targetlist
     });
+    await runNpm(['run', 'add-target', targetlist], spawn_opts);
 }
 async function installFeatures(spec, opts, model, spawn_opts) {
     const feature = spec.feature;
@@ -241,24 +224,11 @@ async function installFeatures(spec, opts, model, spawn_opts) {
         return;
     }
     const log = opts.log;
-    return new Promise((resolve, reject) => {
-        const featurelist = feature.join(',');
-        log.info({
-            point: 'generate-feature', feature: featurelist,
-            note: 'npm run feature-add ' + featurelist
-        });
-        const args = ['run', 'add-feature', featurelist];
-        log.info({ point: 'generate-feature', note: 'adding features: ' + featurelist });
-        const child = (0, child_process_1.spawn)('npm', args, spawn_opts);
-        child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)));
-        child.on('close', async (code) => {
-            if (code !== 0) {
-                reject(new Error(`npm exited with code ${code}`));
-            }
-            else {
-                resolve(null);
-            }
-        });
+    const featurelist = feature.join(',');
+    log.info({
+        point: 'generate-feature', feature: featurelist,
+        note: 'adding features: ' + featurelist
     });
+    await runNpm(['run', 'add-feature', featurelist], spawn_opts);
 }
 //# sourceMappingURL=create-sdkgen.js.map
