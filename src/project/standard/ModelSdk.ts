@@ -15,7 +15,7 @@ const ModelSdk = cmp(function ModelSdk(props: any) {
   const { spec } = props
 
   const from =
-    Path.resolve(Path.join(__dirname + '..', '..', '..', '..', 'project', 'standard'))
+    Path.resolve(Path.join(__dirname, '..', '..', '..', 'project', 'standard'))
 
   File({ name: 'sdk.aontu' }, () => {
     Fragment({

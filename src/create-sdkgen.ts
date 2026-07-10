@@ -214,53 +214,49 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
 
 
+// Run `npm <args>` to completion, rejecting on spawn error or non-zero exit.
+function runNpm(args: string[], spawn_opts: any): Promise<null> {
+  return new Promise((resolve, reject) => {
+    const child = spawn('npm', args, spawn_opts)
+
+    child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
+
+    child.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`npm ${args.join(' ')} exited with code ${code}`))
+      }
+      else {
+        resolve(null)
+      }
+    })
+  })
+}
+
+
 async function installNpm(spec: GenerateSpec, opts: any, model: any) {
   const folder = opts.folder
   const log = opts.log
 
-  return new Promise(async (resolve, reject) => {
-    const cwd = Path.resolve(folder, SDK_FOLDER)
+  const cwd = Path.resolve(folder, SDK_FOLDER)
 
-    const env = {
-      ...process.env,
-      PATH: `${Path.dirname(process.execPath)}${Path.delimiter}${process.env.PATH}`,
-    }
+  const env = {
+    ...process.env,
+    PATH: `${Path.dirname(process.execPath)}${Path.delimiter}${process.env.PATH}`,
+  }
 
-    const args = ['install']
+  const spawn_opts: any = {
+    cwd,
+    env,
+    stdio: 'inherit', // Direct passthrough for real-time output
+  }
 
-    const spawn_opts: any = {
-      cwd,
-      env,
-      stdio: 'inherit', // Direct passthrough for real-time output
-    }
+  if (spec.install) {
+    log.info({ point: 'generate-install', note: 'running npm install in ' + cwd })
+    await runNpm(['install'], spawn_opts)
+  }
 
-    const postInstall = async () => {
-      await installTargets(spec, opts, model, spawn_opts)
-      await installFeatures(spec, opts, model, spawn_opts)
-    }
-
-    if (spec.install) {
-      log.info({ point: 'generate-install', note: 'running npm install in ' + cwd })
-
-      const child = spawn('npm', args, spawn_opts)
-
-      child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
-
-      child.on('close', async (code) => {
-        if (code !== 0) {
-          reject(new Error(`npm install exited with code ${code}`))
-        }
-        else {
-          await postInstall()
-          return resolve(null)
-        }
-      })
-    }
-    else {
-      await postInstall()
-      return resolve(null)
-    }
-  })
+  await installTargets(spec, opts, model, spawn_opts)
+  await installFeatures(spec, opts, model, spawn_opts)
 }
 
 
@@ -272,30 +268,14 @@ async function installTargets(spec: GenerateSpec, opts: any, model: any, spawn_o
   }
 
   const log = opts.log
-  return new Promise((resolve, reject) => {
-    const targetlist = target.join(',')
+  const targetlist = target.join(',')
 
-    log.info({
-      point: 'generate-target', target: targetlist,
-      note: 'npm run target-add ' + targetlist
-    })
-
-    const args = ['run', 'add-target', targetlist]
-
-    log.info({ point: 'generate-target', note: 'adding targets: ' + targetlist })
-    const child = spawn('npm', args, spawn_opts)
-
-    child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
-
-    child.on('close', async (code) => {
-      if (code !== 0) {
-        reject(new Error(`npm exited with code ${code}`))
-      }
-      else {
-        resolve(null)
-      }
-    })
+  log.info({
+    point: 'generate-target', target: targetlist,
+    note: 'adding targets: ' + targetlist
   })
+
+  await runNpm(['run', 'add-target', targetlist], spawn_opts)
 }
 
 
@@ -307,31 +287,14 @@ async function installFeatures(spec: GenerateSpec, opts: any, model: any, spawn_
   }
 
   const log = opts.log
-  return new Promise((resolve, reject) => {
-    const featurelist = feature.join(',')
+  const featurelist = feature.join(',')
 
-    log.info({
-      point: 'generate-feature', feature: featurelist,
-      note: 'npm run feature-add ' + featurelist
-    })
-
-    const args = ['run', 'add-feature', featurelist]
-
-    log.info({ point: 'generate-feature', note: 'adding features: ' + featurelist })
-    const child = spawn('npm', args, spawn_opts)
-
-    child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
-
-    child.on('close', async (code) => {
-      if (code !== 0) {
-        reject(new Error(`npm exited with code ${code}`))
-      }
-      else {
-        resolve(null)
-      }
-    })
+  log.info({
+    point: 'generate-feature', feature: featurelist,
+    note: 'adding features: ' + featurelist
   })
 
+  await runNpm(['run', 'add-feature', featurelist], spawn_opts)
 }
 
 

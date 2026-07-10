@@ -8,7 +8,7 @@ const node_path_1 = __importDefault(require("node:path"));
 const jostraca_1 = require("jostraca");
 const ModelSdk = (0, jostraca_1.cmp)(function ModelSdk(props) {
     const { spec } = props;
-    const from = node_path_1.default.resolve(node_path_1.default.join(__dirname + '..', '..', '..', '..', 'project', 'standard'));
+    const from = node_path_1.default.resolve(node_path_1.default.join(__dirname, '..', '..', '..', 'project', 'standard'));
     (0, jostraca_1.File)({ name: 'sdk.aontu' }, () => {
         (0, jostraca_1.Fragment)({
             from: node_path_1.default.join(from, spec.sdk_folder, 'model', 'sdk.fragment.aontu'),
