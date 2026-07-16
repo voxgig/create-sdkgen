@@ -123,9 +123,14 @@ async function scaffold(over = {}) {
     (0, node_test_1.test)('gitignore-content', async () => {
         const s = await scaffold();
         const top = s.read('.gitignore');
-        node_assert_1.default.match(top, /node_modules\//);
+        // Bare `node_modules` (NO trailing slash) so it also ignores node_modules
+        // SYMLINKS (ts/node_modules -> shared tree); a dir-only rule left them tracked.
+        node_assert_1.default.match(top, /^node_modules$/m);
+        node_assert_1.default.doesNotMatch(top, /^node_modules\/$/m);
         node_assert_1.default.match(top, /\.DS_Store/);
         const sdk = s.read('.sdk/.gitignore');
+        // Same guard for .sdk/node_modules -> shared tree symlink.
+        node_assert_1.default.match(sdk, /^node_modules$/m);
         node_assert_1.default.match(sdk, /dist\//);
         node_assert_1.default.match(sdk, /\*\.tsbuildinfo/);
     });

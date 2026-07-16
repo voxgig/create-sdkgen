@@ -119,10 +119,15 @@ describe('create-sdkgen', () => {
     const s = await scaffold()
 
     const top = s.read('.gitignore')
-    assert.match(top, /node_modules\//)
+    // Bare `node_modules` (NO trailing slash) so it also ignores node_modules
+    // SYMLINKS (ts/node_modules -> shared tree); a dir-only rule left them tracked.
+    assert.match(top, /^node_modules$/m)
+    assert.doesNotMatch(top, /^node_modules\/$/m)
     assert.match(top, /\.DS_Store/)
 
     const sdk = s.read('.sdk/.gitignore')
+    // Same guard for .sdk/node_modules -> shared tree symlink.
+    assert.match(sdk, /^node_modules$/m)
     assert.match(sdk, /dist\//)
     assert.match(sdk, /\*\.tsbuildinfo/)
   })
