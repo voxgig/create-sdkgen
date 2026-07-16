@@ -94,9 +94,16 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
       folder,
       log: log.child({ cmp: 'jostraca' }),
       meta: { spec },
+      // Overwrite the scaffolded project (.sdk components, templates, build
+      // config) rather than 3-way merge. The scaffold is toolchain-derived and
+      // not hand-edited; merging against a drifting .jostraca base keeps STALE
+      // components/templates on a toolchain bump (so a fix never propagates) and
+      // can inject <<<<<<< markers. See @voxgig/sdkgen
+      // docs/explanation/regeneration-overwrite.md.
       existing: {
         txt: {
-          merge: true
+          write: true,
+          merge: false
         }
       },
       control: {
