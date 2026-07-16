@@ -12,8 +12,9 @@ const GITIGNORE_TOP = `# Local config / secrets
 *.local.*
 *.local
 
-# Dependencies
-node_modules/
+# Dependencies (no trailing slash: also ignores node_modules SYMLINKS, e.g.
+# ts/node_modules -> shared tree, which a dir-only rule leaves tracked)
+node_modules
 
 # Logs
 *.log
@@ -30,8 +31,9 @@ const GITIGNORE_SDK = `# Local config / secrets
 *.local.*
 *.local
 
-# Dependencies
-node_modules/
+# Dependencies (no trailing slash: also ignores node_modules SYMLINKS, e.g.
+# .sdk/node_modules -> shared tree, which a dir-only rule leaves tracked)
+node_modules
 
 # Build output
 dist/
