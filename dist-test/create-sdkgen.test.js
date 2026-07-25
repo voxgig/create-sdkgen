@@ -175,6 +175,14 @@ async function scaffold(over = {}) {
         node_assert_1.default.equal(s.exists('.sdk/package.json'), false);
         node_assert_1.default.equal(s.exists('.gitignore'), false);
     });
+    (0, node_test_1.test)('dryrun-writes-nothing-at-all', async () => {
+        // Stronger than the per-file checks above, which a dry run could pass
+        // while still touching the disk elsewhere: logCreate() used to mkdir
+        // <folder>/.sdk/log and append create.log on EVERY run, dry or not.
+        // Assert the whole output tree stays empty.
+        const s = await scaffold({ dryrun: true });
+        node_assert_1.default.deepEqual(s.files(), [], 'a dry run must not create any file, including the create log');
+    });
     (0, node_test_1.test)('logCreate-writes-create-log', async () => {
         const s = await scaffold();
         node_assert_1.default.ok(s.exists('.sdk/log/create.log'));

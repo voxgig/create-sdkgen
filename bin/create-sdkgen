@@ -14,6 +14,10 @@ const { CreateSdkGen } = require('../dist/create-sdkgen.js')
 
 let KONSOLE = global['con'+'sole']
 
+// Print stack traces only when the user asked for debug output. Read from
+// argv directly: handleError can fire before options are parsed.
+const DEBUG_STACK = process.argv.some(a => /^--debug(=(trace|debug))?$/.test(a))
+
 run()
 
 
@@ -35,7 +39,11 @@ async function run() {
 
     options = validateOptions(options)
 
-    generate(options)
+    // AWAIT: generate() is async. Dropping the promise meant every async
+    // failure (a failing `npm install` / `add-target`, a write error) escaped
+    // this catch and surfaced as a raw unhandled-rejection crash dump instead
+    // of a Voxgig error message with a non-zero exit.
+    await generate(options)
   }
   catch(err) {
     handleError(err)
@@ -52,7 +60,7 @@ function exit(err) {
 }
 
 
-function generate(options) {
+async function generate(options) {
   const createSdkGen = CreateSdkGen({
     debug: options.debug
   })
@@ -72,8 +80,8 @@ function generate(options) {
   }
 
   // console.log('OPTIONS', options)
-  
-  createSdkGen.generate(spec)
+
+  return createSdkGen.generate(spec)
 }
 
 
@@ -215,10 +223,18 @@ function validateOptions(rawOptions) {
 
 
 function handleError(err) {
-  console.log(err)
-  console.trace()
-  
-  KONSOLE.log('Voxgig Create SDK Error: '+err)
+  // The message is the useful part; the stack is noise for a CLI user and
+  // used to be printed BEFORE the message (twice, with a bare console.trace()
+  // pointing at handleError itself rather than at the failure). Keep the
+  // stack behind --debug for the cases where it is actually wanted.
+  const msg = (err && err.message) ? err.message : String(err)
+
+  KONSOLE.log('Voxgig Create SDK Error: ' + msg)
+
+  if (DEBUG_STACK && err && err.stack) {
+    KONSOLE.log(err.stack)
+  }
+
   exit(err)
 }
 

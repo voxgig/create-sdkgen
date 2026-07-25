@@ -76,7 +76,12 @@ function CreateSdkGen(opts) {
             node_path_1.default.join(cwd, name + (name.endsWith('-sdk') ? '' : '-sdk')) :
             node_path_1.default.isAbsolute(spec.folder) ? spec.folder :
                 node_path_1.default.join(cwd, spec.folder);
-        logCreate(folder);
+        // A dry run must not touch the filesystem — logCreate() mkdir's
+        // <folder>/.sdk/log and appends to create.log, which created a real
+        // directory tree for a run that is supposed to write nothing.
+        if (!dryrun) {
+            logCreate(folder);
+        }
         const jopts = {
             fs: () => fs,
             debug,
@@ -115,10 +120,23 @@ function CreateSdkGen(opts) {
         });
         const jres = await jostraca.generate(jopts, () => CreateRoot({ model, spec }));
         (0, util_1.showChanges)(jopts.log, 'generate-result', jres, process.cwd());
+        // `add-target` / `add-feature` are npm run scripts that resolve
+        // @voxgig/sdkgen out of the project's node_modules, so they cannot work
+        // without the install. They used to run regardless of --no-install,
+        // immediately after logging "skipping npm install", and failed with a
+        // module-resolution error.
         if (spec.dryrun || !spec.install) {
-            log.info({ point: 'generate-install', note: 'skipping npm install' });
+            const pending = [
+                (spec.target ?? []).length ? 'target' : '',
+                (spec.feature ?? []).length ? 'feature' : '',
+            ].filter(Boolean).join('/');
+            log.info({
+                point: 'generate-install',
+                note: 'skipping npm install' +
+                    (pending ? ` (and ${pending} add: it needs the installed toolchain)` : '')
+            });
         }
-        if (!spec.dryrun) {
+        if (!spec.dryrun && spec.install) {
             await installNpm(spec, jopts, model);
         }
         log.info({ point: 'generate-end' });
@@ -205,10 +223,8 @@ async function installNpm(spec, opts, model) {
         env,
         stdio: 'inherit', // Direct passthrough for real-time output
     };
-    if (spec.install) {
-        log.info({ point: 'generate-install', note: 'running npm install in ' + cwd });
-        await runNpm(['install'], spawn_opts);
-    }
+    log.info({ point: 'generate-install', note: 'running npm install in ' + cwd });
+    await runNpm(['install'], spawn_opts);
     await installTargets(spec, opts, model, spawn_opts);
     await installFeatures(spec, opts, model, spawn_opts);
 }
