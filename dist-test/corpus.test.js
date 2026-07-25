@@ -60,6 +60,11 @@ const node_path_1 = __importDefault(require("node:path"));
 const aontu_1 = require("aontu");
 const PRIMARY = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'primary');
 const INDEX = node_path_1.default.join(PRIMARY, 'primary-test-index.aontu');
+// The COMPILED corpus every generated SDK actually executes. It is a
+// committed artefact produced by `npm run test-model`, so it can silently
+// fall behind the .aontu sources it is built from — which is exactly what
+// happened: preparePath's fixture and test.json disagreed and no test knew.
+const TEST_JSON = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'test.json');
 const CI = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.github', 'workflows', 'ci.yml');
 // Sections deliberately empty. Each MUST carry a PENDING header explaining
 // why, so the gap is reviewable rather than accidental. Keep in step with the
@@ -123,6 +128,24 @@ function compile(name) {
         const referenced = [...index.matchAll(/@"([\w.-]+)\.aontu"/g)].map((m) => m[1]);
         const missing = referenced.filter((n) => !fixtureNames().includes(n));
         node_assert_1.default.deepEqual(missing, [], 'index references fixtures that do not exist');
+    });
+    (0, node_test_1.test)('the compiled test.json matches its .aontu sources', () => {
+        // Generated SDKs execute test.json, NOT the fixtures. An edited fixture
+        // that was never recompiled changes nothing for any target, and an
+        // out-of-date section can silently be empty. Compare case counts per
+        // section — cheap, and it catches both directions.
+        const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'));
+        node_assert_1.default.ok(compiled?.primary, 'test.json has no primary section');
+        const drift = [];
+        for (const name of fixtureNames()) {
+            const want = compile(name).basic.set.length;
+            const got = compiled.primary?.[name]?.basic?.set?.length;
+            if (want !== got) {
+                drift.push(`${name}: fixture has ${want} case(s), test.json has ${got}`);
+            }
+        }
+        node_assert_1.default.deepEqual(drift, [], 'test.json is out of date — run `npm run test-model` in a scaffolded ' +
+            'project and copy the result back, patching only the changed sections');
     });
     (0, node_test_1.test)('preparePath is covered — it is the riskiest shaping step', () => {
         // Regression pin: this shipped as `set: []` while go/py/rust/csharp each

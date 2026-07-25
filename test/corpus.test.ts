@@ -31,6 +31,13 @@ const PRIMARY = Path.resolve(
 
 const INDEX = Path.join(PRIMARY, 'primary-test-index.aontu')
 
+// The COMPILED corpus every generated SDK actually executes. It is a
+// committed artefact produced by `npm run test-model`, so it can silently
+// fall behind the .aontu sources it is built from — which is exactly what
+// happened: preparePath's fixture and test.json disagreed and no test knew.
+const TEST_JSON = Path.resolve(
+  __dirname, '..', 'project', 'standard', '.sdk', 'test', 'test.json')
+
 const CI = Path.resolve(
   __dirname, '..', 'project', 'standard', '.github', 'workflows', 'ci.yml')
 
@@ -120,6 +127,28 @@ describe('shared test corpus', () => {
     const referenced = [...index.matchAll(/@"([\w.-]+)\.aontu"/g)].map((m) => m[1])
     const missing = referenced.filter((n) => !fixtureNames().includes(n))
     assert.deepEqual(missing, [], 'index references fixtures that do not exist')
+  })
+
+
+  test('the compiled test.json matches its .aontu sources', () => {
+    // Generated SDKs execute test.json, NOT the fixtures. An edited fixture
+    // that was never recompiled changes nothing for any target, and an
+    // out-of-date section can silently be empty. Compare case counts per
+    // section — cheap, and it catches both directions.
+    const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'))
+    assert.ok(compiled?.primary, 'test.json has no primary section')
+
+    const drift: string[] = []
+    for (const name of fixtureNames()) {
+      const want = compile(name).basic.set.length
+      const got = compiled.primary?.[name]?.basic?.set?.length
+      if (want !== got) {
+        drift.push(`${name}: fixture has ${want} case(s), test.json has ${got}`)
+      }
+    }
+    assert.deepEqual(drift, [],
+      'test.json is out of date — run `npm run test-model` in a scaffolded ' +
+      'project and copy the result back, patching only the changed sections')
   })
 
 
