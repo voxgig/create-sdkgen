@@ -227,8 +227,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      # scala-cli, NOT sbt: the generated Makefile runs
+      # `scala-cli run . --main-class ...` and there is no build.sbt.
       - if: hashFiles('scala/Makefile') != ''
-        uses: sbt/setup-sbt@v1
+        uses: VirtusLab/scala-cli-setup@main
       - if: hashFiles('scala/Makefile') != ''
         run: make -C scala test
 
@@ -290,10 +292,14 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
+      # 0.13, NOT 0.14+: the generated build.zig.zon declares `.name` as a
+      # plain string, which 0.14 rejects ("expected enum literal"). Package_zig
+      # says the string form matches the target's toolchain pin — keep the two
+      # in step, or move both to the enum-literal + fingerprint form together.
       - if: hashFiles('zig/build.zig') != ''
         uses: mlugg/setup-zig@v1
         with:
-          version: '0.14.0'
+          version: '0.13.0'
       - if: hashFiles('zig/build.zig') != ''
         run: make -C zig test
 
