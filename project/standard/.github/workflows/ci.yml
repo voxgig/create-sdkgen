@@ -229,8 +229,13 @@ jobs:
           java-version: '21'
       # scala-cli, NOT sbt: the generated Makefile runs
       # `scala-cli run . --main-class ...` and there is no build.sbt.
+      #
+      # Pinned to a release tag, not @main: every generated SDK runs this
+      # workflow, so a mutable default branch would let an upstream push change
+      # what executes in every consumer's CI with no change or review in their
+      # repo. Matches how the other third-party setup actions here are pinned.
       - if: hashFiles('scala/Makefile') != ''
-        uses: VirtusLab/scala-cli-setup@main
+        uses: VirtusLab/scala-cli-setup@v1.5.1
       - if: hashFiles('scala/Makefile') != ''
         run: make -C scala test
 

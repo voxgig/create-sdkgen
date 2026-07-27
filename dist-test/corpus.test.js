@@ -80,6 +80,18 @@ function fixtureNames() {
         .map((f) => f.replace(/\.aontu$/, ''))
         .sort();
 }
+// Deep copy with object keys sorted, array order preserved. aontu and the
+// model builder agree on the DATA but not on key order, so a raw deep-equal
+// would report 14 sections as drifted when nothing has changed.
+function canonical(v) {
+    if (Array.isArray(v)) {
+        return v.map(canonical);
+    }
+    if (null != v && 'object' === typeof v) {
+        return Object.fromEntries(Object.keys(v).sort().map((k) => [k, canonical(v[k])]));
+    }
+    return v;
+}
 function compile(name) {
     const p = node_path_1.default.join(PRIMARY, name + '.aontu');
     const errs = [];
@@ -131,17 +143,29 @@ function compile(name) {
     });
     (0, node_test_1.test)('the compiled test.json matches its .aontu sources', () => {
         // Generated SDKs execute test.json, NOT the fixtures. An edited fixture
-        // that was never recompiled changes nothing for any target, and an
-        // out-of-date section can silently be empty. Compare case counts per
-        // section — cheap, and it catches both directions.
+        // that was never recompiled changes nothing for any target.
+        //
+        // Compare CONTENT, not just case counts: correcting one expected value in
+        // an existing case — the most likely edit — leaves the count identical, so
+        // a length check would pass while every target still asserted the old
+        // value. That is the same "green while checking nothing" failure this
+        // suite exists to prevent.
+        //
+        // Comparison is canonical (object keys sorted, array order preserved):
+        // aontu and the model builder emit the same data with different key
+        // ordering, which is not drift.
         const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'));
         node_assert_1.default.ok(compiled?.primary, 'test.json has no primary section');
         const drift = [];
         for (const name of fixtureNames()) {
-            const want = compile(name).basic.set.length;
-            const got = compiled.primary?.[name]?.basic?.set?.length;
-            if (want !== got) {
-                drift.push(`${name}: fixture has ${want} case(s), test.json has ${got}`);
+            const want = canonical(compile(name).basic);
+            const got = canonical(compiled.primary?.[name]?.basic);
+            if (JSON.stringify(want) !== JSON.stringify(got)) {
+                const wn = want?.set?.length;
+                const gn = got?.set?.length;
+                drift.push(wn === gn
+                    ? `${name}: ${wn} case(s) both sides, but the case DATA differs`
+                    : `${name}: fixture has ${wn} case(s), test.json has ${gn}`);
             }
         }
         node_assert_1.default.deepEqual(drift, [], 'test.json is out of date — run `npm run test-model` in a scaffolded ' +

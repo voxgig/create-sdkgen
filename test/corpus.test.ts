@@ -60,6 +60,21 @@ function fixtureNames(): string[] {
 }
 
 
+// Deep copy with object keys sorted, array order preserved. aontu and the
+// model builder agree on the DATA but not on key order, so a raw deep-equal
+// would report 14 sections as drifted when nothing has changed.
+function canonical(v: any): any {
+  if (Array.isArray(v)) {
+    return v.map(canonical)
+  }
+  if (null != v && 'object' === typeof v) {
+    return Object.fromEntries(
+      Object.keys(v).sort().map((k) => [k, canonical(v[k])]))
+  }
+  return v
+}
+
+
 function compile(name: string): any {
   const p = Path.join(PRIMARY, name + '.aontu')
   const errs: any[] = []
@@ -132,18 +147,30 @@ describe('shared test corpus', () => {
 
   test('the compiled test.json matches its .aontu sources', () => {
     // Generated SDKs execute test.json, NOT the fixtures. An edited fixture
-    // that was never recompiled changes nothing for any target, and an
-    // out-of-date section can silently be empty. Compare case counts per
-    // section — cheap, and it catches both directions.
+    // that was never recompiled changes nothing for any target.
+    //
+    // Compare CONTENT, not just case counts: correcting one expected value in
+    // an existing case — the most likely edit — leaves the count identical, so
+    // a length check would pass while every target still asserted the old
+    // value. That is the same "green while checking nothing" failure this
+    // suite exists to prevent.
+    //
+    // Comparison is canonical (object keys sorted, array order preserved):
+    // aontu and the model builder emit the same data with different key
+    // ordering, which is not drift.
     const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'))
     assert.ok(compiled?.primary, 'test.json has no primary section')
 
     const drift: string[] = []
     for (const name of fixtureNames()) {
-      const want = compile(name).basic.set.length
-      const got = compiled.primary?.[name]?.basic?.set?.length
-      if (want !== got) {
-        drift.push(`${name}: fixture has ${want} case(s), test.json has ${got}`)
+      const want = canonical(compile(name).basic)
+      const got = canonical(compiled.primary?.[name]?.basic)
+      if (JSON.stringify(want) !== JSON.stringify(got)) {
+        const wn = want?.set?.length
+        const gn = got?.set?.length
+        drift.push(wn === gn
+          ? `${name}: ${wn} case(s) both sides, but the case DATA differs`
+          : `${name}: fixture has ${wn} case(s), test.json has ${gn}`)
       }
     }
     assert.deepEqual(drift, [],

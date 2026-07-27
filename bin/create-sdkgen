@@ -14,9 +14,31 @@ const { CreateSdkGen } = require('../dist/create-sdkgen.js')
 
 let KONSOLE = global['con'+'sole']
 
-// Print stack traces only when the user asked for debug output. Read from
-// argv directly: handleError can fire before options are parsed.
-const DEBUG_STACK = process.argv.some(a => /^--debug(=(trace|debug))?$/.test(a))
+// Print stack traces only when the user actually selected a verbose level.
+// Read from argv directly: handleError can fire before options are parsed.
+//
+// Both spellings must agree. `--debug=warn` carries its value in one token,
+// but the space-separated `--debug warn` leaves a BARE `--debug` in argv — so
+// matching a bare token turned stacks on for every level, including warn/error,
+// while the `=` form correctly did not.
+function debugLevel() {
+  const argv = process.argv
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]
+    if (a.startsWith('--debug=')) {
+      return a.slice('--debug='.length)
+    }
+    if ('--debug' === a) {
+      // Bare flag: the level is the NEXT token, unless another option follows
+      // (or nothing does), in which case no level was selected.
+      const next = argv[i + 1]
+      return (null != next && !next.startsWith('-')) ? next : ''
+    }
+  }
+  return ''
+}
+
+const DEBUG_STACK = ['debug', 'trace'].includes(debugLevel())
 
 run()
 
