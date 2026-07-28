@@ -192,6 +192,17 @@ describe('create-sdkgen', () => {
   })
 
 
+  test('dryrun-writes-nothing-at-all', async () => {
+    // Stronger than the per-file checks above, which a dry run could pass
+    // while still touching the disk elsewhere: logCreate() used to mkdir
+    // <folder>/.sdk/log and append create.log on EVERY run, dry or not.
+    // Assert the whole output tree stays empty.
+    const s = await scaffold({ dryrun: true })
+    assert.deepEqual(s.files(), [],
+      'a dry run must not create any file, including the create log')
+  })
+
+
   test('logCreate-writes-create-log', async () => {
     const s = await scaffold()
     assert.ok(s.exists('.sdk/log/create.log'))

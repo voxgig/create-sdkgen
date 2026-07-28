@@ -1,0 +1,38 @@
+# Clean install, build and test this package across the supported platforms.
+# Mirrors voxgig/sdkgen's build workflow.
+#
+# NOTE: this repo previously had NO CI of its own. The only workflow it
+# contained was project/standard/.github/workflows/ci.yml, which is SHIPPED to
+# generated SDKs and never runs here — so the suite that guards the shared test
+# corpus (test/corpus.test.ts) ran nowhere.
+
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [24.x]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    # `npm test` runs the compiled dist-test/ suite. Without a build first,
+    # node --test matches zero files and exits 0 — green CI testing nothing.
+    - run: npm run build
+    - run: npm test

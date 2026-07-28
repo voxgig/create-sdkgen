@@ -86,7 +86,12 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
       Path.isAbsolute(spec.folder) ? spec.folder :
         Path.join(cwd, spec.folder)
 
-    logCreate(folder)
+    // A dry run must not touch the filesystem — logCreate() mkdir's
+    // <folder>/.sdk/log and appends to create.log, which created a real
+    // directory tree for a run that is supposed to write nothing.
+    if (!dryrun) {
+      logCreate(folder)
+    }
 
     const jopts = {
       fs: () => fs,
@@ -260,6 +265,30 @@ async function installNpm(spec: GenerateSpec, opts: any, model: any) {
   if (spec.install) {
     log.info({ point: 'generate-install', note: 'running npm install in ' + cwd })
     await runNpm(['install'], spawn_opts)
+  }
+
+  // `-t` / `-f` are INDEPENDENT of `--no-install`: the documented contract is
+  // that --no-install skips `npm install`, not that it drops the requested
+  // targets and features. Adding them is still valid without an install when
+  // the project already has its toolchain (re-scaffolding an existing folder
+  // is a supported flow — "if run against an existing folder generated files
+  // will be overwritten").
+  //
+  // They ARE npm run scripts that resolve @voxgig/sdkgen from node_modules, so
+  // without one they cannot work. Fail with an actionable message rather than
+  // the raw module-resolution error — and rather than silently skipping, which
+  // reports success while leaving config.aontu without the requested entries.
+  const wanted = [
+    (spec.target ?? []).length ? '--target' : '',
+    (spec.feature ?? []).length ? '--feature' : '',
+  ].filter(Boolean)
+
+  if (0 < wanted.length && !Fs.existsSync(Path.join(cwd, 'node_modules'))) {
+    throw new Error(
+      `${wanted.join(' / ')} needs the project toolchain, but ` +
+      `${Path.join(cwd, 'node_modules')} does not exist ` +
+      `(--no-install was given). Re-run without --no-install, or run ` +
+      `\`npm install\` then \`npm run add-target\` / \`add-feature\` in ${cwd}.`)
   }
 
   await installTargets(spec, opts, model, spawn_opts)
