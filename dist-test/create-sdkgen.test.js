@@ -214,4 +214,56 @@ async function scaffold(over = {}) {
         }
     });
 });
+// The guide overlay is the one model file the USER owns — apidef unifies it
+// over the heuristic classification, and it carries every documented
+// customization (entity rename/hide/activate, param rename, ...). The blanket
+// scaffold overwrite used to destroy it on every re-scaffold, and cedar-regen
+// re-scaffolds on every regen, so the loss was silent and repeated.
+(0, node_test_1.describe)('guide-overlay-merge', () => {
+    const GUIDE_REL = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
+    // Re-scaffold over an EXISTING project folder (the regen flow).
+    async function rescaffold(out, def) {
+        await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
+            root: 'CreateRoot', name: 'petstore', def,
+            project: 'standard', folder: out, install: false,
+        });
+    }
+    (0, node_test_1.test)('a fresh scaffold writes the guide template', async () => {
+        const s = await scaffold();
+        const guide = s.read(GUIDE_REL);
+        node_assert_1.default.match(guide, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
+        node_assert_1.default.match(guide, /@"base-guide\.aontu"/);
+    });
+    (0, node_test_1.test)('a re-scaffold leaves a customized guide BYTE-IDENTICAL', async () => {
+        const s = await scaffold();
+        const guidePath = node_path_1.default.join(s.out, GUIDE_REL);
+        const customized = s.read(GUIDE_REL) +
+            '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n';
+        Fs.writeFileSync(guidePath, customized);
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(Fs.readFileSync(guidePath, 'utf8'), customized, 'the user overlay must survive a re-scaffold untouched');
+    });
+    (0, node_test_1.test)('a re-scaffold restores includes the guide is missing, keeping user content', async () => {
+        const s = await scaffold();
+        const guidePath = node_path_1.default.join(s.out, GUIDE_REL);
+        // Includes deleted — the file no longer resolves the heuristic guide.
+        const damaged = '# only my stuff\nguide: entity: { widget: active: false }\n';
+        Fs.writeFileSync(guidePath, damaged);
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        const merged = Fs.readFileSync(guidePath, 'utf8');
+        node_assert_1.default.match(merged, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
+        node_assert_1.default.match(merged, /@"base-guide\.aontu"/);
+        node_assert_1.default.match(merged, /guide: entity: \{ widget: active: false \}/);
+        // Restored at the TOP: the overrides unify over base-guide, so the
+        // includes have to precede them.
+        node_assert_1.default.ok(merged.indexOf('@"base-guide.aontu"') < merged.indexOf('# only my stuff'), 'includes must be restored before the user content');
+    });
+    (0, node_test_1.test)('the rest of the scaffold is still overwritten', async () => {
+        const s = await scaffold();
+        const sdkAontu = node_path_1.default.join(s.out, '.sdk', 'model', 'sdk.aontu');
+        Fs.writeFileSync(sdkAontu, '# clobbered\n');
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.notEqual(Fs.readFileSync(sdkAontu, 'utf8'), '# clobbered\n', 'toolchain-derived files must still be overwritten so fixes propagate');
+    });
+});
 //# sourceMappingURL=create-sdkgen.test.js.map
