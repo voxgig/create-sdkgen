@@ -1,0 +1,47 @@
+# Publishes @voxgig/create-sdkgen to npm on a `v*` tag push, via GitHub
+# OIDC Trusted Publishing — no NPM_TOKEN secret. The `id-token: write`
+# permission lets npm exchange a GitHub OIDC token for a short-lived
+# publish credential, and provenance is attached automatically.
+#
+# The trusted publisher must be registered on npmjs.com for
+# voxgig/create-sdkgen against THIS filename (publish.yml); renaming
+# this file breaks publishing until the npm-side config is updated to
+# match.
+#
+# Release flow: bump package.json, merge to main, then push a v* tag.
+
+name: publish
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: npm publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing requires npm >= 11.5.1.
+      - name: Use a trusted-publishing capable npm
+        run: npm install -g npm@latest
+
+      # package-lock.json is committed here, so ci is safe and reproducible.
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+      - name: Publish to npm
+        run: npm publish --access public
