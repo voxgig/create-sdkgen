@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateRoot = void 0;
+exports.sanitizeDefName = sanitizeDefName;
 const node_path_1 = __importDefault(require("node:path"));
 // import * as Fs from 'node:fs'
 const jostraca_1 = require("jostraca");
@@ -88,6 +89,36 @@ function mergeGuide(existing, template) {
     }
     return missing.join('\n') + '\n\n' + existing;
 }
+// The OpenAPI filename is inherited from the upstream API slug, and upstream
+// slugs are not constrained: the freepublicapis corpus contains apostrophes
+// (catherine-shulman's-quotes), accents (dólar-y-monedas, kölner-adressen),
+// and '!' / '>' / '_'. That name is copied into .sdk/def/ AND written verbatim
+// into a single-quoted aontu string in sdk.aontu:
+//
+//     def: 'catherine-shulman's-quotes_0.1.0.json'
+//                              ^ terminates the string -> AontuError, no SDK
+//
+// Slugs are [a-z0-9-]; a filename additionally needs '.' and '_' for the
+// version segment and extension, so those are kept — which also means every
+// already-conforming name (including cedar's dotted gitlab-v4-swagger-2.0.yaml)
+// is untouched and no repo churns. Everything else is folded to '-'.
+function sanitizeDefName(filename) {
+    const clean = filename
+        .normalize('NFKD').replace(/[\u0300-\u036f]/g, '') // dólar -> dolar
+        .toLowerCase()
+        // Quotes are ELIDED, not folded to '-', so the filename agrees with the
+        // repo name apidef's sanitizeSlug derives from the same slug:
+        // catherine-shulman's-quotes -> catherine-shulmans-quotes(-sdk).
+        .replace(/['’"]/g, '')
+        .replace(/[^a-z0-9._-]+/g, '-')
+        .replace(/-+/g, '-')
+        // yu-gi-oh!_0.1.0.json would otherwise keep the '!' as a dangling '-'
+        // before the version separator: yu-gi-oh-_0.1.0.json.
+        .replace(/-+([._])/g, '$1')
+        .replace(/([._])-+/g, '$1')
+        .replace(/^-|-$/g, '');
+    return '' === clean ? 'openapi.yml' : clean;
+}
 // TODO: rename to RootSdk
 const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
     const { ctx$, ctx$: { folder }, spec, model } = props;
@@ -115,7 +146,7 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
             (0, jostraca_1.Content)(GITIGNORE_TOP);
         });
         const origdef = spec.def;
-        const projdef = node_path_1.default.basename(origdef);
+        const projdef = sanitizeDefName(node_path_1.default.basename(origdef));
         spec.def = projdef;
         (0, jostraca_1.Folder)({ name: spec.sdk_folder }, () => {
             (0, jostraca_1.File)({ name: '.gitignore' }, () => {
