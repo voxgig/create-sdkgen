@@ -139,11 +139,13 @@ async function scaffold(over = {}) {
         node_assert_1.default.ok(s.exists('.sdk/def/petstore.yml'));
         node_assert_1.default.equal(s.read('.sdk/def/petstore.yml'), DEF_CONTENT);
     });
-    (0, node_test_1.test)('def-missing-writes-placeholder', async () => {
-        // Absolute path that does not exist -> placeholder content, basename kept.
-        const s = await scaffold({ def: node_path_1.default.join(TMP_ROOT, 'does-not-exist.yml') });
-        node_assert_1.default.ok(s.exists('.sdk/def/does-not-exist.yml'));
-        node_assert_1.default.match(s.read('.sdk/def/does-not-exist.yml'), /# OpenAPI Definition/);
+    (0, node_test_1.test)('def-given-but-missing-throws', async () => {
+        // An explicitly given --def must resolve. Silently placeholder-ing here
+        // would scaffold a broken project without ever telling the caller the
+        // spec path was wrong (see def-empty-defaults-to-name-openapi3 below for
+        // the *omitted* --def case, which legitimately gets a placeholder).
+        const badPath = node_path_1.default.join(TMP_ROOT, 'does-not-exist.yml');
+        await node_assert_1.default.rejects(() => scaffold({ def: badPath }), /OpenAPI definition file not found/);
     });
     (0, node_test_1.test)('def-empty-defaults-to-name-openapi3', async () => {
         // def '' -> spec.def defaults to `${name}-openapi3.yml`.
