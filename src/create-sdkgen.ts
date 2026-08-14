@@ -77,12 +77,8 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
     const name = spec.name
     const defGiven = null != spec.def && '' !== spec.def
 
-    // An explicit --def must resolve: silently falling through to the
-    // placeholder-spec path (below) here would mask a wrong/mistyped path
-    // as a successful scaffold, deferring the real failure to a confusing
-    // "source is empty" error deep inside a later `generate` run. Omitting
-    // --def entirely is the supported way to get a placeholder spec to fill
-    // in later, so only a *given-but-missing* path is an error.
+    // A given-but-missing --def is a mistake; omitting --def entirely
+    // legitimately gets the placeholder spec below.
     if (defGiven && !fs.existsSync(spec.def)) {
       throw new Error(`OpenAPI definition file not found: ${spec.def}`)
     }

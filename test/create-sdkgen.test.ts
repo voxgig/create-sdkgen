@@ -141,10 +141,8 @@ describe('create-sdkgen', () => {
 
 
   test('def-given-but-missing-throws', async () => {
-    // An explicitly given --def must resolve. Silently placeholder-ing here
-    // would scaffold a broken project without ever telling the caller the
-    // spec path was wrong (see def-empty-defaults-to-name-openapi3 below for
-    // the *omitted* --def case, which legitimately gets a placeholder).
+    // A given --def must resolve; omitting it (see
+    // def-empty-defaults-to-name-openapi3) legitimately gets a placeholder.
     const badPath = Path.join(TMP_ROOT, 'does-not-exist.yml')
     await assert.rejects(
       () => scaffold({ def: badPath }),
