@@ -21,56 +21,61 @@ green, having tested nothing.
 Say in your pull request that you ran it, and what the result was. On a fork
 PR that is the only evidence a maintainer has.
 
-## Why: pull-request CI is currently broken
+## Why CI can go silent here
 
-There are two distinct symptoms, both observed 2026-08-20. Neither is caused
-by anything in this repository's files, so neither is something you can fix in
-a pull request.
+Two symptoms were seen on 2026-08-20. One is now understood and fixed; the
+other is not, so it is recorded as evidence rather than diagnosis.
 
-**From a fork: no workflow run is created at all.** The PR shows
-`mergeable_state: unstable` with zero check runs and zero commit statuses,
-which reads as "CI has not finished yet" and actually means "CI will never
-run". This is what happened to PRs #15 and #16: they sat for six days and were
-merged on evidence gathered by hand.
+### `startup_failure` with zero jobs — cause known, fixed
 
-**From a branch in this repository: a run is created and immediately fails
-with `startup_failure` and zero jobs.** Confirmed on a pull request whose
-entire diff was one new markdown file, with `.github/workflows/` untouched —
-so it is not caused by editing the workflow.
+A run was created and died instantly, reporting:
 
-Supporting evidence, recorded rather than diagnosed:
+> The actions `actions/checkout@v4` and `actions/setup-node@v4` are not allowed
+> in `voxgig/create-sdkgen` because all actions must be from a repository owned
+> by voxgig, created by GitHub, or verified in the GitHub Marketplace. **All
+> actions must also be pinned to a full-length commit SHA.**
 
-- `.github/workflows/build.yml` was added in `b1ef2f9` (2026-07-25) and its
-  triggers are `push` and `pull_request` on `main` — present, and correct for
-  both cases above.
-- The workflow itself is fine: a `push` to `main` still runs and passes. The
-  most recent was 2026-08-20, after the two fork PRs merged.
-- The last `pull_request` run that actually executed was 2026-08-08. Every
-  `pull_request` event since has either not been created (forks) or died at
-  startup (in-repo branches).
-- No run has ever sat in `action_required` / `waiting`, so the fork case is not
-  a first-time-contributor approval waiting to be granted — that state creates
-  a visible run.
-- The repository is public, so the private-repository default that disables
-  fork workflows outright does not apply.
+The actions were fine; the *tag* references were not. This repository's Actions
+policy requires a full 40-character commit SHA, and `@v4` is a tag. Every
+workflow here — and the `project/standard` CI shipped to generated SDKs — is
+now pinned:
 
-The practical consequence: **every pull request merged since 2026-08-08 went in
-without CI**, whatever its checks appeared to say.
+```yaml
+- uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+```
+
+**If you add or update an action, pin it the same way**, keeping the version as
+a trailing comment so it stays readable and updatable. A tag reference will
+fail the whole run before a single job starts.
+
+Note the error is only visible on the run's own page. A zero-job run has no
+downloadable logs, so `GET /actions/runs/<id>/logs` returns 404 and the failure
+is invisible to the API — worth knowing before you go looking for it.
+
+### Fork pull requests produce no run at all — cause not established
+
+Separately, a PR from a fork produces **no workflow run whatsoever**: zero check
+runs, zero commit statuses, `mergeable_state: unstable`. That reads as "CI has
+not finished yet" and means "CI never started". PRs #15 and #16 sat that way for
+six days and were merged on evidence gathered by hand.
+
+This is not the SHA-pinning problem, and it is not a first-time-contributor
+approval gate — that state creates a visible `action_required` run, and no run
+here has ever sat in it. The repository is public, so the private-repository
+default that disables fork workflows does not apply either. Until it is
+understood, assume a fork PR will not be validated automatically.
 
 ### For maintainers
 
-Both symptoms point at Actions configuration rather than at this repository's
-contents, so start at **Settings → Actions → General**. An organization-level
+The remaining fork issue is Actions configuration rather than repository content,
+so start at **Settings → Actions → General**, where the relevant control is
+*"Fork pull request workflows from outside collaborators"*. An organization
 policy at `github.com/organizations/voxgig/settings/actions` overrides the
 repository one, so check both.
 
-- For the fork case, the relevant control is *"Fork pull request workflows from
-  outside collaborators"*.
-- For the `startup_failure` case, the run page carries an error message that is
-  not exposed through the REST API (a zero-job run has no downloadable logs).
-  Open the run directly — for example
-  `github.com/voxgig/create-sdkgen/actions/runs/32376640951` — and read the
-  banner there. That message is the fastest route to the real cause.
+Useful comparison: fork PR CI works in `voxgig/sdkgen` — same organization,
+same external contributor, same day it failed here. So this is a difference
+between the two repositories' settings, not an organization-wide policy.
 
 Making `build` a required status check on `main` would also help: it turns the
 current silence into a visible block, rather than a PR that merely looks like
