@@ -1,12 +1,15 @@
 # Contributing to @voxgig/create-sdkgen
 
 Thanks for contributing. This file covers the one thing about this repo that
-is not obvious and has already cost contributors real time: **as of
-2026-08-20, CI does not report on pull requests at all.**
+is not obvious and has already cost contributors real time: **a pull request
+from a fork gets no CI.** A pull request from a branch in this repository does
+run CI normally.
 
-## Validate your change locally — CI will not do it for you
+## Validate your change locally
 
-Run exactly what CI runs, from a clean tree:
+Whether or not CI will report on your branch, run exactly what CI runs, from a
+clean tree — and if you are working from a fork, this is the only validation
+your change will get:
 
 ```sh
 npm ci
@@ -83,11 +86,23 @@ it is still waiting.
 
 ### Do not "fix" this with `pull_request_target`
 
-It is the obvious workaround and it is a serious one to avoid. It runs
-fork-authored code with a write-scoped `GITHUB_TOKEN` and this repository's
-secrets, while the build steps run `npm ci` and the package's own build
-scripts — so a fork PR editing a lifecycle script would execute with full
-repository credentials. No CI is safer than that.
+It is the obvious workaround, and the trap is in two steps rather than one.
+
+Swapping the trigger alone does nothing useful: `pull_request_target` runs in
+the context of the BASE branch, and the unqualified `actions/checkout` step
+below it checks out that base — so the job would build and test trusted code
+that is already on `main`, tell you nothing about the pull request, and report
+a green check anyway. Worse than no CI, because it looks like validation.
+
+The damage comes from the natural next step. To make it actually test the PR
+you have to check out the fork's head — `ref: ${{ github.event.pull_request.head.sha }}`
+— and now fork-authored code runs in a job that, unlike `pull_request`, holds a
+write-scoped `GITHUB_TOKEN` and this repository's secrets. The steps here run
+`npm ci` and the package's own build, so a fork PR editing a lifecycle script
+would execute with full repository credentials.
+
+So: the trigger alone is useless, and the version that is useful is dangerous.
+No CI is safer than either.
 
 ## Committed build output
 
