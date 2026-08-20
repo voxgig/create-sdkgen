@@ -69,7 +69,13 @@ function CreateSdkGen(opts) {
         const rootModule = require(rootPath);
         const CreateRoot = rootModule.CreateRoot;
         const name = spec.name;
-        spec.def = (null == spec.def || '' === spec.def) ? name + '-openapi3.yml' : spec.def;
+        const defGiven = null != spec.def && '' !== spec.def;
+        // A given-but-missing --def is a mistake; omitting --def entirely
+        // legitimately gets the placeholder spec below.
+        if (defGiven && !fs.existsSync(spec.def)) {
+            throw new Error(`OpenAPI definition file not found: ${spec.def}`);
+        }
+        spec.def = defGiven ? spec.def : name + '-openapi3.yml';
         spec.sdk_folder = SDK_FOLDER;
         const cwd = process.cwd();
         const folder = (null == spec.folder || '' == spec.folder) ?

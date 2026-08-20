@@ -140,11 +140,14 @@ describe('create-sdkgen', () => {
   })
 
 
-  test('def-missing-writes-placeholder', async () => {
-    // Absolute path that does not exist -> placeholder content, basename kept.
-    const s = await scaffold({ def: Path.join(TMP_ROOT, 'does-not-exist.yml') })
-    assert.ok(s.exists('.sdk/def/does-not-exist.yml'))
-    assert.match(s.read('.sdk/def/does-not-exist.yml'), /# OpenAPI Definition/)
+  test('def-given-but-missing-throws', async () => {
+    // A given --def must resolve; omitting it (see
+    // def-empty-defaults-to-name-openapi3) legitimately gets a placeholder.
+    const badPath = Path.join(TMP_ROOT, 'does-not-exist.yml')
+    await assert.rejects(
+      () => scaffold({ def: badPath }),
+      /OpenAPI definition file not found/,
+    )
   })
 
 
