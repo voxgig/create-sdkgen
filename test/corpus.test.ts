@@ -15,7 +15,13 @@
 //      never compiled into test.json at all.
 //
 // An intentionally-deferred section is fine; a silently-blank one is not. The
-// difference is the PENDING marker asserted below.
+// difference is the deferral marker asserted below.
+//
+// That marker is DATA (`basic: pending: '<reason>'`), not a comment. Comments
+// do not survive compilation to test.json, so a marker written only in the
+// .aontu source cannot be checked by the runners that consume the corpus —
+// which is how seven sections stayed blank in a generated SDK while its own
+// suite reported green.
 
 import { test, describe } from 'node:test'
 import assert from 'node:assert'
@@ -42,12 +48,18 @@ const CI = Path.resolve(
   __dirname, '..', 'project', 'standard', '.github', 'workflows', 'ci.yml')
 
 
-// Sections deliberately empty. Each MUST carry a PENDING header explaining
-// why, so the gap is reviewable rather than accidental. Keep in step with the
-// PENDING lists in the language runners (tm/go/test/runner_test.go,
+// Sections deliberately empty. Each MUST carry a `basic: pending` reason, so
+// the gap is reviewable rather than accidental. Keep in step with the PENDING
+// lists in the language runners (tm/go/test/runner_test.go,
 // tm/ts/test/utility/PrimaryUtility.test.ts, tm/rust/tests/common/mod.rs).
+//
+// makePoint is NOT here any more. Its note claimed it needed "an op with
+// points plus SDK options.allow.op, i.e. a real client"; it does not. Context
+// rebuilds `op` from opname + entity + config.entity.<n>.op.<n>.points, and
+// `options` can be supplied literally, so all seven branches are expressible
+// as data. It now carries real cases.
 const PENDING = [
-  'fetcher', 'makeFetchDef', 'makePoint', 'makeResult',
+  'fetcher', 'makeFetchDef', 'makeResult',
   'featureAdd', 'featureHook', 'featureInit',
 ]
 
@@ -108,14 +120,31 @@ describe('shared test corpus', () => {
   })
 
 
-  test('every PENDING fixture explains itself', () => {
+  test('every PENDING fixture explains itself, in data', () => {
+    // Checked on the COMPILED fixture, not the source text: the reason has to
+    // reach test.json, or the runners executing the corpus cannot see it.
     for (const name of PENDING) {
-      const src = Fs.readFileSync(Path.join(PRIMARY, name + '.aontu'), 'utf8')
-      assert.match(src, /PENDING/,
-        `${name}.aontu is deliberately empty but carries no PENDING note`)
-      assert.ok(src.split('\n').filter((l) => l.trim().startsWith('#')).length > 2,
-        `${name}.aontu: PENDING needs a reason, not just a marker`)
+      const pending = compile(name).basic.pending
+      assert.equal(typeof pending, 'string',
+        `${name}.aontu is deliberately empty but declares no ` +
+        `\`basic: pending\` reason — a comment alone does not reach test.json`)
+      assert.ok(20 < pending.length,
+        `${name}.aontu: pending needs a reason, not just a marker`)
     }
+  })
+
+
+  test('the PENDING list and the fixtures agree', () => {
+    // Two places state which sections are deferred: this list (mirrored into
+    // the language runners) and the fixtures themselves. If they drift, one of
+    // them is lying — and the runners follow the list, not the fixture.
+    const declared = [...PENDING].sort()
+    const marked = fixtureNames()
+      .filter((n) => 'string' === typeof compile(n).basic.pending)
+      .sort()
+    assert.deepEqual(marked, declared,
+      'a fixture carries `basic: pending` without being listed in PENDING ' +
+      '(or vice versa) — update both, and the language runners')
   })
 
 
@@ -124,6 +153,21 @@ describe('shared test corpus', () => {
     assert.deepEqual(stale, [],
       'these fixtures now have cases — remove them from PENDING here and in ' +
       'the language runners so an accidental re-blanking fails again')
+  })
+
+
+  test('makePoint is covered — it selects the endpoint every call uses', () => {
+    // Regression pin, in the same spirit as preparePath below: this shipped as
+    // `set: []` behind a deferral note that was simply wrong.
+    const set = compile('makePoint').basic.set
+    assert.ok(5 <= set.length, 'makePoint needs its branches covered')
+    const codes = set
+      .map((e: any) => e.match?.out?.code)
+      .filter((c: any) => null != c)
+    for (const code of ['point_op_allow', 'point_no_points', 'point_action_invalid']) {
+      assert.ok(codes.includes(code),
+        `makePoint: the ${code} branch is not asserted`)
+    }
   })
 
 
