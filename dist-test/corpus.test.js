@@ -52,7 +52,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //      never compiled into test.json at all.
 //
 // An intentionally-deferred section is fine; a silently-blank one is not. The
-// difference is the PENDING marker asserted below.
+// difference is the deferral marker asserted below.
+//
+// That marker is DATA (`basic: pending: '<reason>'`), not a comment. Comments
+// do not survive compilation to test.json, so a marker written only in the
+// .aontu source cannot be checked by the runners that consume the corpus —
+// which is how seven sections stayed blank in a generated SDK while its own
+// suite reported green.
 const node_test_1 = require("node:test");
 const node_assert_1 = __importDefault(require("node:assert"));
 const Fs = __importStar(require("node:fs"));
@@ -66,12 +72,18 @@ const INDEX = node_path_1.default.join(PRIMARY, 'primary-test-index.aontu');
 // happened: preparePath's fixture and test.json disagreed and no test knew.
 const TEST_JSON = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'test.json');
 const CI = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.github', 'workflows', 'ci.yml');
-// Sections deliberately empty. Each MUST carry a PENDING header explaining
-// why, so the gap is reviewable rather than accidental. Keep in step with the
-// PENDING lists in the language runners (tm/go/test/runner_test.go,
+// Sections deliberately empty. Each MUST carry a `basic: pending` reason, so
+// the gap is reviewable rather than accidental. Keep in step with the PENDING
+// lists in the language runners (tm/go/test/runner_test.go,
 // tm/ts/test/utility/PrimaryUtility.test.ts, tm/rust/tests/common/mod.rs).
+//
+// makePoint is NOT here any more. Its note claimed it needed "an op with
+// points plus SDK options.allow.op, i.e. a real client"; it does not. Context
+// rebuilds `op` from opname + entity + config.entity.<n>.op.<n>.points, and
+// `options` can be supplied literally, so all seven branches are expressible
+// as data. It now carries real cases.
 const PENDING = [
-    'fetcher', 'makeFetchDef', 'makePoint', 'makeResult',
+    'fetcher', 'makeFetchDef', 'makeResult',
     'featureAdd', 'featureHook', 'featureInit',
 ];
 function fixtureNames() {
@@ -116,17 +128,43 @@ function compile(name) {
         node_assert_1.default.deepEqual(undeclared, [], 'these fixtures compile to zero cases — add cases, or add a PENDING ' +
             'header and list them in PENDING here and in the language runners');
     });
-    (0, node_test_1.test)('every PENDING fixture explains itself', () => {
+    (0, node_test_1.test)('every PENDING fixture explains itself, in data', () => {
+        // Checked on the COMPILED fixture, not the source text: the reason has to
+        // reach test.json, or the runners executing the corpus cannot see it.
         for (const name of PENDING) {
-            const src = Fs.readFileSync(node_path_1.default.join(PRIMARY, name + '.aontu'), 'utf8');
-            node_assert_1.default.match(src, /PENDING/, `${name}.aontu is deliberately empty but carries no PENDING note`);
-            node_assert_1.default.ok(src.split('\n').filter((l) => l.trim().startsWith('#')).length > 2, `${name}.aontu: PENDING needs a reason, not just a marker`);
+            const pending = compile(name).basic.pending;
+            node_assert_1.default.equal(typeof pending, 'string', `${name}.aontu is deliberately empty but declares no ` +
+                `\`basic: pending\` reason — a comment alone does not reach test.json`);
+            node_assert_1.default.ok(20 < pending.length, `${name}.aontu: pending needs a reason, not just a marker`);
         }
+    });
+    (0, node_test_1.test)('the PENDING list and the fixtures agree', () => {
+        // Two places state which sections are deferred: this list (mirrored into
+        // the language runners) and the fixtures themselves. If they drift, one of
+        // them is lying — and the runners follow the list, not the fixture.
+        const declared = [...PENDING].sort();
+        const marked = fixtureNames()
+            .filter((n) => 'string' === typeof compile(n).basic.pending)
+            .sort();
+        node_assert_1.default.deepEqual(marked, declared, 'a fixture carries `basic: pending` without being listed in PENDING ' +
+            '(or vice versa) — update both, and the language runners');
     });
     (0, node_test_1.test)('a PENDING entry that gained cases is promoted', () => {
         const stale = PENDING.filter((n) => 0 < compile(n).basic.set.length);
         node_assert_1.default.deepEqual(stale, [], 'these fixtures now have cases — remove them from PENDING here and in ' +
             'the language runners so an accidental re-blanking fails again');
+    });
+    (0, node_test_1.test)('makePoint is covered — it selects the endpoint every call uses', () => {
+        // Regression pin, in the same spirit as preparePath below: this shipped as
+        // `set: []` behind a deferral note that was simply wrong.
+        const set = compile('makePoint').basic.set;
+        node_assert_1.default.ok(5 <= set.length, 'makePoint needs its branches covered');
+        const codes = set
+            .map((e) => e.match?.out?.code)
+            .filter((c) => null != c);
+        for (const code of ['point_op_allow', 'point_no_points', 'point_action_invalid']) {
+            node_assert_1.default.ok(codes.includes(code), `makePoint: the ${code} branch is not asserted`);
+        }
     });
     (0, node_test_1.test)('every fixture is registered in the index', () => {
         const index = Fs.readFileSync(INDEX, 'utf8');
