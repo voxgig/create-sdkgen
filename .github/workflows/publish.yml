@@ -113,10 +113,12 @@ jobs:
       # something nobody asked for.
       - name: main must still be the commit we intended to release
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.expect_sha != '' }}
+        env:
+          EXPECT_SHA: ${{ inputs.expect_sha }}
         run: |
           set -euo pipefail
-          if [ "$GITHUB_SHA" != "${{ inputs.expect_sha }}" ]; then
-            echo "::error::main has moved: expected ${{ inputs.expect_sha }}, got $GITHUB_SHA"
+          if [ "$GITHUB_SHA" != "$EXPECT_SHA" ]; then
+            echo "::error::main has moved: expected $EXPECT_SHA, got $GITHUB_SHA"
             exit 1
           fi
 
@@ -126,9 +128,11 @@ jobs:
       # run goes GREEN — leaving a tag with no release behind it.
       - name: The pushed tag must match the package version
         if: ${{ github.event_name == 'push' }}
+        env:
+          PKG_VERSION: ${{ steps.versions.outputs.version }}
         run: |
           set -euo pipefail
-          WANT="v${{ steps.versions.outputs.version }}"
+          WANT="v$PKG_VERSION"
           if [ "$GITHUB_REF_NAME" != "$WANT" ]; then
             echo "::error::tag $GITHUB_REF_NAME does not match package.json ($WANT)"
             exit 1
@@ -139,9 +143,11 @@ jobs:
       # an error — which is what lets a partly-failed release be re-dispatched.
       - name: Refuse a tag that points at a different commit
         if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          PKG_VERSION: ${{ steps.versions.outputs.version }}
         run: |
           set -euo pipefail
-          TAG="v${{ steps.versions.outputs.version }}"
+          TAG="v$PKG_VERSION"
           HEAD_SHA="$(git rev-parse HEAD)"
           AT="$(git rev-parse -q --verify "refs/tags/$TAG^{commit}" 2>/dev/null || true)"
           if [ -n "$AT" ] && [ "$AT" != "$HEAD_SHA" ]; then
@@ -168,9 +174,11 @@ jobs:
       # previously published versions" before the tag job ever runs.
       - name: Is this version already on npm?
         id: registry
+        env:
+          PKG_VERSION: ${{ steps.versions.outputs.version }}
         run: |
           set -euo pipefail
-          V="${{ steps.versions.outputs.version }}"
+          V="$PKG_VERSION"
           if npm view "@voxgig/create-sdkgen@$V" version >/dev/null 2>&1; then
             echo "published=true" >> "$GITHUB_OUTPUT"
             echo "$V is already on npm — skipping publish"
@@ -191,9 +199,11 @@ jobs:
       # rather than block — refusing would make legitimate recovery impossible.
       - name: A published version must come from this commit
         if: ${{ steps.registry.outputs.published == 'true' }}
+        env:
+          PKG_VERSION: ${{ steps.versions.outputs.version }}
         run: |
           set -euo pipefail
-          V="${{ steps.versions.outputs.version }}"
+          V="$PKG_VERSION"
           GH="$(npm view "@voxgig/create-sdkgen@$V" gitHead 2>/dev/null || true)"
           if [ -z "$GH" ]; then
             echo "::warning::npm records no gitHead for $V; cannot verify it was built from this commit"
@@ -209,9 +219,11 @@ jobs:
       - name: Publish to npm
         if: ${{ steps.registry.outputs.published == 'false' }}
         working-directory: .
+        env:
+          PKG_VERSION: ${{ steps.versions.outputs.version }}
         run: |
           set -euo pipefail
-          V="${{ steps.versions.outputs.version }}"
+          V="$PKG_VERSION"
           # A PRERELEASE MUST NOT BECOME `latest`. `npm publish` defaults to
           # the latest dist-tag, so publishing 1.2.3-beta.1 that way hands it
           # to every unpinned install.
@@ -240,9 +252,11 @@ jobs:
           fetch-depth: 0
 
       - name: Tag the release
+        env:
+          PKG_VERSION: ${{ needs.publish.outputs.version }}
         run: |
           set -euo pipefail
-          TAG="v${{ needs.publish.outputs.version }}"
+          TAG="v$PKG_VERSION"
           HEAD_SHA="$(git rev-parse HEAD)"
 
           # EXISTENCE IS NOT ENOUGH. `git rev-parse --verify` only asks whether
