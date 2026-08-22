@@ -1,14 +1,47 @@
-# Publishes @voxgig/create-sdkgen to npm on a `v*` tag push, via GitHub
-# OIDC Trusted Publishing — no NPM_TOKEN secret. The `id-token: write`
-# permission lets npm exchange a GitHub OIDC token for a short-lived
-# publish credential, and provenance is attached automatically.
+# Releases @voxgig/create-sdkgen: publishes to npm AND writes the git tag.
 #
-# The trusted publisher must be registered on npmjs.com for
-# voxgig/create-sdkgen against THIS filename (publish.yml); renaming
-# this file breaks publishing until the npm-side config is updated to
-# match.
+# ONE FILE, BECAUSE NPM ALLOWS EXACTLY ONE. A trusted publisher is registered
+# on npmjs.com against a single workflow FILENAME, and every @voxgig package
+# is registered against `publish.yml`. The name itself is arbitrary — other
+# orgs register `release.yml` — but only the ONE registered file can publish,
+# so anything that must accompany a publish has to live inside it. Here that
+# is the tag.
 #
-# Release flow: bump package.json, merge to main, then push a v* tag.
+# A second workflow cannot publish whatever permissions it holds; npm rejects
+# the exchange and reports it as
+#
+#   npm error 404 Not Found - PUT https://registry.npmjs.org/...
+#
+# — a 404, not a 403, so as not to leak whether the package exists.
+#
+# TWO JOBS, BECAUSE THEY NEED DIFFERENT PRIVILEGES.
+#
+#   publish  id-token: write, contents: READ. Runs npm ci, the build and the
+#            tests — i.e. dependency lifecycle scripts and project code.
+#   tag      contents: write. Runs git and nothing else.
+#
+# Keeping them in one job would hand a repository-write credential to every
+# dependency postinstall script that runs during `npm ci`, because checkout
+# persists its token into the git config for the whole job.
+#
+# A ref pushed with GITHUB_TOKEN does NOT start another workflow run (GitHub
+# suppresses that so workflows cannot trigger themselves), so the tag job
+# cannot be replaced by "tag and let the publisher fire on it".
+#
+# TWO WAYS IN:
+#
+#   workflow_dispatch  the normal path. Publishes if missing, then tags.
+#   push: tags v*      the manual path, for a tag pushed by hand. Publishes
+#                      only; the tag job does not run.
+#
+# VERSION BUMPS ARE NOT AUTOMATED, deliberately. Nothing here commits. It
+# reads the version already on the branch and releases exactly that, so the
+# bump stays a reviewable diff and the release stays a button.
+#
+#   package.json "version" -> tag v<version>
+#
+# Renaming this file breaks publishing until the npm-side trusted publisher is
+# updated to match. Do NOT publish locally over a token: that bypasses OIDC.
 
 name: publish
 
@@ -17,31 +50,134 @@ on:
     tags: ['v*']
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   publish:
     name: npm publish
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+
+    # Deliberately NOT contents: write — see the header. This job runs
+    # dependency lifecycle scripts.
     permissions:
       id-token: write
       contents: read
 
+    outputs:
+      version: ${{ steps.versions.outputs.version }}
+
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24.x
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Resolve the version being released
+        id: versions
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          test -n "$VERSION" || { echo "::error::could not read package.json version"; exit 1; }
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "$VERSION -> tag v$VERSION"
+
+      # A tag pushed by hand must agree with the version it claims to release.
+      # Without this, pushing v1.2.3 while package.json still says 1.2.2
+      # resolves 1.2.2, finds it already published, skips the publish, and the
+      # run goes GREEN — leaving a tag with no release behind it.
+      - name: The pushed tag must match the package version
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          set -euo pipefail
+          WANT="v${{ steps.versions.outputs.version }}"
+          if [ "$GITHUB_REF_NAME" != "$WANT" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json ($WANT)"
+            exit 1
+          fi
+
+      # AN EXISTING TAG IS ONLY A PROBLEM IF IT POINTS SOMEWHERE ELSE. A tag
+      # already on this commit is the idempotent case — nothing to create, not
+      # an error — which is what lets a partly-failed release be re-dispatched.
+      - name: Refuse a tag that points at a different commit
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -euo pipefail
+          TAG="v${{ steps.versions.outputs.version }}"
+          HEAD_SHA="$(git rev-parse HEAD)"
+          AT="$(git rev-parse -q --verify "refs/tags/$TAG^{commit}" 2>/dev/null || true)"
+          if [ -n "$AT" ] && [ "$AT" != "$HEAD_SHA" ]; then
+            echo "::error::tag $TAG already exists on $AT, not this commit — bump package.json"
+            exit 1
+          fi
+          if [ -n "$AT" ]; then echo "$TAG already points here; nothing to create"; fi
+
+      - name: Build and test
+        working-directory: .
+        run: |
+          npm ci
+          npm run build
+          npm test
+
       # Trusted publishing requires npm >= 11.5.1.
       - name: Use a trusted-publishing capable npm
         run: npm install -g npm@latest
 
-      # package-lock.json is committed here, so ci is safe and reproducible.
-      - run: npm ci
-      - run: npm run build
-      - run: npm test
+      # THE REGISTRY IS THE SOURCE OF TRUTH FOR "IS THIS RELEASED", not the
+      # tag. A run can publish and then fail before tagging, leaving a version
+      # on npm with nothing pointing at it. Without this check that state is
+      # unrecoverable: the publish step dies on "cannot publish over the
+      # previously published versions" before the tag job ever runs.
+      - name: Is this version already on npm?
+        id: registry
+        run: |
+          set -euo pipefail
+          V="${{ steps.versions.outputs.version }}"
+          if npm view "@voxgig/create-sdkgen@$V" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "$V is already on npm — skipping publish"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "$V is not on npm — will publish"
+          fi
 
+      # Publish BEFORE tagging (the tag job `needs` this one), so a tag only
+      # ever exists for a release that reached the registry.
       - name: Publish to npm
+        if: ${{ steps.registry.outputs.published == 'false' }}
+        working-directory: .
         run: npm publish --access public
+
+  # Runs git and nothing else. No npm install, no project code — so the
+  # repository-write credential is never in scope while third-party code runs.
+  tag:
+    name: tag
+    needs: publish
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Tag the release
+        run: |
+          set -euo pipefail
+          TAG="v${{ needs.publish.outputs.version }}"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "$TAG already exists — nothing to do" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git tag "$TAG"
+          git push origin "refs/tags/$TAG"
+          echo "pushed $TAG" >> "$GITHUB_STEP_SUMMARY"
