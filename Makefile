@@ -30,13 +30,22 @@ publish:
 	  (echo "publish: working tree is not clean" && exit 1)
 	@git fetch origin main --quiet && test -z "$$(git rev-list HEAD..origin/main)" || \
 	  (echo "publish: local main is behind origin/main" && exit 1)
+	# ASK THE REMOTE, NOT THE CLONE. `git fetch origin main` does not fetch
+	# tags, so a local rev-parse happily passes in a fresh or stale clone
+	# while v$(V) already exists on origin — and by the time the workflow
+	# refuses, this target has already bumped and pushed main.
+	@if git ls-remote --exit-code --tags origin "refs/tags/v$(V)" >/dev/null 2>&1; then \
+	  echo "publish: tag v$(V) already exists on origin"; exit 1; fi
 	@if git rev-parse -q --verify "refs/tags/v$(V)" >/dev/null 2>&1; then \
-	  echo "publish: tag v$(V) already exists"; exit 1; fi
+	  echo "publish: tag v$(V) already exists locally"; exit 1; fi
 	npm version --no-git-tag-version $(V)
 	npm ci && npm run build && npm test
 	git add package.json package-lock.json
 	git commit -m "$(V)"
 	git push origin main
-	gh workflow run publish.yml --ref main
+	# `--ref main` is a MOVING target: another commit can land between the
+	# push above and the run resolving, and get published under the
+	# version just bumped. Pin the dispatch to the SHA we pushed.
+	gh workflow run publish.yml --ref main -f expect_sha=$$(git rev-parse HEAD)
 	@echo
 	@echo "dispatched. watch with:  gh run list --workflow=publish.yml --limit 1"

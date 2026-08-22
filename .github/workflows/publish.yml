@@ -49,6 +49,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      expect_sha:
+        description: 'Optional: refuse unless main is still at this commit (set by `make publish`)'
+        type: string
+        default: ''
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -86,6 +91,34 @@ jobs:
           test -n "$VERSION" || { echo "::error::could not read package.json version"; exit 1; }
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "$VERSION -> tag v$VERSION"
+
+      # RELEASES COME FROM main, INCLUDING FROM THE BUTTON. `gh workflow run
+      # --ref` accepts any branch or tag, and the Makefile's `main` guard only
+      # binds callers who went through `make publish` — so without this the
+      # Actions UI or a stray API call could publish and tag a feature branch,
+      # irreversibly.
+      - name: Dispatches must come from main
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::error::dispatch ref is $GITHUB_REF_NAME; releases must come from main"
+            exit 1
+          fi
+
+      # `--ref main` names a MUTABLE branch, so between `make publish` pushing
+      # the release commit and this run resolving, another commit can land and
+      # be published under the version just bumped. `make publish` passes the
+      # SHA it pushed; if main has moved since, stop rather than release
+      # something nobody asked for.
+      - name: main must still be the commit we intended to release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.expect_sha != '' }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_SHA" != "${{ inputs.expect_sha }}" ]; then
+            echo "::error::main has moved: expected ${{ inputs.expect_sha }}, got $GITHUB_SHA"
+            exit 1
+          fi
 
       # A tag pushed by hand must agree with the version it claims to release.
       # Without this, pushing v1.2.3 while package.json still says 1.2.2
@@ -174,8 +207,21 @@ jobs:
         run: |
           set -euo pipefail
           TAG="v${{ needs.publish.outputs.version }}"
-          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            echo "$TAG already exists — nothing to do" >> "$GITHUB_STEP_SUMMARY"
+          HEAD_SHA="$(git rev-parse HEAD)"
+
+          # EXISTENCE IS NOT ENOUGH. `git rev-parse --verify` only asks whether
+          # the name resolves; a tag created between the publish job's guard
+          # and this checkout could point anywhere. Treating that as the
+          # idempotent case would leave a green run with an npm artifact from
+          # THIS commit and a release tag on a different one. Dereference and
+          # compare.
+          AT="$(git rev-parse -q --verify "refs/tags/$TAG^{commit}" 2>/dev/null || true)"
+          if [ -n "$AT" ]; then
+            if [ "$AT" != "$HEAD_SHA" ]; then
+              echo "::error::$TAG exists on $AT, not this commit ($HEAD_SHA)"
+              exit 1
+            fi
+            echo "$TAG already points here — nothing to do" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           git tag "$TAG"
