@@ -17,9 +17,9 @@ const ModelSdk = cmp(function ModelSdk(props: any) {
   const from =
     Path.resolve(Path.join(__dirname, '..', '..', '..', 'project', 'standard'))
 
-  File({ name: 'sdk.aontu' }, () => {
+  File({ name: 'sdk.aon' }, () => {
     Fragment({
-      from: Path.join(from, spec.sdk_folder, 'model', 'sdk.fragment.aontu'),
+      from: Path.join(from, spec.sdk_folder, 'model', 'sdk.fragment.aon'),
       replace: {
         ProjectName: spec.name,
         NAME: spec.name,

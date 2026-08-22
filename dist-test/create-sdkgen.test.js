@@ -108,7 +108,7 @@ async function scaffold(over = {}) {
             '.github/workflows/ci.yml',
             '.sdk/.gitignore',
             '.sdk/package.json',
-            '.sdk/model/sdk.aontu',
+            '.sdk/model/sdk.aon',
             '.sdk/src/BuildSDK.ts',
             '.sdk/def/petstore.yml',
         ]) {
@@ -152,7 +152,7 @@ async function scaffold(over = {}) {
     });
     (0, node_test_1.test)('sdk-aontu-substitutes-name-and-def', async () => {
         const s = await scaffold({ name: 'petstore' });
-        const sdk = s.read('.sdk/model/sdk.aontu');
+        const sdk = s.read('.sdk/model/sdk.aon');
         // Fragment placeholders NAME/DEF are replaced with the real values.
         node_assert_1.default.match(sdk, /name:\s*'petstore'/);
         node_assert_1.default.match(sdk, /def:\s*'petstore\.yml'/);
@@ -171,7 +171,7 @@ async function scaffold(over = {}) {
     (0, node_test_1.test)('dryrun-writes-no-scaffold', async () => {
         const s = await scaffold({ dryrun: true });
         // The scaffold itself is not written on a dry run.
-        node_assert_1.default.equal(s.exists('.sdk/model/sdk.aontu'), false);
+        node_assert_1.default.equal(s.exists('.sdk/model/sdk.aon'), false);
         node_assert_1.default.equal(s.exists('.sdk/package.json'), false);
         node_assert_1.default.equal(s.exists('.gitignore'), false);
     });
@@ -200,13 +200,13 @@ async function scaffold(over = {}) {
                 root: 'CreateRoot', name: 'alpha', def,
                 project: 'standard', folder: '', install: false,
             });
-            node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.aontu')), 'alpha -> alpha-sdk');
+            node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.aon')), 'alpha -> alpha-sdk');
             // Name already ending `-sdk` -> not doubled.
             await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
                 root: 'CreateRoot', name: 'beta-sdk', def,
                 project: 'standard', folder: '', install: false,
             });
-            node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.aontu')), 'beta-sdk -> beta-sdk');
+            node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.aon')), 'beta-sdk -> beta-sdk');
             node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(work, 'beta-sdk-sdk')), false, 'no double -sdk suffix');
         }
         finally {
@@ -220,7 +220,7 @@ async function scaffold(over = {}) {
 // scaffold overwrite used to destroy it on every re-scaffold, and cedar-regen
 // re-scaffolds on every regen, so the loss was silent and repeated.
 (0, node_test_1.describe)('guide-overlay-merge', () => {
-    const GUIDE_REL = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
+    const GUIDE_REL = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
     // Re-scaffold over an EXISTING project folder (the regen flow).
     async function rescaffold(out, def) {
         await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
@@ -231,8 +231,8 @@ async function scaffold(over = {}) {
     (0, node_test_1.test)('a fresh scaffold writes the guide template', async () => {
         const s = await scaffold();
         const guide = s.read(GUIDE_REL);
-        node_assert_1.default.match(guide, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
-        node_assert_1.default.match(guide, /@"base-guide\.aontu"/);
+        node_assert_1.default.match(guide, /@"@voxgig\/apidef\/model\/guide\.aon"/);
+        node_assert_1.default.match(guide, /@"base-guide\.aon"/);
     });
     (0, node_test_1.test)('a re-scaffold leaves a customized guide BYTE-IDENTICAL', async () => {
         const s = await scaffold();
@@ -251,16 +251,16 @@ async function scaffold(over = {}) {
         Fs.writeFileSync(guidePath, damaged);
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         const merged = Fs.readFileSync(guidePath, 'utf8');
-        node_assert_1.default.match(merged, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
-        node_assert_1.default.match(merged, /@"base-guide\.aontu"/);
+        node_assert_1.default.match(merged, /@"@voxgig\/apidef\/model\/guide\.aon"/);
+        node_assert_1.default.match(merged, /@"base-guide\.aon"/);
         node_assert_1.default.match(merged, /guide: entity: \{ widget: active: false \}/);
         // Restored at the TOP: the overrides unify over base-guide, so the
         // includes have to precede them.
-        node_assert_1.default.ok(merged.indexOf('@"base-guide.aontu"') < merged.indexOf('# only my stuff'), 'includes must be restored before the user content');
+        node_assert_1.default.ok(merged.indexOf('@"base-guide.aon"') < merged.indexOf('# only my stuff'), 'includes must be restored before the user content');
     });
     (0, node_test_1.test)('the rest of the scaffold is still overwritten', async () => {
         const s = await scaffold();
-        const sdkAontu = node_path_1.default.join(s.out, '.sdk', 'model', 'sdk.aontu');
+        const sdkAontu = node_path_1.default.join(s.out, '.sdk', 'model', 'sdk.aon');
         Fs.writeFileSync(sdkAontu, '# clobbered\n');
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         node_assert_1.default.notEqual(Fs.readFileSync(sdkAontu, 'utf8'), '# clobbered\n', 'toolchain-derived files must still be overwritten so fixes propagate');
@@ -268,30 +268,30 @@ async function scaffold(over = {}) {
 });
 // The project overlay is the second user-owned model file. It exists because
 // the sdkgen schema directs projects to declare publication values in
-// model/sdk.aontu "where they survive a resync", and they did not: ModelSdk
-// rewrites sdk.aontu from its template on every scaffold. The cedar fleet ran
+// model/sdk.aon "where they survive a resync", and they did not: ModelSdk
+// rewrites sdk.aon from its template on every scaffold. The cedar fleet ran
 // with every manifest pinned at the schema default 0.0.1 while its tags
 // climbed past 0.1.1, and nothing reported an error — which is why the
 // preservation is asserted here rather than trusted.
 (0, node_test_1.describe)('project-overlay', () => {
-    const PROJECT_REL = node_path_1.default.join('.sdk', 'model', 'project.aontu');
-    const SDK_REL = node_path_1.default.join('.sdk', 'model', 'sdk.aontu');
+    const PROJECT_REL = node_path_1.default.join('.sdk', 'model', 'project.aon');
+    const SDK_REL = node_path_1.default.join('.sdk', 'model', 'sdk.aon');
     async function rescaffold(out, def) {
         await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
             root: 'CreateRoot', name: 'petstore', def,
             project: 'standard', folder: out, install: false,
         });
     }
-    (0, node_test_1.test)('a fresh scaffold writes the stub, and sdk.aontu includes it LAST', async () => {
+    (0, node_test_1.test)('a fresh scaffold writes the stub, and sdk.aon includes it LAST', async () => {
         const s = await scaffold();
         node_assert_1.default.equal(s.exists(PROJECT_REL), true);
         const sdk = s.read(SDK_REL);
-        node_assert_1.default.match(sdk, /@"project\.aontu"/);
+        node_assert_1.default.match(sdk, /@"project\.aon"/);
         // Order is load-bearing: a key under main.kit.target.<t> can only refine a
-        // target that target-index.aontu has already defined. Declared earlier the
+        // target that target-index.aon has already defined. Declared earlier the
         // model build dies on "key ext value was: nil".
-        node_assert_1.default.ok(sdk.indexOf('@"project.aontu"') >
-            sdk.indexOf('@"target/target-index.aontu"'), 'project.aontu must be included after target-index.aontu');
+        node_assert_1.default.ok(sdk.indexOf('@"project.aon"') >
+            sdk.indexOf('@"target/target-index.aon"'), 'project.aon must be included after target-index.aon');
     });
     (0, node_test_1.test)('a re-scaffold leaves a customized project overlay BYTE-IDENTICAL', async () => {
         const s = await scaffold();
@@ -302,8 +302,8 @@ async function scaffold(over = {}) {
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         node_assert_1.default.equal(Fs.readFileSync(projectPath, 'utf8'), customized, 'a declared release version must survive a re-scaffold');
     });
-    (0, node_test_1.test)('sdk.aontu itself is still template-owned, so a renamed def propagates', async () => {
-        // The reason project.aontu exists instead of merging sdk.aontu: the
+    (0, node_test_1.test)('sdk.aon itself is still template-owned, so a renamed def propagates', async () => {
+        // The reason project.aon exists instead of merging sdk.aon: the
         // template owns `def`, and cedar renamed three spec files in one week. A
         // "keep the user's file" merge would pin def to a spec that is gone.
         const s = await scaffold();
@@ -312,6 +312,51 @@ async function scaffold(over = {}) {
         Fs.writeFileSync(renamed, DEF_CONTENT);
         await rescaffold(s.out, renamed);
         node_assert_1.default.match(s.read(SDK_REL), /def: 'petstore-v2-swagger-2\.0\.yml'/);
+    });
+});
+// The .aontu -> .aon rename is only safe because the two USER-OWNED overlays
+// are migrated rather than abandoned. Both are read-if-present and
+// written-if-absent, so a rename without migration does not rename anything —
+// it leaves the user's file on disk, ignored, and writes a fresh template over
+// the top. 660 generated repos carry a guide.aontu.
+(0, node_test_1.describe)('overlay-extension-migration', () => {
+    const GUIDE_AON = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
+    const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
+    const PROJ_AON = node_path_1.default.join('.sdk', 'model', 'project.aon');
+    const PROJ_OLD = node_path_1.default.join('.sdk', 'model', 'project.aontu');
+    async function rescaffold(out, def) {
+        await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
+            root: 'CreateRoot', name: 'petstore', def,
+            project: 'standard', folder: out, install: false,
+        });
+    }
+    (0, node_test_1.test)('a legacy guide.aontu is renamed, keeping its customizations', async () => {
+        const s = await scaffold();
+        const customized = s.read(GUIDE_AON) +
+            '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n';
+        // Put the project back into its pre-rename shape.
+        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE_OLD), customized);
+        Fs.rmSync(node_path_1.default.join(s.out, GUIDE_AON));
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, GUIDE_OLD)), false, 'the legacy file must be gone, not left behind to be ignored');
+        node_assert_1.default.equal(s.read(GUIDE_AON), customized, 'the customizations must survive the rename byte-for-byte');
+    });
+    (0, node_test_1.test)('a legacy project.aontu is renamed, keeping the release version', async () => {
+        const s = await scaffold();
+        const declared = s.read(PROJ_AON) +
+            "\nmain: kit: target: ts: publish: version: '1.2.3'\n";
+        Fs.writeFileSync(node_path_1.default.join(s.out, PROJ_OLD), declared);
+        Fs.rmSync(node_path_1.default.join(s.out, PROJ_AON));
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, PROJ_OLD)), false);
+        node_assert_1.default.match(s.read(PROJ_AON), /version: '1\.2\.3'/, 'an ignored project overlay resets every manifest to 0.0.1');
+    });
+    (0, node_test_1.test)('migration is a no-op once the .aon file exists', async () => {
+        const s = await scaffold();
+        const before = s.read(GUIDE_AON);
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(s.read(GUIDE_AON), before);
+        node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, GUIDE_OLD)), false);
     });
 });
 //# sourceMappingURL=create-sdkgen.test.js.map

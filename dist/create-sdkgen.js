@@ -230,7 +230,7 @@ async function installNpm(spec, opts, model) {
     // They ARE npm run scripts that resolve @voxgig/sdkgen from node_modules, so
     // without one they cannot work. Fail with an actionable message rather than
     // the raw module-resolution error — and rather than silently skipping, which
-    // reports success while leaving config.aontu without the requested entries.
+    // reports success while leaving config.aon without the requested entries.
     const wanted = [
         (spec.target ?? []).length ? '--target' : '',
         (spec.feature ?? []).length ? '--feature' : '',

@@ -66,7 +66,7 @@ log/
 //
 // Everything else the scaffold writes is toolchain-derived and is deliberately
 // OVERWRITTEN (see the `existing.txt.write` rationale in create-sdkgen.ts) so a
-// toolchain fix propagates. `model/guide/guide.aontu` is the exception: apidef
+// toolchain fix propagates. `model/guide/guide.aon` is the exception: apidef
 // unifies it OVER the heuristic classification, and it is where every
 // documented customization lives — entity rename, hide, move, activate,
 // per-path deactivation, method override, param rename, response transform.
@@ -77,25 +77,25 @@ log/
 // It is excluded from the bulk Copy and merged instead (see mergeGuide).
 // The PROJECT overlay: the second model file the user owns.
 //
-// `guide.aontu` owns what the API looks like. This owns what the PROJECT is —
+// `guide.aon` owns what the API looks like. This owns what the PROJECT is —
 // publication values above all. The sdkgen schema tells you to declare those
-// in `model/sdk.aontu` "where they survive a resync", and that was simply not
-// true: ModelSdk rewrites sdk.aontu from its template on every scaffold, so a
+// in `model/sdk.aon` "where they survive a resync", and that was simply not
+// true: ModelSdk rewrites sdk.aon from its template on every scaffold, so a
 // version or package name declared there vanished before the model was built,
 // with no error. The cedar fleet ran for months with every manifest pinned at
 // the schema default 0.0.1 while its git tags climbed past 0.1.1, and this is
 // why.
 //
-// sdk.aontu cannot simply be merged the way guide.aontu is. Its template owns
+// sdk.aon cannot simply be merged the way guide.aon is. Its template owns
 // `name`, `origin` and especially `def` — the OpenAPI filename, which really
 // does change (three cedar specs were renamed in one week). A "keep the user's
 // file" merge would freeze `def` at a spec that no longer exists and break
-// regeneration. So the template keeps sole ownership of sdk.aontu, and the
-// user gets a file of their own that sdk.aontu includes.
+// regeneration. So the template keeps sole ownership of sdk.aon, and the
+// user gets a file of their own that sdk.aon includes.
 //
 // Written ONCE. If it exists, it is re-emitted byte-for-byte, so a
 // re-scaffold is a no-op on it.
-const PROJECT_FILE = 'project.aontu'
+const PROJECT_FILE = 'project.aon'
 const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this file once and never
 # overwrites it, unlike every other file it writes.
 #
@@ -103,7 +103,7 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 # regenerated so that toolchain fixes propagate. Put anything here that is a
 # decision about THIS project rather than a fact about the API.
 #
-# Included LAST by sdk.aontu, after target/target-index.aontu, because a key
+# Included LAST by sdk.aon, after target/target-index.aon, because a key
 # under main.kit.target.<t> can only refine a target that has already been
 # defined. Declared earlier, the model build fails with "Cannot unify value:
 # nil with value: string / key ext value was: nil", which names nothing that
@@ -123,8 +123,36 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 `
 
 
-const GUIDE_FILE = 'guide.aontu'
+const GUIDE_FILE = 'guide.aon'
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE]
+
+
+// Rename a user-owned overlay from its pre-2026-08 `.aontu` name to `.aon`.
+//
+// Both overlays are read-if-present and written-if-absent, which is exactly
+// the shape that turns an extension rename into DATA LOSS rather than a
+// rename: look for `guide.aon`, find nothing, write a fresh template over the
+// top, and the user's entity renames, hides and overrides are still sitting
+// in `guide.aontu` being ignored. 660 generated repos carry one.
+//
+// So the legacy file is moved to the new name BEFORE anything reads or writes
+// it. Contents are untouched; only the name changes. Idempotent — once the
+// `.aon` exists this does nothing, so a re-scaffold stays a no-op.
+function migrateOverlay(fs: any, dir: string, name: string): void {
+  const next = Path.join(dir, name + '.aon')
+  const prev = Path.join(dir, name + '.aontu')
+  if (fs.existsSync(next) || !fs.existsSync(prev)) {
+    return
+  }
+  try {
+    fs.writeFileSync(next, fs.readFileSync(prev))
+    fs.unlinkSync(prev)
+  }
+  catch (_err: any) {
+    // A failed migration must not fail the scaffold: the worst case is the
+    // template being written fresh, which is what would have happened anyway.
+  }
+}
 
 
 // Merge the guide template into an existing guide overlay.
@@ -135,7 +163,7 @@ const GUIDE_REL = ['model', 'guide', GUIDE_FILE]
 // is missing — the normal case — the file is returned byte-identical, so a
 // re-scaffold is a no-op on it.
 //
-// Missing includes are restored at the TOP, not appended: `base-guide.aontu`
+// Missing includes are restored at the TOP, not appended: `base-guide.aon`
 // carries the heuristic classification that the user's overrides unify over,
 // and the overlay reads correctly only when the includes precede it.
 function mergeGuide(existing: string | null, template: string): string {
@@ -163,7 +191,7 @@ function mergeGuide(existing: string | null, template: string): string {
 // slugs are not constrained: the freepublicapis corpus contains apostrophes
 // (catherine-shulman's-quotes), accents (dólar-y-monedas, kölner-adressen),
 // and '!' / '>' / '_'. That name is copied into .sdk/def/ AND written verbatim
-// into a single-quoted aontu string in sdk.aontu:
+// into a single-quoted aontu string in sdk.aon:
 //
 //     def: 'catherine-shulman's-quotes_0.1.0.json'
 //                              ^ terminates the string -> AontuError, no SDK
@@ -255,6 +283,11 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
         // special case in the component tree.
         const projectPath =
           Path.join(folder, spec.sdk_folder, 'model', PROJECT_FILE)
+
+        // Same hazard, worse symptom: this file carries the release version,
+        // so an ignored project.aontu silently resets every generated manifest
+        // to the sdkgen default 0.0.1 — the exact bug fixed earlier this week.
+        migrateOverlay(fs, Path.dirname(projectPath), 'project')
         const existingProject =
           fs.existsSync(projectPath) ? fs.readFileSync(projectPath, 'utf8') : null
 
@@ -269,6 +302,10 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
           const guideTemplate =
             fs.readFileSync(Path.join(from, spec.sdk_folder, ...GUIDE_REL), 'utf8')
           const guidePath = Path.join(folder, spec.sdk_folder, ...GUIDE_REL)
+
+          // Before the merge looks for it — otherwise a project whose guide is
+          // still named .aontu reads as having no overlay at all.
+          migrateOverlay(fs, Path.dirname(guidePath), 'guide')
           const existingGuide =
             fs.existsSync(guidePath) ? fs.readFileSync(guidePath, 'utf8') : null
 

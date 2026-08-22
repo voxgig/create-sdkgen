@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // The OpenAPI filename is inherited from the upstream API slug, and upstream
 // slugs are NOT constrained to [a-z0-9-]. That name is both the file copied
 // into .sdk/def/ and the value written into a single-quoted aontu string in
-// sdk.aontu:
+// sdk.aon:
 //
 //     def: 'catherine-shulman's-quotes_0.1.0.json'
 //                              ^ terminates the string

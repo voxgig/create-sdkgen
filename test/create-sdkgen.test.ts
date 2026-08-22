@@ -99,7 +99,7 @@ describe('create-sdkgen', () => {
       '.github/workflows/ci.yml',
       '.sdk/.gitignore',
       '.sdk/package.json',
-      '.sdk/model/sdk.aontu',
+      '.sdk/model/sdk.aon',
       '.sdk/src/BuildSDK.ts',
       '.sdk/def/petstore.yml',
     ]) {
@@ -162,7 +162,7 @@ describe('create-sdkgen', () => {
 
   test('sdk-aontu-substitutes-name-and-def', async () => {
     const s = await scaffold({ name: 'petstore' })
-    const sdk = s.read('.sdk/model/sdk.aontu')
+    const sdk = s.read('.sdk/model/sdk.aon')
 
     // Fragment placeholders NAME/DEF are replaced with the real values.
     assert.match(sdk, /name:\s*'petstore'/)
@@ -189,7 +189,7 @@ describe('create-sdkgen', () => {
   test('dryrun-writes-no-scaffold', async () => {
     const s = await scaffold({ dryrun: true })
     // The scaffold itself is not written on a dry run.
-    assert.equal(s.exists('.sdk/model/sdk.aontu'), false)
+    assert.equal(s.exists('.sdk/model/sdk.aon'), false)
     assert.equal(s.exists('.sdk/package.json'), false)
     assert.equal(s.exists('.gitignore'), false)
   })
@@ -228,7 +228,7 @@ describe('create-sdkgen', () => {
         project: 'standard', folder: '', install: false,
       } as any)
       assert.ok(
-        Fs.existsSync(Path.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.aontu')),
+        Fs.existsSync(Path.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.aon')),
         'alpha -> alpha-sdk')
 
       // Name already ending `-sdk` -> not doubled.
@@ -237,7 +237,7 @@ describe('create-sdkgen', () => {
         project: 'standard', folder: '', install: false,
       } as any)
       assert.ok(
-        Fs.existsSync(Path.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.aontu')),
+        Fs.existsSync(Path.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.aon')),
         'beta-sdk -> beta-sdk')
       assert.equal(
         Fs.existsSync(Path.join(work, 'beta-sdk-sdk')), false,
@@ -258,7 +258,7 @@ describe('create-sdkgen', () => {
 // re-scaffolds on every regen, so the loss was silent and repeated.
 describe('guide-overlay-merge', () => {
 
-  const GUIDE_REL = Path.join('.sdk', 'model', 'guide', 'guide.aontu')
+  const GUIDE_REL = Path.join('.sdk', 'model', 'guide', 'guide.aon')
 
   // Re-scaffold over an EXISTING project folder (the regen flow).
   async function rescaffold(out: string, def: string) {
@@ -271,8 +271,8 @@ describe('guide-overlay-merge', () => {
   test('a fresh scaffold writes the guide template', async () => {
     const s = await scaffold()
     const guide = s.read(GUIDE_REL)
-    assert.match(guide, /@"@voxgig\/apidef\/model\/guide\.aontu"/)
-    assert.match(guide, /@"base-guide\.aontu"/)
+    assert.match(guide, /@"@voxgig\/apidef\/model\/guide\.aon"/)
+    assert.match(guide, /@"base-guide\.aon"/)
   })
 
   test('a re-scaffold leaves a customized guide BYTE-IDENTICAL', async () => {
@@ -300,19 +300,19 @@ describe('guide-overlay-merge', () => {
     await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
 
     const merged = Fs.readFileSync(guidePath, 'utf8')
-    assert.match(merged, /@"@voxgig\/apidef\/model\/guide\.aontu"/)
-    assert.match(merged, /@"base-guide\.aontu"/)
+    assert.match(merged, /@"@voxgig\/apidef\/model\/guide\.aon"/)
+    assert.match(merged, /@"base-guide\.aon"/)
     assert.match(merged, /guide: entity: \{ widget: active: false \}/)
     // Restored at the TOP: the overrides unify over base-guide, so the
     // includes have to precede them.
     assert.ok(
-      merged.indexOf('@"base-guide.aontu"') < merged.indexOf('# only my stuff'),
+      merged.indexOf('@"base-guide.aon"') < merged.indexOf('# only my stuff'),
       'includes must be restored before the user content')
   })
 
   test('the rest of the scaffold is still overwritten', async () => {
     const s = await scaffold()
-    const sdkAontu = Path.join(s.out, '.sdk', 'model', 'sdk.aontu')
+    const sdkAontu = Path.join(s.out, '.sdk', 'model', 'sdk.aon')
 
     Fs.writeFileSync(sdkAontu, '# clobbered\n')
     await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
@@ -326,15 +326,15 @@ describe('guide-overlay-merge', () => {
 
 // The project overlay is the second user-owned model file. It exists because
 // the sdkgen schema directs projects to declare publication values in
-// model/sdk.aontu "where they survive a resync", and they did not: ModelSdk
-// rewrites sdk.aontu from its template on every scaffold. The cedar fleet ran
+// model/sdk.aon "where they survive a resync", and they did not: ModelSdk
+// rewrites sdk.aon from its template on every scaffold. The cedar fleet ran
 // with every manifest pinned at the schema default 0.0.1 while its tags
 // climbed past 0.1.1, and nothing reported an error — which is why the
 // preservation is asserted here rather than trusted.
 describe('project-overlay', () => {
 
-  const PROJECT_REL = Path.join('.sdk', 'model', 'project.aontu')
-  const SDK_REL = Path.join('.sdk', 'model', 'sdk.aontu')
+  const PROJECT_REL = Path.join('.sdk', 'model', 'project.aon')
+  const SDK_REL = Path.join('.sdk', 'model', 'sdk.aon')
 
   async function rescaffold(out: string, def: string) {
     await CreateSdkGen({ debug: 'warn' } as any).generate({
@@ -343,19 +343,19 @@ describe('project-overlay', () => {
     } as any)
   }
 
-  test('a fresh scaffold writes the stub, and sdk.aontu includes it LAST', async () => {
+  test('a fresh scaffold writes the stub, and sdk.aon includes it LAST', async () => {
     const s = await scaffold()
     assert.equal(s.exists(PROJECT_REL), true)
 
     const sdk = s.read(SDK_REL)
-    assert.match(sdk, /@"project\.aontu"/)
+    assert.match(sdk, /@"project\.aon"/)
 
     // Order is load-bearing: a key under main.kit.target.<t> can only refine a
-    // target that target-index.aontu has already defined. Declared earlier the
+    // target that target-index.aon has already defined. Declared earlier the
     // model build dies on "key ext value was: nil".
-    assert.ok(sdk.indexOf('@"project.aontu"') >
-      sdk.indexOf('@"target/target-index.aontu"'),
-      'project.aontu must be included after target-index.aontu')
+    assert.ok(sdk.indexOf('@"project.aon"') >
+      sdk.indexOf('@"target/target-index.aon"'),
+      'project.aon must be included after target-index.aon')
   })
 
   test('a re-scaffold leaves a customized project overlay BYTE-IDENTICAL', async () => {
@@ -372,8 +372,8 @@ describe('project-overlay', () => {
       'a declared release version must survive a re-scaffold')
   })
 
-  test('sdk.aontu itself is still template-owned, so a renamed def propagates', async () => {
-    // The reason project.aontu exists instead of merging sdk.aontu: the
+  test('sdk.aon itself is still template-owned, so a renamed def propagates', async () => {
+    // The reason project.aon exists instead of merging sdk.aon: the
     // template owns `def`, and cedar renamed three spec files in one week. A
     // "keep the user's file" merge would pin def to a spec that is gone.
     const s = await scaffold()
@@ -384,5 +384,66 @@ describe('project-overlay', () => {
     await rescaffold(s.out, renamed)
 
     assert.match(s.read(SDK_REL), /def: 'petstore-v2-swagger-2\.0\.yml'/)
+  })
+})
+
+
+// The .aontu -> .aon rename is only safe because the two USER-OWNED overlays
+// are migrated rather than abandoned. Both are read-if-present and
+// written-if-absent, so a rename without migration does not rename anything —
+// it leaves the user's file on disk, ignored, and writes a fresh template over
+// the top. 660 generated repos carry a guide.aontu.
+describe('overlay-extension-migration', () => {
+
+  const GUIDE_AON = Path.join('.sdk', 'model', 'guide', 'guide.aon')
+  const GUIDE_OLD = Path.join('.sdk', 'model', 'guide', 'guide.aontu')
+  const PROJ_AON = Path.join('.sdk', 'model', 'project.aon')
+  const PROJ_OLD = Path.join('.sdk', 'model', 'project.aontu')
+
+  async function rescaffold(out: string, def: string) {
+    await CreateSdkGen({ debug: 'warn' } as any).generate({
+      root: 'CreateRoot', name: 'petstore', def,
+      project: 'standard', folder: out, install: false,
+    } as any)
+  }
+
+  test('a legacy guide.aontu is renamed, keeping its customizations', async () => {
+    const s = await scaffold()
+    const customized = s.read(GUIDE_AON) +
+      '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n'
+
+    // Put the project back into its pre-rename shape.
+    Fs.writeFileSync(Path.join(s.out, GUIDE_OLD), customized)
+    Fs.rmSync(Path.join(s.out, GUIDE_AON))
+
+    await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
+
+    assert.equal(Fs.existsSync(Path.join(s.out, GUIDE_OLD)), false,
+      'the legacy file must be gone, not left behind to be ignored')
+    assert.equal(s.read(GUIDE_AON), customized,
+      'the customizations must survive the rename byte-for-byte')
+  })
+
+  test('a legacy project.aontu is renamed, keeping the release version', async () => {
+    const s = await scaffold()
+    const declared = s.read(PROJ_AON) +
+      "\nmain: kit: target: ts: publish: version: '1.2.3'\n"
+
+    Fs.writeFileSync(Path.join(s.out, PROJ_OLD), declared)
+    Fs.rmSync(Path.join(s.out, PROJ_AON))
+
+    await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
+
+    assert.equal(Fs.existsSync(Path.join(s.out, PROJ_OLD)), false)
+    assert.match(s.read(PROJ_AON), /version: '1\.2\.3'/,
+      'an ignored project overlay resets every manifest to 0.0.1')
+  })
+
+  test('migration is a no-op once the .aon file exists', async () => {
+    const s = await scaffold()
+    const before = s.read(GUIDE_AON)
+    await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
+    assert.equal(s.read(GUIDE_AON), before)
+    assert.equal(Fs.existsSync(Path.join(s.out, GUIDE_OLD)), false)
   })
 })

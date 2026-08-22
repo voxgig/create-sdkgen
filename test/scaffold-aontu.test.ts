@@ -5,7 +5,7 @@
 // files - switches those off so the TypeScript and Go engines reject the same
 // sources. A scaffolded `//` line therefore parses fine here and blows up in
 // the user's project on the very first `voxgig-model` run, which is how
-// .model-config/model-config.aontu shipped with a commented-out `docgen`
+// .model-config/model-config.aon shipped with a commented-out `docgen`
 // action written `// docgen: ...` while its neighbours used `#`.
 //
 // The obvious guard - compile every scaffolded model - is not available: the
@@ -26,7 +26,7 @@ const STANDARD = Path.resolve(__dirname, '..', 'project', 'standard')
 function aontuFiles(dir: string): string[] {
   return Fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? aontuFiles(Path.join(dir, e.name)) :
-      e.name.endsWith('.aontu') ? [Path.join(dir, e.name)] : [])
+      e.name.endsWith('.aon') ? [Path.join(dir, e.name)] : [])
 }
 
 
@@ -44,7 +44,7 @@ describe('scaffold-aontu-syntax', () => {
 
   // A miswired path would make the test vacuously pass.
   test('the scaffold has model files to check', () => {
-    assert.ok(0 < files.length, `no .aontu files under ${STANDARD}`)
+    assert.ok(0 < files.length, `no .aon files under ${STANDARD}`)
   })
 
   test('no scaffolded model uses a slash comment', () => {

@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // Guards on the SHARED TEST CORPUS this package owns.
 //
-// project/standard/.sdk/test/primary/*.aontu are language-neutral fixtures
+// project/standard/.sdk/test/primary/*.aon are language-neutral fixtures
 // that compile into the test.json every generated SDK's own suite executes.
 // They are the only mechanism proving that 22 language targets behave
 // identically, which makes two failure modes expensive:
@@ -48,7 +48,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //      zero cases means the section reports PASS while asserting nothing.
 //      Eight fixtures shipped like that — including preparePath, the path
 //      templating step — and nothing flagged it.
-//   2. A fixture that is not registered in primary-test-index.aontu, so it is
+//   2. A fixture that is not registered in primary-test-index.aon, so it is
 //      never compiled into test.json at all.
 //
 // An intentionally-deferred section is fine; a silently-blank one is not. The
@@ -56,7 +56,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //
 // That marker is DATA (`basic: pending: '<reason>'`), not a comment. Comments
 // do not survive compilation to test.json, so a marker written only in the
-// .aontu source cannot be checked by the runners that consume the corpus —
+// .aon source cannot be checked by the runners that consume the corpus —
 // which is how seven sections stayed blank in a generated SDK while its own
 // suite reported green.
 const node_test_1 = require("node:test");
@@ -65,10 +65,10 @@ const Fs = __importStar(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const aontu_1 = require("aontu");
 const PRIMARY = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'primary');
-const INDEX = node_path_1.default.join(PRIMARY, 'primary-test-index.aontu');
+const INDEX = node_path_1.default.join(PRIMARY, 'primary-test-index.aon');
 // The COMPILED corpus every generated SDK actually executes. It is a
 // committed artefact produced by `npm run test-model`, so it can silently
-// fall behind the .aontu sources it is built from — which is exactly what
+// fall behind the .aon sources it is built from — which is exactly what
 // happened: preparePath's fixture and test.json disagreed and no test knew.
 const TEST_JSON = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'test.json');
 const CI = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.github', 'workflows', 'ci.yml');
@@ -88,8 +88,8 @@ const PENDING = [
 ];
 function fixtureNames() {
     return Fs.readdirSync(PRIMARY)
-        .filter((f) => f.endsWith('.aontu') && 'primary-test-index.aontu' !== f)
-        .map((f) => f.replace(/\.aontu$/, ''))
+        .filter((f) => f.endsWith('.aon') && 'primary-test-index.aon' !== f)
+        .map((f) => f.replace(/\.aon$/, ''))
         .sort();
 }
 // Deep copy with object keys sorted, array order preserved. aontu and the
@@ -105,10 +105,10 @@ function canonical(v) {
     return v;
 }
 function compile(name) {
-    const p = node_path_1.default.join(PRIMARY, name + '.aontu');
+    const p = node_path_1.default.join(PRIMARY, name + '.aon');
     const errs = [];
     const model = new aontu_1.Aontu().generate(Fs.readFileSync(p, 'utf8'), { path: p, errs });
-    node_assert_1.default.equal(errs.length, 0, `${name}.aontu: ${errs.map((e) => `[${e.why}] ${e.msg}`).join(' | ')}`);
+    node_assert_1.default.equal(errs.length, 0, `${name}.aon: ${errs.map((e) => `[${e.why}] ${e.msg}`).join(' | ')}`);
     return model;
 }
 (0, node_test_1.describe)('shared test corpus', () => {
@@ -133,9 +133,9 @@ function compile(name) {
         // reach test.json, or the runners executing the corpus cannot see it.
         for (const name of PENDING) {
             const pending = compile(name).basic.pending;
-            node_assert_1.default.equal(typeof pending, 'string', `${name}.aontu is deliberately empty but declares no ` +
+            node_assert_1.default.equal(typeof pending, 'string', `${name}.aon is deliberately empty but declares no ` +
                 `\`basic: pending\` reason — a comment alone does not reach test.json`);
-            node_assert_1.default.ok(20 < pending.length, `${name}.aontu: pending needs a reason, not just a marker`);
+            node_assert_1.default.ok(20 < pending.length, `${name}.aon: pending needs a reason, not just a marker`);
         }
     });
     (0, node_test_1.test)('the PENDING list and the fixtures agree', () => {
@@ -169,17 +169,17 @@ function compile(name) {
     (0, node_test_1.test)('every fixture is registered in the index', () => {
         const index = Fs.readFileSync(INDEX, 'utf8');
         for (const name of fixtureNames()) {
-            node_assert_1.default.match(index, new RegExp(`@"${name}\\.aontu"`), `primary-test-index.aontu missing @"${name}.aontu" — the fixture ` +
+            node_assert_1.default.match(index, new RegExp(`@"${name}\\.aon"`), `primary-test-index.aon missing @"${name}.aon" — the fixture ` +
                 `would never reach test.json`);
         }
     });
     (0, node_test_1.test)('the index registers nothing that does not exist', () => {
         const index = Fs.readFileSync(INDEX, 'utf8');
-        const referenced = [...index.matchAll(/@"([\w.-]+)\.aontu"/g)].map((m) => m[1]);
+        const referenced = [...index.matchAll(/@"([\w.-]+)\.aon"/g)].map((m) => m[1]);
         const missing = referenced.filter((n) => !fixtureNames().includes(n));
         node_assert_1.default.deepEqual(missing, [], 'index references fixtures that do not exist');
     });
-    (0, node_test_1.test)('the compiled test.json matches its .aontu sources', () => {
+    (0, node_test_1.test)('the compiled test.json matches its .aon sources', () => {
         // Generated SDKs execute test.json, NOT the fixtures. An edited fixture
         // that was never recompiled changes nothing for any target.
         //

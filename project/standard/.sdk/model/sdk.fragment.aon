@@ -1,7 +1,7 @@
 
 # Model definitions.
-@"@voxgig/apidef/model/apidef.aontu"
-@"@voxgig/sdkgen/model/sdkgen.aontu"
+@"@voxgig/apidef/model/apidef.aon"
+@"@voxgig/sdkgen/model/sdkgen.aon"
 
 
 # SDK Details.
@@ -11,31 +11,31 @@ def: 'DEF'
 
 
 # API Information
-@"api/api-info.aontu"
+@"api/api-info.aon"
 
 
 # SDK Configuration.
-@"config.aontu"
+@"config.aon"
 
 
 # SDK Entities
-@"entity/entity-index.aontu"
+@"entity/entity-index.aon"
 
 
 # SDK Features.
-@"feature/feature-index.aontu"
+@"feature/feature-index.aon"
  
 
 # SDK Targets.
-@"target/target-index.aontu"
+@"target/target-index.aon"
 
 
 # Operation workflows.
-@"flow/flow-index.aontu"
+@"flow/flow-index.aon"
 
 
 # Project overlay — user-owned, created once and never overwritten.
 #
 # LAST, deliberately: it may refine main.kit.target.<t>, and a target can only
 # be refined after target-index.aontu has defined it.
-@"project.aontu"
+@"project.aon"
