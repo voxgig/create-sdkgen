@@ -20,8 +20,15 @@
 # package.json, so the dispatch and the file cannot disagree.
 publish:
 	@test -n "$(V)" || (echo "Usage: make publish V=x.y.z" && exit 1)
-	@echo "$(V)" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-+].*)?$$' || \
-	  (echo "publish: V=$(V) is not a semver x.y.z" && exit 1)
+	@echo "$(V)" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$$' || \
+	  (echo "publish: V=$(V) is not a semver x.y.z (build metadata is not accepted)" && exit 1)
+	@# NO `+build` METADATA. npm canonicalizes 1.2.3+meta to 1.2.3, so every
+	@# guard here would check v1.2.3+meta while the workflow publishes and tags
+	@# v1.2.3 — the tag-already-exists check would look at the wrong name and
+	@# this target would push a bump for a release the workflow then refuses.
+	@case "$(V)" in \
+	  *+*) echo "publish: V=$(V) carries +build metadata, which npm discards"; exit 1 ;; \
+	esac
 	@command -v gh >/dev/null 2>&1 || \
 	  (echo "publish: needs the gh CLI to dispatch the workflow" && exit 1)
 	@test "$$(git rev-parse --abbrev-ref HEAD)" = "main" || \
@@ -30,10 +37,10 @@ publish:
 	  (echo "publish: working tree is not clean" && exit 1)
 	@git fetch origin main --quiet && test -z "$$(git rev-list HEAD..origin/main)" || \
 	  (echo "publish: local main is behind origin/main" && exit 1)
-	# ASK THE REMOTE, NOT THE CLONE. `git fetch origin main` does not fetch
-	# tags, so a local rev-parse happily passes in a fresh or stale clone
-	# while v$(V) already exists on origin — and by the time the workflow
-	# refuses, this target has already bumped and pushed main.
+	@# ASK THE REMOTE, NOT THE CLONE. `git fetch origin main` does not fetch
+	@# tags, so a local rev-parse happily passes in a fresh or stale clone
+	@# while v$(V) already exists on origin — and by the time the workflow
+	@# refuses, this target has already bumped and pushed main.
 	@if git ls-remote --exit-code --tags origin "refs/tags/v$(V)" >/dev/null 2>&1; then \
 	  echo "publish: tag v$(V) already exists on origin"; exit 1; fi
 	@if git rev-parse -q --verify "refs/tags/v$(V)" >/dev/null 2>&1; then \
@@ -43,9 +50,9 @@ publish:
 	git add package.json package-lock.json
 	git commit -m "$(V)"
 	git push origin main
-	# `--ref main` is a MOVING target: another commit can land between the
-	# push above and the run resolving, and get published under the
-	# version just bumped. Pin the dispatch to the SHA we pushed.
+	@# `--ref main` is a MOVING target: another commit can land between the
+	@# push above and the run resolving, and get published under the
+	@# version just bumped. Pin the dispatch to the SHA we pushed.
 	gh workflow run publish.yml --ref main -f expect_sha=$$(git rev-parse HEAD)
 	@echo
 	@echo "dispatched. watch with:  gh run list --workflow=publish.yml --limit 1"

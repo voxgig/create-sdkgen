@@ -179,12 +179,48 @@ jobs:
             echo "$V is not on npm — will publish"
           fi
 
+      # SKIPPING THE PUBLISH ASSUMES "SAME VERSION MEANS SAME CODE". That holds
+      # only if main has not moved. Publish succeeds at commit A, the tag job
+      # fails, main advances to B, someone re-dispatches: the version is still
+      # on npm, so the publish is skipped and B gets tagged — while the
+      # registry artifact was built from A. The tag would then point at code
+      # the published package does not contain.
+      #
+      # npm records the source commit as `gitHead`, so this is checkable.
+      # Absent gitHead (an old or non-git publish) cannot be verified, so warn
+      # rather than block — refusing would make legitimate recovery impossible.
+      - name: A published version must come from this commit
+        if: ${{ steps.registry.outputs.published == 'true' }}
+        run: |
+          set -euo pipefail
+          V="${{ steps.versions.outputs.version }}"
+          GH="$(npm view "@voxgig/create-sdkgen@$V" gitHead 2>/dev/null || true)"
+          if [ -z "$GH" ]; then
+            echo "::warning::npm records no gitHead for $V; cannot verify it was built from this commit"
+          elif [ "$GH" != "$GITHUB_SHA" ]; then
+            echo "::error::npm has $V built from $GH, but this run is $GITHUB_SHA — tagging would point at code the registry does not contain"
+            exit 1
+          else
+            echo "$V on npm was built from this commit"
+          fi
+
       # Publish BEFORE tagging (the tag job `needs` this one), so a tag only
       # ever exists for a release that reached the registry.
       - name: Publish to npm
         if: ${{ steps.registry.outputs.published == 'false' }}
         working-directory: .
-        run: npm publish --access public
+        run: |
+          set -euo pipefail
+          V="${{ steps.versions.outputs.version }}"
+          # A PRERELEASE MUST NOT BECOME `latest`. `npm publish` defaults to
+          # the latest dist-tag, so publishing 1.2.3-beta.1 that way hands it
+          # to every unpinned install.
+          case "$V" in
+            *-*) DIST=next ;;
+            *)   DIST=latest ;;
+          esac
+          echo "publishing $V under dist-tag $DIST"
+          npm publish --access public --tag "$DIST"
 
   # Runs git and nothing else. No npm install, no project code — so the
   # repository-write credential is never in scope while third-party code runs.
