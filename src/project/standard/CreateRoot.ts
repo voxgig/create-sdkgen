@@ -75,6 +75,54 @@ log/
 // repeated.
 //
 // It is excluded from the bulk Copy and merged instead (see mergeGuide).
+// The PROJECT overlay: the second model file the user owns.
+//
+// `guide.aontu` owns what the API looks like. This owns what the PROJECT is —
+// publication values above all. The sdkgen schema tells you to declare those
+// in `model/sdk.aontu` "where they survive a resync", and that was simply not
+// true: ModelSdk rewrites sdk.aontu from its template on every scaffold, so a
+// version or package name declared there vanished before the model was built,
+// with no error. The cedar fleet ran for months with every manifest pinned at
+// the schema default 0.0.1 while its git tags climbed past 0.1.1, and this is
+// why.
+//
+// sdk.aontu cannot simply be merged the way guide.aontu is. Its template owns
+// `name`, `origin` and especially `def` — the OpenAPI filename, which really
+// does change (three cedar specs were renamed in one week). A "keep the user's
+// file" merge would freeze `def` at a spec that no longer exists and break
+// regeneration. So the template keeps sole ownership of sdk.aontu, and the
+// user gets a file of their own that sdk.aontu includes.
+//
+// Written ONCE. If it exists, it is re-emitted byte-for-byte, so a
+// re-scaffold is a no-op on it.
+const PROJECT_FILE = 'project.aontu'
+const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this file once and never
+# overwrites it, unlike every other file it writes.
+#
+# Everything else under model/ is toolchain-derived and is deliberately
+# regenerated so that toolchain fixes propagate. Put anything here that is a
+# decision about THIS project rather than a fact about the API.
+#
+# Included LAST by sdk.aontu, after target/target-index.aontu, because a key
+# under main.kit.target.<t> can only refine a target that has already been
+# defined. Declared earlier, the model build fails with "Cannot unify value:
+# nil with value: string / key ext value was: nil", which names nothing that
+# would lead you here.
+#
+# The release version each generated manifest declares (package.json,
+# pyproject.toml, the gemspec, the rockspec) and that the port Makefiles tag:
+#
+#   main: kit: target: ts: publish: version: '1.2.3'
+#
+# Per target, because ports publish to different registries on different
+# clocks. Set every target to the same value for a lockstep repo.
+#
+# A published package name that does not follow the derivation:
+#
+#   main: kit: target: ts: publish: registry: package: '@scope/name'
+`
+
+
 const GUIDE_FILE = 'guide.aontu'
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE]
 
@@ -201,6 +249,18 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
 
       Folder({ name: 'model' }, () => {
         ModelSdk({ spec })
+
+        // The project overlay, created once. An existing one is re-emitted
+        // unchanged rather than skipped, so the write is a no-op instead of a
+        // special case in the component tree.
+        const projectPath =
+          Path.join(folder, spec.sdk_folder, 'model', PROJECT_FILE)
+        const existingProject =
+          fs.existsSync(projectPath) ? fs.readFileSync(projectPath, 'utf8') : null
+
+        File({ name: PROJECT_FILE }, () => {
+          Content(null == existingProject ? PROJECT_STUB : existingProject)
+        })
 
         // Re-emit the guide the Copy skipped, merged over whatever is already
         // there. On a fresh scaffold there is no existing file and this writes

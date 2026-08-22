@@ -266,4 +266,52 @@ async function scaffold(over = {}) {
         node_assert_1.default.notEqual(Fs.readFileSync(sdkAontu, 'utf8'), '# clobbered\n', 'toolchain-derived files must still be overwritten so fixes propagate');
     });
 });
+// The project overlay is the second user-owned model file. It exists because
+// the sdkgen schema directs projects to declare publication values in
+// model/sdk.aontu "where they survive a resync", and they did not: ModelSdk
+// rewrites sdk.aontu from its template on every scaffold. The cedar fleet ran
+// with every manifest pinned at the schema default 0.0.1 while its tags
+// climbed past 0.1.1, and nothing reported an error — which is why the
+// preservation is asserted here rather than trusted.
+(0, node_test_1.describe)('project-overlay', () => {
+    const PROJECT_REL = node_path_1.default.join('.sdk', 'model', 'project.aontu');
+    const SDK_REL = node_path_1.default.join('.sdk', 'model', 'sdk.aontu');
+    async function rescaffold(out, def) {
+        await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
+            root: 'CreateRoot', name: 'petstore', def,
+            project: 'standard', folder: out, install: false,
+        });
+    }
+    (0, node_test_1.test)('a fresh scaffold writes the stub, and sdk.aontu includes it LAST', async () => {
+        const s = await scaffold();
+        node_assert_1.default.equal(s.exists(PROJECT_REL), true);
+        const sdk = s.read(SDK_REL);
+        node_assert_1.default.match(sdk, /@"project\.aontu"/);
+        // Order is load-bearing: a key under main.kit.target.<t> can only refine a
+        // target that target-index.aontu has already defined. Declared earlier the
+        // model build dies on "key ext value was: nil".
+        node_assert_1.default.ok(sdk.indexOf('@"project.aontu"') >
+            sdk.indexOf('@"target/target-index.aontu"'), 'project.aontu must be included after target-index.aontu');
+    });
+    (0, node_test_1.test)('a re-scaffold leaves a customized project overlay BYTE-IDENTICAL', async () => {
+        const s = await scaffold();
+        const projectPath = node_path_1.default.join(s.out, PROJECT_REL);
+        const customized = s.read(PROJECT_REL) +
+            "\nmain: kit: target: ts: publish: version: '1.2.3'\n";
+        Fs.writeFileSync(projectPath, customized);
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(Fs.readFileSync(projectPath, 'utf8'), customized, 'a declared release version must survive a re-scaffold');
+    });
+    (0, node_test_1.test)('sdk.aontu itself is still template-owned, so a renamed def propagates', async () => {
+        // The reason project.aontu exists instead of merging sdk.aontu: the
+        // template owns `def`, and cedar renamed three spec files in one week. A
+        // "keep the user's file" merge would pin def to a spec that is gone.
+        const s = await scaffold();
+        node_assert_1.default.match(s.read(SDK_REL), /def: 'petstore\.yml'/);
+        const renamed = node_path_1.default.join(s.work, 'petstore-v2-swagger-2.0.yml');
+        Fs.writeFileSync(renamed, DEF_CONTENT);
+        await rescaffold(s.out, renamed);
+        node_assert_1.default.match(s.read(SDK_REL), /def: 'petstore-v2-swagger-2\.0\.yml'/);
+    });
+});
 //# sourceMappingURL=create-sdkgen.test.js.map

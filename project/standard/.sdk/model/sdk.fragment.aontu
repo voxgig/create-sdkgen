@@ -33,3 +33,9 @@ def: 'DEF'
 # Operation workflows.
 @"flow/flow-index.aontu"
 
+
+# Project overlay — user-owned, created once and never overwritten.
+#
+# LAST, deliberately: it may refine main.kit.target.<t>, and a target can only
+# be refined after target-index.aontu has defined it.
+@"project.aontu"
