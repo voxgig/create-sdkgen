@@ -145,7 +145,18 @@ function migrateOverlay(fs: any, dir: string, name: string): void {
     return
   }
   try {
-    fs.writeFileSync(next, fs.readFileSync(prev))
+    // RENAME THE FILE *AND* ITS INCLUDES. An overlay written before the
+    // rename includes the toolchain schemas by their old names —
+    // `@"@voxgig/apidef/model/guide.aontu"` — and apidef 8 no longer ships
+    // that file, so a migration that moved the file but kept its contents
+    // verbatim produced a project that could not resolve its own guide.
+    // mergeGuide cannot repair this either: it keeps the user's lines and
+    // only ADDS missing template includes, so the dead one would survive
+    // beside the new one. Only `@`-include extensions are touched; nothing
+    // else in the user's file is rewritten.
+    const src = String(fs.readFileSync(prev))
+      .replace(/(@['"][^'"]+)\.aontu(['"])/g, '$1.aon$2')
+    fs.writeFileSync(next, src)
     fs.unlinkSync(prev)
   }
   catch (_err: any) {

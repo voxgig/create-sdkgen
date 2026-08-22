@@ -447,3 +447,37 @@ describe('overlay-extension-migration', () => {
     assert.equal(Fs.existsSync(Path.join(s.out, GUIDE_OLD)), false)
   })
 })
+
+
+// A migrated overlay must also have its INCLUDES renamed. apidef 8 ships
+// model/guide.aon and no longer ships guide.aontu, so an overlay carrying the
+// old include resolves to nothing — and mergeGuide cannot fix it, because it
+// keeps the user's lines and only adds missing template ones, leaving the dead
+// include beside the new one. Caught by a real regen, not by the unit tests.
+describe('overlay-include-migration', () => {
+
+  const GUIDE_AON = Path.join('.sdk', 'model', 'guide', 'guide.aon')
+  const GUIDE_OLD = Path.join('.sdk', 'model', 'guide', 'guide.aontu')
+
+  test('a migrated guide has its package includes renamed too', async () => {
+    const s = await scaffold()
+    const legacy =
+      '@"@voxgig/apidef/model/guide.aontu"\n' +
+      "@'petstore-base-guide.aontu'\n" +
+      '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n'
+
+    Fs.writeFileSync(Path.join(s.out, GUIDE_OLD), legacy)
+    Fs.rmSync(Path.join(s.out, GUIDE_AON))
+
+    await CreateSdkGen({ debug: 'warn' } as any).generate({
+      root: 'CreateRoot', name: 'petstore', def: Path.join(s.work, 'petstore.yml'),
+      project: 'standard', folder: s.out, install: false,
+    } as any)
+
+    const got = s.read(GUIDE_AON)
+    assert.ok(!got.includes('.aontu'), 'no include may still name .aontu')
+    assert.match(got, /@"@voxgig\/apidef\/model\/guide\.aon"/)
+    assert.match(got, /@'petstore-base-guide\.aon'/, 'single-quoted includes too')
+    assert.match(got, /widget: active: false/, 'user content is untouched')
+  })
+})

@@ -359,4 +359,30 @@ async function scaffold(over = {}) {
         node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, GUIDE_OLD)), false);
     });
 });
+// A migrated overlay must also have its INCLUDES renamed. apidef 8 ships
+// model/guide.aon and no longer ships guide.aontu, so an overlay carrying the
+// old include resolves to nothing — and mergeGuide cannot fix it, because it
+// keeps the user's lines and only adds missing template ones, leaving the dead
+// include beside the new one. Caught by a real regen, not by the unit tests.
+(0, node_test_1.describe)('overlay-include-migration', () => {
+    const GUIDE_AON = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
+    const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
+    (0, node_test_1.test)('a migrated guide has its package includes renamed too', async () => {
+        const s = await scaffold();
+        const legacy = '@"@voxgig/apidef/model/guide.aontu"\n' +
+            "@'petstore-base-guide.aontu'\n" +
+            '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n';
+        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE_OLD), legacy);
+        Fs.rmSync(node_path_1.default.join(s.out, GUIDE_AON));
+        await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
+            root: 'CreateRoot', name: 'petstore', def: node_path_1.default.join(s.work, 'petstore.yml'),
+            project: 'standard', folder: s.out, install: false,
+        });
+        const got = s.read(GUIDE_AON);
+        node_assert_1.default.ok(!got.includes('.aontu'), 'no include may still name .aontu');
+        node_assert_1.default.match(got, /@"@voxgig\/apidef\/model\/guide\.aon"/);
+        node_assert_1.default.match(got, /@'petstore-base-guide\.aon'/, 'single-quoted includes too');
+        node_assert_1.default.match(got, /widget: active: false/, 'user content is untouched');
+    });
+});
 //# sourceMappingURL=create-sdkgen.test.js.map
