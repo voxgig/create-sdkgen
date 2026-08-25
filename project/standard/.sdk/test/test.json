@@ -472,12 +472,47 @@
             "feature": [
               {
                 "active": true,
+                "budget": 0,
                 "name": "cost",
                 "onBudget": "deny",
                 "unit": 1
               }
             ],
-            "name": "a budget of zero means no ceiling",
+            "name": "an explicit budget of zero means no ceiling",
+            "op": [
+              {
+                "op": "#OP1"
+              },
+              {
+                "op": "#OP1"
+              },
+              {
+                "op": "#OP1"
+              },
+              {
+                "op": "#OP1"
+              },
+              {
+                "op": "#OP1"
+              }
+            ],
+            "out": {
+              "total": {
+                "amount": 5,
+                "calls": 5
+              }
+            }
+          },
+          {
+            "feature": [
+              {
+                "active": true,
+                "name": "cost",
+                "onBudget": "deny",
+                "unit": 1
+              }
+            ],
+            "name": "an omitted budget means no ceiling either",
             "op": [
               {
                 "op": "#OP1"

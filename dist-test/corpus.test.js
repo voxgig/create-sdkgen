@@ -299,19 +299,40 @@ function compileFeature(name) {
     (0, node_test_1.test)('the compiled test.json matches its .aon sources', () => {
         // Same reason as the primary check: generated SDKs execute test.json, not
         // the fixtures, so an uncompiled edit changes nothing for any target.
+        //
+        // Compared WHOLE, not just `.basic`. A feature section carries top-level
+        // metadata the cases do not — `partial`, and whatever a later section
+        // adds — and a `.basic`-only comparison lets that drift silently: the
+        // fixture says one thing, every generated SDK reads another, and this
+        // test still reports the compiled corpus as matching its sources.
         const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'));
         node_assert_1.default.ok(compiled?.feature, 'test.json has no feature section — is feature-test-index.aon included ' +
             'from test.aon?');
         const drift = [];
         for (const name of featureNames()) {
-            const want = canonical(compileFeature(name).basic);
-            const got = canonical(compiled.feature?.[name]?.basic);
-            if (JSON.stringify(want) !== JSON.stringify(got)) {
-                const wn = want?.set?.length;
-                const gn = got?.set?.length;
-                drift.push(wn === gn
-                    ? `${name}: ${wn} case(s) both sides, but the case DATA differs`
-                    : `${name}: fixture has ${wn} case(s), test.json has ${gn}`);
+            const wantWhole = compileFeature(name);
+            const gotWhole = compiled.feature?.[name];
+            if (JSON.stringify(canonical(wantWhole)) === JSON.stringify(canonical(gotWhole))) {
+                continue;
+            }
+            // Name what actually differs, so the failure says which edit was not
+            // recompiled rather than just "they differ".
+            const wn = wantWhole?.basic?.set?.length;
+            const gn = gotWhole?.basic?.set?.length;
+            const wkeys = Object.keys(wantWhole || {}).sort().join(',');
+            const gkeys = Object.keys(gotWhole || {}).sort().join(',');
+            if (wkeys !== gkeys) {
+                drift.push(`${name}: fixture has keys [${wkeys}], test.json has [${gkeys}]`);
+            }
+            else if (wn !== gn) {
+                drift.push(`${name}: fixture has ${wn} case(s), test.json has ${gn}`);
+            }
+            else if (JSON.stringify(canonical(wantWhole.basic)) !==
+                JSON.stringify(canonical(gotWhole?.basic))) {
+                drift.push(`${name}: ${wn} case(s) both sides, but the case DATA differs`);
+            }
+            else {
+                drift.push(`${name}: the cases match, but the section METADATA differs`);
             }
         }
         node_assert_1.default.deepEqual(drift, [], 'test.json is out of date — recompile the corpus and copy the result ' +

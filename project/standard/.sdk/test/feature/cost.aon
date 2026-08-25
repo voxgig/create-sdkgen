@@ -165,7 +165,18 @@ basic: set: [
   }
 
   {
-    name: 'a budget of zero means no ceiling'
+    name: 'an explicit budget of zero means no ceiling'
+    feature: [ { name: 'cost', active: true, unit: 1, budget: 0, onBudget: 'deny' } ]
+    op: [ { op: '#OP1' }, { op: '#OP1' }, { op: '#OP1' }, { op: '#OP1' }, { op: '#OP1' } ]
+    out: { total: { calls: 5, amount: 5 } }
+  }
+
+  # The case above supplies `budget: 0`; this one omits it. They are separate
+  # cases on purpose. An implementation that reads the option into a
+  # nullable, or treats "supplied" as "set a ceiling", passes one and fails
+  # the other, and a single case cannot tell which path it took.
+  {
+    name: 'an omitted budget means no ceiling either'
     feature: [ { name: 'cost', active: true, unit: 1, onBudget: 'deny' } ]
     op: [ { op: '#OP1' }, { op: '#OP1' }, { op: '#OP1' }, { op: '#OP1' }, { op: '#OP1' } ]
     out: { total: { calls: 5, amount: 5 } }
