@@ -16,7 +16,11 @@
 // CI is protected only because `npm run build` is a separate step that fails
 // first. Anyone running `npm test` by hand after a failed build is not.
 //
-// This runs as `pretest`, so it guards every path into the runner.
+// This runs as `pretest` AND `pretest-some`. npm only associates a `pre`
+// hook with the script of that exact name, so one hook guards one entry
+// point - `test-some` bypassed a `pretest`-only guard entirely and still
+// reported `tests 0` with exit 0. Every script that reaches the runner
+// needs its own hook.
 
 const Fs = require('node:fs')
 const Path = require('node:path')
