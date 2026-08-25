@@ -20,7 +20,8 @@
     "create-sdkgen": "bin/create-sdkgen"
   },
   "scripts": {
-    "test": "node --enable-source-maps --test dist-test/**/*.test.js",
+    "pretest": "node build/check-tests.js",
+  "test": "node --enable-source-maps --test dist-test/**/*.test.js",
     "test-some": "node --enable-source-maps --test-name-pattern=\"$npm_config_pattern\" --test dist-test/**/*.test.js",
     "watch": "tsc --build src test -w",
     "build": "tsc --build src test",
