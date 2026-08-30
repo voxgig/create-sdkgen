@@ -213,18 +213,40 @@ function compileFeature(name) {
         // Comparison is canonical (object keys sorted, array order preserved):
         // aontu and the model builder emit the same data with different key
         // ordering, which is not drift.
+        //
+        // Compared WHOLE, not just `.basic` - the same rule the feature check
+        // below already follows, and for the same reason. A primary fixture
+        // carries a `DEF` block that the cases do not: the setup options every
+        // case in that section runs against. `.basic` alone cannot see it, and it
+        // drifted exactly there - prepareAuth's fixture pins
+        // `setup.a.auth = {prefix:'', basic:false}` so the section tests raw
+        // single-token mechanics instead of inheriting whatever a given SDK's
+        // real spec declares, and test.json carried no `auth` key at all. Every
+        // target ran the section with different setup from the one its fixture
+        // documents, and this test reported the corpus as matching its sources.
         const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'));
         node_assert_1.default.ok(compiled?.primary, 'test.json has no primary section');
         const drift = [];
         for (const name of fixtureNames()) {
-            const want = canonical(compile(name).basic);
-            const got = canonical(compiled.primary?.[name]?.basic);
-            if (JSON.stringify(want) !== JSON.stringify(got)) {
-                const wn = want?.set?.length;
-                const gn = got?.set?.length;
-                drift.push(wn === gn
-                    ? `${name}: ${wn} case(s) both sides, but the case DATA differs`
-                    : `${name}: fixture has ${wn} case(s), test.json has ${gn}`);
+            const wantWhole = compile(name);
+            const gotWhole = compiled.primary?.[name];
+            if (JSON.stringify(canonical(wantWhole)) === JSON.stringify(canonical(gotWhole))) {
+                continue;
+            }
+            // Name what actually differs, so the failure says which edit was not
+            // recompiled rather than just "they differ".
+            const wn = wantWhole?.basic?.set?.length;
+            const gn = gotWhole?.basic?.set?.length;
+            const wkeys = Object.keys(wantWhole || {}).sort().join(',');
+            const gkeys = Object.keys(gotWhole || {}).sort().join(',');
+            if (wkeys !== gkeys) {
+                drift.push(`${name}: fixture has keys [${wkeys}], test.json has [${gkeys}]`);
+            }
+            else if (wn !== gn) {
+                drift.push(`${name}: fixture has ${wn} case(s), test.json has ${gn}`);
+            }
+            else {
+                drift.push(`${name}: same shape and ${wn} case(s), but the DATA differs`);
             }
         }
         node_assert_1.default.deepEqual(drift, [], 'test.json is out of date — run `npm run test-model` in a scaffolded ' +
