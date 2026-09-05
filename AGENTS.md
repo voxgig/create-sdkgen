@@ -164,6 +164,34 @@ work on the generated packages.
 
 ---
 
+## Prose follows STYLE-GUIDE.md
+
+[`STYLE-GUIDE.md`](STYLE-GUIDE.md) is normative for the reader-facing page:
+the root `README.md`. This file, `CONTRIBUTING.md`, and everything under
+`project/` (scaffold copied into a generated SDK project) are outside it.
+Two gates enforce it and both run in CI (`.github/workflows/docs.yml`):
+
+| Gate | Checks |
+|---|---|
+| `vale --minAlertLevel=error $(python3 tools/check_prose.py --files)` | Google's rules plus the banned list, at the levels in `.vale.ini` |
+| `python3 tools/check_prose.py` | the banned list across line wraps, em-dash spacing and ration, first person, no emoji, no citations of a working document, resolving relative links, a complete page set |
+
+`make scan-prose` runs both (Vale where installed); `npm run scan-prose`
+runs the check_prose half. Neither hangs off `npm test`, because the build
+matrix includes Windows. The banned list is
+`.vale/styles/config/vocabularies/CreateSdkgen/reject.txt`, read by both
+gates. The page set is the configuration block at the top of
+`tools/check_prose.py`; a new documentation page must be reachable from it
+or neither gate reads it.
+
+Three things trip agents most often: the README must not name or link
+`AGENTS.md` or `CLAUDE.md` (state the fact instead; `CONTRIBUTING.md` is
+fine to link); the em dash is spaced (` — `) and rationed to one aside per
+line; and a word Vale's dictionary does not know goes into `accept.txt` one
+entry at a time, never as a suffix pattern.
+
+---
+
 ## Where to look next
 
 | Need | Go to |
