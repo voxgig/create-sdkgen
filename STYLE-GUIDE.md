@@ -151,7 +151,9 @@ phrases. Ten habits, with the register they apply in:
    page.** Tutorials and how-tos. In reference pages, parentheses carry
    facts only — a type, a default, a test name.
 5. **A trade-off gets bolted on with a dash, and the dash earns its
-   place.** One per paragraph at most, never two in a sentence.
+   place.** One per paragraph at most, never two in a sentence. The gate
+   enforces the one-aside-per-line half of that; the paragraph half is
+   a review matter.
 6. **Alternate one long explanatory sentence with one short verdict
    sentence.** The short sentence is the payoff. Everywhere.
 7. **Talk to the reader as "you", and route them** ("If you only want
