@@ -26,6 +26,7 @@
     "test-some": "node --enable-source-maps --test-name-pattern=\"$npm_config_pattern\" --test dist-test/**/*.test.js",
     "watch": "tsc --build src test -w",
     "build": "tsc --build src test",
+    "scan-prose": "python3 tools/check_prose.py",
     "test-model": "voxgig-model project/.sdk/test/test.aon",
     "test-model-watch": "voxgig-model -w project/.sdk/test/test.aon",
     "clean": "rm -rf dist dist-test node_modules yarn.lock package-lock.json",
