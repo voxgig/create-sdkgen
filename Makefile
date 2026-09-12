@@ -53,7 +53,21 @@ publish:
 	@# `--ref main` is a MOVING target: another commit can land between the
 	@# push above and the run resolving, and get published under the
 	@# version just bumped. Pin the dispatch to the SHA we pushed.
-	gh workflow run publish.yml --ref main -f expect_sha=$$(git rev-parse HEAD)
+	@# AND WAIT FOR THE REMOTE TO CATCH UP FIRST. `git push` returns before
+	@# the ref is visible to every GitHub read path, so a dispatch fired
+	@# immediately after it can resolve `main` to the commit BEFORE the
+	@# release commit — the run then refuses with "main has moved", naming
+	@# the very SHA just pushed. That is the expect_sha guard working
+	@# correctly, and it cost three manual re-dispatches across two repos
+	@# before anyone wrote this down. Poll until the remote agrees.
+	@target=$$(git rev-parse HEAD); \
+	for i in 1 2 3 4 5 6 7 8 9 10; do \
+	  remote=$$(git ls-remote origin refs/heads/main | cut -f1); \
+	  if [ "$$remote" = "$$target" ]; then break; fi; \
+	  echo "waiting for origin/main to reach $$target (saw $$remote)"; \
+	  sleep 3; \
+	done; \
+	gh workflow run publish.yml --ref main -f expect_sha=$$target
 	@echo
 	@echo "dispatched. watch with:  gh run list --workflow=publish.yml --limit 1"
 
