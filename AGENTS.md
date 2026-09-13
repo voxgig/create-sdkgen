@@ -155,12 +155,40 @@ If you customize the model and add your own examples, keep them **model-driven**
 
 ## Publishing (once tests pass)
 
-The generated per-language packages publish independently — npm (ts/js), PyPI
-(py), Packagist (php), RubyGems (rb), LuaRocks (lua), and Go modules via git
-tags. The reference fleet publishes with per-target git tags
-(`<target>/vX.Y.Z`) pushed per repo; see the builder's tag-publish script
-pattern if you want that flow. Standard `npm publish` / `twine` / etc. also
-work on the generated packages.
+**PUBLISH OVER OIDC FROM CI, NEVER OVER A TOKEN FROM A WORKSTATION.** That
+holds for this tool and for every SDK it generates.
+
+### Releasing create-sdkgen itself
+
+```bash
+make publish V=x.y.z
+```
+
+Bumps, builds, tests, commits, pushes `main`, waits for the remote to show the
+pushed SHA, then **dispatches** `.github/workflows/publish.yml`, which
+publishes to npm over GitHub OIDC trusted publishing and writes the tag. By
+hand, the same mechanism is
+`gh workflow run publish.yml --ref main -f expect_sha=$(git rev-parse HEAD)`.
+
+Never hand a release back as "run this locally yourself" — a release is a
+dispatch, so prepare the commit and dispatch the workflow.
+
+### Releasing a generated SDK
+
+A generated project emits its own OIDC publish workflow per npm target
+(`.github/workflows/publish-<target>.yml`) and a maintainer guide at
+`.sdk/PUBLISHING.md` that names the one-time `npm trust` command. Release by
+dispatching that workflow; it publishes and cuts the release tag.
+
+Only the FIRST version of a brand-new package goes out by hand: npm exposes
+the trusted-publisher settings only once a version exists, so there is nothing
+to register against until then. Register the publisher straight after, and
+every later release is a dispatch.
+
+The non-npm ports (PyPI, Packagist, RubyGems, LuaRocks, Go modules) release by
+per-target git tag (`<target>/vX.Y.Z`) through the generated root `Makefile`'s
+`deploy-<target>` recipes, which inject credentials from the vault at exec
+time rather than storing them.
 
 ---
 
@@ -210,4 +238,5 @@ entry at a time, never as a suffix pattern.
 3. `npm run generate` (builds `.sdk` sources, then runs the generator) → generates target dirs.
 4. Run each target's tests → **all green** (incl. doc-example tests).
 5. Shape the API? → edit `.sdk/model/entity/*.aontu`, regenerate, re-test — never edit generated output.
-6. Publish per-language packages when green.
+6. Release when green — by **dispatching** the generated OIDC publish
+   workflow, never `npm publish` from a checkout. See Publishing above.
