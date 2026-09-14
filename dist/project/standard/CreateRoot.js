@@ -223,7 +223,7 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
         const guideExclude = [spec.sdk_folder, ...GUIDE_REL].join('/');
         (0, jostraca_1.Copy)({
             from,
-            exclude: [/\.fragment\./, guideExclude]
+            exclude: [/\.fragment\./, guideExclude, /^\.sdk\/admin\/.*\.sh$/]
         });
         (0, jostraca_1.File)({ name: '.gitignore' }, () => {
             (0, jostraca_1.Content)(GITIGNORE_TOP);
@@ -232,6 +232,12 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
         const projdef = sanitizeDefName(node_path_1.default.basename(origdef));
         spec.def = projdef;
         (0, jostraca_1.Folder)({ name: spec.sdk_folder }, () => {
+            (0, jostraca_1.Folder)({ name: 'admin' }, () => {
+                const admin = node_path_1.default.join(from, spec.sdk_folder, 'admin');
+                for (const name of fs.readdirSync(admin).filter((name) => name.endsWith('.sh')).sort()) {
+                    (0, jostraca_1.File)({ name, mode: 0o755 }, () => (0, jostraca_1.Content)(fs.readFileSync(node_path_1.default.join(admin, name), 'utf8')));
+                }
+            });
             (0, jostraca_1.File)({ name: '.gitignore' }, () => {
                 (0, jostraca_1.Content)(GITIGNORE_SDK);
             });

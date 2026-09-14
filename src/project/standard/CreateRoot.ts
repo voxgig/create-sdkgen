@@ -258,7 +258,7 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
 
     Copy({
       from,
-      exclude: [/\.fragment\./, guideExclude]
+      exclude: [/\.fragment\./, guideExclude, /^\.sdk\/admin\/.*\.sh$/]
     })
 
     File({ name: '.gitignore' }, () => {
@@ -270,6 +270,13 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
     spec.def = projdef
 
     Folder({ name: spec.sdk_folder }, () => {
+      Folder({ name: 'admin' }, () => {
+        const admin = Path.join(from, spec.sdk_folder, 'admin')
+        for (const name of fs.readdirSync(admin).filter((name: string) => name.endsWith('.sh')).sort()) {
+          File({ name, mode: 0o755 }, () => Content(fs.readFileSync(Path.join(admin, name), 'utf8')))
+        }
+      })
+
       File({ name: '.gitignore' }, () => {
         Content(GITIGNORE_SDK)
       })

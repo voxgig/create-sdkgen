@@ -99,6 +99,8 @@ describe('create-sdkgen', () => {
       '.github/workflows/ci.yml',
       '.sdk/.gitignore',
       '.sdk/package.json',
+      '.sdk/admin/status.sh',
+      '.sdk/admin/README.md',
       '.sdk/model/sdk.aon',
       '.sdk/src/BuildSDK.ts',
       '.sdk/def/petstore.yml',
@@ -480,4 +482,31 @@ describe('overlay-include-migration', () => {
     assert.match(got, /@'petstore-base-guide\.aon'/, 'single-quoted includes too')
     assert.match(got, /widget: active: false/, 'user content is untouched')
   })
+})
+
+test('new projects prepare documentation editions through docgen', async () => {
+  const p = await scaffold()
+  const pkg = JSON.parse(p.read('.sdk/package.json'))
+  assert.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.10.0')
+  assert.equal(pkg.scripts.postinstall, 'node build/docgen.js')
+  assert.match(pkg.scripts.generate, /^node build\/docgen\.js/)
+  assert.match(p.read('.sdk/build/docgen.js'), /prepareProject/)
+  assert.match(p.read('.sdk/model/sdk.aon'), /edition\/edition-index\.aon/)
+  assert.ok(!p.exists('.sdk/src/DocStaticRoot.ts'))
+})
+
+
+test('admin status launcher is executable, preserved on dry run, and leaves project scripts alone', async () => {
+  const s = await scaffold()
+  const file = Path.join(s.out, '.sdk/admin/status.sh')
+  assert.match(s.read('.sdk/admin/status.sh'), /sdkgen\/dist\/admin\/status.js/)
+  if (process.platform !== 'win32') assert.ok(Fs.statSync(file).mode & 0o111)
+  assert.equal(JSON.parse(s.read('.sdk/package.json')).scripts.status, 'bash admin/status.sh')
+  assert.ok(!s.exists('.sdk/admin/setup-github-pages.sh'), 'Pages setup belongs to docgen generation')
+  Fs.writeFileSync(Path.join(s.out, '.sdk/admin/custom.sh'), '# project script\n')
+  const csg=CreateSdkGen({debug:'warn'})
+  await csg.generate({root:'CreateRoot',name:'petstore',def:Path.join(s.out,'.sdk/def/petstore.yml'),project:'standard',folder:s.out,install:false,dryrun:false} as any)
+  assert.equal(s.read('.sdk/admin/custom.sh'), '# project script\n')
+  const dry=await scaffold({dryrun:true})
+  assert.ok(!dry.exists('.sdk/admin/status.sh'))
 })

@@ -70,3 +70,30 @@ are in the [sdkgen documentation](https://github.com/voxgig/sdkgen/tree/main/doc
 How to validate a change, and why a pull request from a fork gets no CI, are
 in [`CONTRIBUTING.md`](./CONTRIBUTING.md). The documentation follows
 [the style guide](./STYLE-GUIDE.md).
+
+## Documentation editions
+
+New projects include `@voxgig/docgen`. Installing the `.sdk` dependencies adds
+the `summary` and `github-pages` editions. `npm run generate` then produces
+`SUMMARY.md` and the static HTML site in `docs/`. It also adds text QA and a GitHub Pages workflow. With `--no-install`, setup happens when dependencies are installed.
+
+Add the optional Slidev presentation from `.sdk`:
+
+```sh
+npx voxgig-sdkgen edition add presentation
+npm run generate
+```
+
+Configure shared branding and each edition under `main.kit.doc` in the model.
+Customise templates in `.sdk/tm/edition/` and add authored Markdown in
+`.sdk/doc/content/`. SDK README generation remains a separate SDK phase.
+The [docgen guide](https://github.com/voxgig/docgen) describes the model,
+local assets, presentation builds, and Vale text QA.
+
+## Repository administration
+
+New projects include `.sdk/admin/status.sh`. Run it to review local repository,
+SDK, and documentation status; add `--github` to read CI and Pages status through
+`gh`. Docgen generates `.sdk/admin/setup-github-pages.sh` for Pages setup.
+See the [administration reference](https://github.com/voxgig/sdkgen/blob/main/docs/reference/project-layout.md#repository-administration)
+for script options and ownership.

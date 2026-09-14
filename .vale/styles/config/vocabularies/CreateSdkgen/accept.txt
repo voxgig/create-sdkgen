@@ -36,3 +36,7 @@ toolchain
 Lua
 npm
 Packagist
+
+Slidev
+
+[Dd]ocgen

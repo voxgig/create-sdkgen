@@ -1,5 +1,24 @@
 # AGENTS.md — build an SDK with @voxgig/sdkgen
 
+## Temporary local tool development
+
+Prefer local symlinks to sibling tool checkouts when developing or testing
+unreleased Voxgig tools together. Link to the actual package root (for example,
+`apidef/ts` or `sdkgen/ts`), build that checkout, and verify that the consumer
+resolves the linked code. Use existing validator local-path options where
+available.
+
+Do not create or copy `.zip`, `.tgz`, or `npm pack` snapshots into SDK projects
+or ad hoc `vendor/` folders just to use local changes. Keep temporary links in
+ignored dependency directories; keep machine-specific paths and temporary
+`file:` dependencies out of committed manifests and lockfiles. Shared builds
+and CI should use published versions or explicitly check out and build the
+required source revisions.
+
+Archives are appropriate when testing package contents or installation from a
+packed release. Put those artifacts in a temporary test directory and clean
+up artifacts created by the test afterward; do not scatter them across repos.
+
 This is the **starting point** for an AI agent (or human) building a new
 multi-language client SDK from an OpenAPI spec, using the Voxgig SDK
 Generator toolchain. `create-sdkgen` scaffolds the project; the rest of the
@@ -240,3 +259,23 @@ entry at a time, never as a suffix pattern.
 5. Shape the API? → edit `.sdk/model/entity/*.aontu`, regenerate, re-test — never edit generated output.
 6. Release when green — by **dispatching** the generated OIDC publish
    workflow, never `npm publish` from a checkout. See Publishing above.
+
+## Documentation editions
+
+New projects include `@voxgig/docgen`. Installing the `.sdk` dependencies adds
+the `summary` and `github-pages` editions. `npm run generate` then produces
+`SUMMARY.md` and the static HTML site in `docs/`, with text QA and a GitHub
+Pages workflow. With `--no-install`, setup happens when dependencies are installed.
+
+Add the optional Slidev presentation from `.sdk`:
+
+```sh
+npx voxgig-sdkgen edition add presentation
+npm run generate
+```
+
+Configure shared branding and each edition under `main.kit.doc` in the model.
+Customise templates in `.sdk/tm/edition/` and add authored Markdown in
+`.sdk/doc/content/`. SDK README generation remains a separate SDK phase.
+The [docgen guide](https://github.com/voxgig/docgen) describes the model,
+local assets, presentation builds, and Vale text QA.
