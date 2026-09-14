@@ -390,7 +390,7 @@ async function scaffold(over = {}) {
 (0, node_test_1.test)('new projects prepare documentation editions through docgen', async () => {
     const p = await scaffold();
     const pkg = JSON.parse(p.read('.sdk/package.json'));
-    node_assert_1.default.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.10.0');
+    node_assert_1.default.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.10.1');
     node_assert_1.default.equal(pkg.scripts.postinstall, 'node build/docgen.js');
     node_assert_1.default.match(pkg.scripts.generate, /^node build\/docgen\.js/);
     node_assert_1.default.match(p.read('.sdk/build/docgen.js'), /prepareProject/);
