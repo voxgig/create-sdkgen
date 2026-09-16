@@ -234,7 +234,7 @@ async function scaffold(over = {}) {
         const s = await scaffold();
         const guide = s.read(GUIDE_REL);
         node_assert_1.default.match(guide, /@"@voxgig\/apidef\/model\/guide\.aon"/);
-        node_assert_1.default.match(guide, /@"base-guide\.aon"/);
+        node_assert_1.default.match(guide, /@"\.\/base-guide\.aon"/);
     });
     (0, node_test_1.test)('a re-scaffold leaves a customized guide BYTE-IDENTICAL', async () => {
         const s = await scaffold();
@@ -254,11 +254,11 @@ async function scaffold(over = {}) {
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         const merged = Fs.readFileSync(guidePath, 'utf8');
         node_assert_1.default.match(merged, /@"@voxgig\/apidef\/model\/guide\.aon"/);
-        node_assert_1.default.match(merged, /@"base-guide\.aon"/);
+        node_assert_1.default.match(merged, /@"\.\/base-guide\.aon"/);
         node_assert_1.default.match(merged, /guide: entity: \{ widget: active: false \}/);
         // Restored at the TOP: the overrides unify over base-guide, so the
         // includes have to precede them.
-        node_assert_1.default.ok(merged.indexOf('@"base-guide.aon"') < merged.indexOf('# only my stuff'), 'includes must be restored before the user content');
+        node_assert_1.default.ok(merged.indexOf('@"./base-guide.aon"') < merged.indexOf('# only my stuff'), 'includes must be restored before the user content');
     });
     (0, node_test_1.test)('the rest of the scaffold is still overwritten', async () => {
         const s = await scaffold();
@@ -288,11 +288,11 @@ async function scaffold(over = {}) {
         const s = await scaffold();
         node_assert_1.default.equal(s.exists(PROJECT_REL), true);
         const sdk = s.read(SDK_REL);
-        node_assert_1.default.match(sdk, /@"project\.aon"/);
+        node_assert_1.default.match(sdk, /@"\.\/project\.aon"/);
         // Order is load-bearing: a key under main.kit.target.<t> can only refine a
         // target that target-index.aon has already defined. Declared earlier the
         // model build dies on "key ext value was: nil".
-        node_assert_1.default.ok(sdk.indexOf('@"project.aon"') >
+        node_assert_1.default.ok(sdk.indexOf('@"./project.aon"') >
             sdk.indexOf('@"target/target-index.aon"'), 'project.aon must be included after target-index.aon');
     });
     (0, node_test_1.test)('a re-scaffold leaves a customized project overlay BYTE-IDENTICAL', async () => {

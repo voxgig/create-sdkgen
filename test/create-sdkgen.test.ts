@@ -274,7 +274,7 @@ describe('guide-overlay-merge', () => {
     const s = await scaffold()
     const guide = s.read(GUIDE_REL)
     assert.match(guide, /@"@voxgig\/apidef\/model\/guide\.aon"/)
-    assert.match(guide, /@"base-guide\.aon"/)
+    assert.match(guide, /@"\.\/base-guide\.aon"/)
   })
 
   test('a re-scaffold leaves a customized guide BYTE-IDENTICAL', async () => {
@@ -303,12 +303,12 @@ describe('guide-overlay-merge', () => {
 
     const merged = Fs.readFileSync(guidePath, 'utf8')
     assert.match(merged, /@"@voxgig\/apidef\/model\/guide\.aon"/)
-    assert.match(merged, /@"base-guide\.aon"/)
+    assert.match(merged, /@"\.\/base-guide\.aon"/)
     assert.match(merged, /guide: entity: \{ widget: active: false \}/)
     // Restored at the TOP: the overrides unify over base-guide, so the
     // includes have to precede them.
     assert.ok(
-      merged.indexOf('@"base-guide.aon"') < merged.indexOf('# only my stuff'),
+      merged.indexOf('@"./base-guide.aon"') < merged.indexOf('# only my stuff'),
       'includes must be restored before the user content')
   })
 
@@ -350,12 +350,12 @@ describe('project-overlay', () => {
     assert.equal(s.exists(PROJECT_REL), true)
 
     const sdk = s.read(SDK_REL)
-    assert.match(sdk, /@"project\.aon"/)
+    assert.match(sdk, /@"\.\/project\.aon"/)
 
     // Order is load-bearing: a key under main.kit.target.<t> can only refine a
     // target that target-index.aon has already defined. Declared earlier the
     // model build dies on "key ext value was: nil".
-    assert.ok(sdk.indexOf('@"project.aon"') >
+    assert.ok(sdk.indexOf('@"./project.aon"') >
       sdk.indexOf('@"target/target-index.aon"'),
       'project.aon must be included after target-index.aon')
   })

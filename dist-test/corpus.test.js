@@ -190,13 +190,13 @@ function compileFeature(name) {
     (0, node_test_1.test)('every fixture is registered in the index', () => {
         const index = Fs.readFileSync(INDEX, 'utf8');
         for (const name of fixtureNames()) {
-            node_assert_1.default.match(index, new RegExp(`@"${name}\\.aon"`), `primary-test-index.aon missing @"${name}.aon" — the fixture ` +
+            node_assert_1.default.match(index, new RegExp(`@"(?:\\./)?${name}\\.aon"`), `primary-test-index.aon missing @"${name}.aon" — the fixture ` +
                 `would never reach test.json`);
         }
     });
     (0, node_test_1.test)('the index registers nothing that does not exist', () => {
         const index = Fs.readFileSync(INDEX, 'utf8');
-        const referenced = [...index.matchAll(/@"([\w.-]+)\.aon"/g)].map((m) => m[1]);
+        const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aon"/g)].map((m) => m[1]);
         const missing = referenced.filter((n) => !fixtureNames().includes(n));
         node_assert_1.default.deepEqual(missing, [], 'index references fixtures that do not exist');
     });
@@ -308,13 +308,13 @@ function compileFeature(name) {
     (0, node_test_1.test)('every fixture is registered in the index', () => {
         const index = Fs.readFileSync(FEATURE_INDEX, 'utf8');
         for (const name of featureNames()) {
-            node_assert_1.default.match(index, new RegExp(`@"${name}\\.aon"`), `feature-test-index.aon missing @"${name}.aon" — the fixture would ` +
+            node_assert_1.default.match(index, new RegExp(`@"(?:\\./)?${name}\\.aon"`), `feature-test-index.aon missing @"${name}.aon" — the fixture would ` +
                 `never reach test.json`);
         }
     });
     (0, node_test_1.test)('the index registers nothing that does not exist', () => {
         const index = Fs.readFileSync(FEATURE_INDEX, 'utf8');
-        const referenced = [...index.matchAll(/@"([\w.-]+)\.aon"/g)].map((m) => m[1]);
+        const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aon"/g)].map((m) => m[1]);
         const missing = referenced.filter((n) => !featureNames().includes(n));
         node_assert_1.default.deepEqual(missing, [], 'index references fixtures that do not exist');
     });

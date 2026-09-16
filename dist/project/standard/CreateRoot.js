@@ -162,11 +162,24 @@ function mergeGuide(existing, template) {
         return template;
     }
     const isInclude = (line) => line.trim().startsWith('@');
-    const have = new Set(existing.split('\n').map((line) => line.trim()));
+    // AN INCLUDE IS THE FILE IT NAMES, whichever way the `./` falls.
+    //
+    // The template gained a `./` when aontu 0.65 made a bare single-segment
+    // include name a PACKAGE (ADR-039). Every guide written before that says
+    // `@"base-guide.aon"`, and `guide.aon` is project-owned: the scaffold
+    // writes it once and never again, so those files stay as they are until
+    // something migrates them.
+    //
+    // Comparing the raw lines read the old spelling as a DIFFERENT include, so
+    // a re-scaffold restored one the file already had — leaving the guide
+    // including `base-guide.aon` twice, under two spellings, which is the one
+    // thing this merge exists to avoid.
+    const key = (line) => line.trim().replace(/^@"\.\//, '@"');
+    const have = new Set(existing.split('\n').map(key));
     const missing = template.split('\n')
         .filter(isInclude)
         .map((line) => line.trim())
-        .filter((line) => !have.has(line));
+        .filter((line) => !have.has(key(line)));
     if (0 === missing.length) {
         return existing;
     }
