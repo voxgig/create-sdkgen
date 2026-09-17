@@ -109,6 +109,7 @@ async function scaffold(over = {}) {
             '.sdk/.gitignore',
             '.sdk/package.json',
             '.sdk/admin/status.sh',
+            '.sdk/admin/check-drift.sh',
             '.sdk/admin/README.md',
             '.sdk/model/sdk.aon',
             '.sdk/src/BuildSDK.ts',
@@ -404,6 +405,15 @@ async function scaffold(over = {}) {
     if (process.platform !== 'win32')
         node_assert_1.default.ok(Fs.statSync(file).mode & 0o111);
     node_assert_1.default.equal(JSON.parse(s.read('.sdk/package.json')).scripts.status, 'bash admin/status.sh');
+    // EVERY .sh in the scaffold's admin folder, not just status.sh: CreateRoot
+    // reads the directory, so a script added there is scaffolded and made
+    // executable with no code change - and this is what holds that true.
+    const drift = node_path_1.default.join(s.out, '.sdk/admin/check-drift.sh');
+    node_assert_1.default.match(s.read('.sdk/admin/check-drift.sh'), /deleting and regenerating every target/);
+    if (process.platform !== 'win32')
+        node_assert_1.default.ok(Fs.statSync(drift).mode & 0o111);
+    node_assert_1.default.equal(JSON.parse(s.read('.sdk/package.json'))
+        .scripts['check-drift'], 'bash admin/check-drift.sh');
     node_assert_1.default.ok(!s.exists('.sdk/admin/setup-github-pages.sh'), 'Pages setup belongs to docgen generation');
     Fs.writeFileSync(node_path_1.default.join(s.out, '.sdk/admin/custom.sh'), '# project script\n');
     const csg = (0, __1.CreateSdkGen)({ debug: 'warn' });
