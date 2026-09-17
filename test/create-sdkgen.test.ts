@@ -100,6 +100,7 @@ describe('create-sdkgen', () => {
       '.sdk/.gitignore',
       '.sdk/package.json',
       '.sdk/admin/status.sh',
+      '.sdk/admin/check-drift.sh',
       '.sdk/admin/README.md',
       '.sdk/model/sdk.aon',
       '.sdk/src/BuildSDK.ts',
@@ -502,6 +503,14 @@ test('admin status launcher is executable, preserved on dry run, and leaves proj
   assert.match(s.read('.sdk/admin/status.sh'), /sdkgen\/dist\/admin\/status.js/)
   if (process.platform !== 'win32') assert.ok(Fs.statSync(file).mode & 0o111)
   assert.equal(JSON.parse(s.read('.sdk/package.json')).scripts.status, 'bash admin/status.sh')
+  // EVERY .sh in the scaffold's admin folder, not just status.sh: CreateRoot
+  // reads the directory, so a script added there is scaffolded and made
+  // executable with no code change - and this is what holds that true.
+  const drift = Path.join(s.out, '.sdk/admin/check-drift.sh')
+  assert.match(s.read('.sdk/admin/check-drift.sh'), /deleting and regenerating every target/)
+  if (process.platform !== 'win32') assert.ok(Fs.statSync(drift).mode & 0o111)
+  assert.equal(JSON.parse(s.read('.sdk/package.json'))
+    .scripts['check-drift'], 'bash admin/check-drift.sh')
   assert.ok(!s.exists('.sdk/admin/setup-github-pages.sh'), 'Pages setup belongs to docgen generation')
   Fs.writeFileSync(Path.join(s.out, '.sdk/admin/custom.sh'), '# project script\n')
   const csg=CreateSdkGen({debug:'warn'})
