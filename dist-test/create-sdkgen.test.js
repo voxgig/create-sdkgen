@@ -61,9 +61,6 @@ function walk(dir, prefix = '') {
         ? walk(node_path_1.default.join(dir, e.name), prefix + e.name + '/')
         : [prefix + e.name]);
 }
-// Scaffold a project into a fresh temp folder with npm install disabled, and
-// return helpers to inspect the generated output. `def === undefined` writes a
-// real def file; pass an explicit string (including '') to control def handling.
 async function scaffold(over = {}) {
     const work = tmpdir('gen');
     const out = node_path_1.default.join(work, 'out');
@@ -166,7 +163,6 @@ async function scaffold(over = {}) {
     (0, node_test_1.test)('sdk-package-json-substitutes-name', async () => {
         const s = await scaffold({ name: 'petstore' });
         const pkg = JSON.parse(s.read('.sdk/package.json'));
-        // `$$const.name$$` etc. are replaced from the model.
         node_assert_1.default.equal(pkg.name, 'build-petstore-sdk');
         // No unresolved jostraca placeholders remain anywhere in the file.
         node_assert_1.default.doesNotMatch(s.read('.sdk/package.json'), /\$\$/);
@@ -179,10 +175,6 @@ async function scaffold(over = {}) {
         node_assert_1.default.equal(s.exists('.gitignore'), false);
     });
     (0, node_test_1.test)('dryrun-writes-nothing-at-all', async () => {
-        // Stronger than the per-file checks above, which a dry run could pass
-        // while still touching the disk elsewhere: logCreate() used to mkdir
-        // <folder>/.sdk/log and append create.log on EVERY run, dry or not.
-        // Assert the whole output tree stays empty.
         const s = await scaffold({ dryrun: true });
         node_assert_1.default.deepEqual(s.files(), [], 'a dry run must not create any file, including the create log');
     });
@@ -217,11 +209,6 @@ async function scaffold(over = {}) {
         }
     });
 });
-// The guide overlay is the one model file the USER owns — apidef unifies it
-// over the heuristic classification, and it carries every documented
-// customization (entity rename/hide/activate, param rename, ...). The blanket
-// scaffold overwrite used to destroy it on every re-scaffold, and cedar-regen
-// re-scaffolds on every regen, so the loss was silent and repeated.
 (0, node_test_1.describe)('guide-overlay-merge', () => {
     const GUIDE_REL = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
     // Re-scaffold over an EXISTING project folder (the regen flow).
@@ -249,7 +236,6 @@ async function scaffold(over = {}) {
     (0, node_test_1.test)('a re-scaffold restores includes the guide is missing, keeping user content', async () => {
         const s = await scaffold();
         const guidePath = node_path_1.default.join(s.out, GUIDE_REL);
-        // Includes deleted — the file no longer resolves the heuristic guide.
         const damaged = '# only my stuff\nguide: entity: { widget: active: false }\n';
         Fs.writeFileSync(guidePath, damaged);
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
@@ -269,13 +255,6 @@ async function scaffold(over = {}) {
         node_assert_1.default.notEqual(Fs.readFileSync(sdkAontu, 'utf8'), '# clobbered\n', 'toolchain-derived files must still be overwritten so fixes propagate');
     });
 });
-// The project overlay is the second user-owned model file. It exists because
-// the sdkgen schema directs projects to declare publication values in
-// model/sdk.aon "where they survive a resync", and they did not: ModelSdk
-// rewrites sdk.aon from its template on every scaffold. The cedar fleet ran
-// with every manifest pinned at the schema default 0.0.1 while its tags
-// climbed past 0.1.1, and nothing reported an error — which is why the
-// preservation is asserted here rather than trusted.
 (0, node_test_1.describe)('project-overlay', () => {
     const PROJECT_REL = node_path_1.default.join('.sdk', 'model', 'project.aon');
     const SDK_REL = node_path_1.default.join('.sdk', 'model', 'sdk.aon');
@@ -306,9 +285,6 @@ async function scaffold(over = {}) {
         node_assert_1.default.equal(Fs.readFileSync(projectPath, 'utf8'), customized, 'a declared release version must survive a re-scaffold');
     });
     (0, node_test_1.test)('sdk.aon itself is still template-owned, so a renamed def propagates', async () => {
-        // The reason project.aon exists instead of merging sdk.aon: the
-        // template owns `def`, and cedar renamed three spec files in one week. A
-        // "keep the user's file" merge would pin def to a spec that is gone.
         const s = await scaffold();
         node_assert_1.default.match(s.read(SDK_REL), /def: 'petstore\.yml'/);
         const renamed = node_path_1.default.join(s.work, 'petstore-v2-swagger-2.0.yml');
@@ -317,11 +293,6 @@ async function scaffold(over = {}) {
         node_assert_1.default.match(s.read(SDK_REL), /def: 'petstore-v2-swagger-2\.0\.yml'/);
     });
 });
-// The .aontu -> .aon rename is only safe because the two USER-OWNED overlays
-// are migrated rather than abandoned. Both are read-if-present and
-// written-if-absent, so a rename without migration does not rename anything —
-// it leaves the user's file on disk, ignored, and writes a fresh template over
-// the top. 660 generated repos carry a guide.aontu.
 (0, node_test_1.describe)('overlay-extension-migration', () => {
     const GUIDE_AON = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
     const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
@@ -362,11 +333,6 @@ async function scaffold(over = {}) {
         node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, GUIDE_OLD)), false);
     });
 });
-// A migrated overlay must also have its INCLUDES renamed. apidef 8 ships
-// model/guide.aon and no longer ships guide.aontu, so an overlay carrying the
-// old include resolves to nothing — and mergeGuide cannot fix it, because it
-// keeps the user's lines and only adds missing template ones, leaving the dead
-// include beside the new one. Caught by a real regen, not by the unit tests.
 (0, node_test_1.describe)('overlay-include-migration', () => {
     const GUIDE_AON = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
     const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');

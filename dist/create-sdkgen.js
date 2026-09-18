@@ -47,8 +47,6 @@ const util_1 = require("@voxgig/util");
 const package_json_1 = __importDefault(require("../package.json"));
 const { names, Jostraca } = JostracaModule;
 const SDK_FOLDER = '.sdk';
-// TODO: CreateSdkGen opts and generate opts should be mostly the same, and
-// generate should override
 function CreateSdkGen(opts) {
     const fs = opts.fs || Fs;
     const debug = opts.debug;
@@ -94,12 +92,6 @@ function CreateSdkGen(opts) {
             folder,
             log: log.child({ cmp: 'jostraca' }),
             meta: { spec },
-            // Overwrite the scaffolded project (.sdk components, templates, build
-            // config) rather than 3-way merge. The scaffold is toolchain-derived and
-            // not hand-edited; merging against a drifting .jostraca base keeps STALE
-            // components/templates on a toolchain bump (so a fix never propagates) and
-            // can inject <<<<<<< markers. See @voxgig/sdkgen
-            // docs/explanation/regeneration-overwrite.md.
             existing: {
                 txt: {
                     write: true,
@@ -140,7 +132,6 @@ function CreateSdkGen(opts) {
             return projectFolder;
         }
         projectFolder = node_path_1.default.resolve(node_path_1.default.join(__dirname, 'project', spec.project));
-        // TODO: support auto install project npm package (specific version) in a special cache folder
         if (!fs.existsSync(projectFolder)) {
             projectFolder = spec.project;
         }
@@ -220,17 +211,6 @@ async function installNpm(spec, opts, model) {
         log.info({ point: 'generate-install', note: 'running npm install in ' + cwd });
         await runNpm(['install'], spawn_opts);
     }
-    // `-t` / `-f` are INDEPENDENT of `--no-install`: the documented contract is
-    // that --no-install skips `npm install`, not that it drops the requested
-    // targets and features. Adding them is still valid without an install when
-    // the project already has its toolchain (re-scaffolding an existing folder
-    // is a supported flow — "if run against an existing folder generated files
-    // will be overwritten").
-    //
-    // They ARE npm run scripts that resolve @voxgig/sdkgen from node_modules, so
-    // without one they cannot work. Fail with an actionable message rather than
-    // the raw module-resolution error — and rather than silently skipping, which
-    // reports success while leaving config.aon without the requested entries.
     const wanted = [
         (spec.target ?? []).length ? '--target' : '',
         (spec.feature ?? []).length ? '--feature' : '',

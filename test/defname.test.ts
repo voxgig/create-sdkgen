@@ -1,35 +1,15 @@
 /* Copyright (c) 2024-2026 Richard Rodger, MIT License */
 
-// The OpenAPI filename is inherited from the upstream API slug, and upstream
-// slugs are NOT constrained to [a-z0-9-]. That name is both the file copied
-// into .sdk/def/ and the value written into a single-quoted aontu string in
-// sdk.aon:
-//
-//     def: 'catherine-shulman's-quotes_0.1.0.json'
-//                              ^ terminates the string
-//
-// which fails to parse ("unexpected character(s): s") and produces no SDK at
-// all. The freepublicapis corpus really does contain that slug, plus accents
-// and '!' / '>' / '_', so this is a live case, not a hypothetical.
-//
-// The other half of the contract is that ALREADY-CONFORMING names must come
-// through byte-identical: the sanitiser runs on every scaffold of every repo,
-// so any gratuitous rewrite would rename the def file in hundreds of repos at
-// once. Version segments therefore keep their '.' and '_'.
 
 import { describe, test } from 'node:test'
 import { equal } from 'node:assert'
 
-// Built module, not source: test/tsconfig.json sets rootDir to test/, so a
-// direct ../src import fails to compile (TS6059), and the other suites import
-// the built package the same way.
 import { sanitizeDefName } from '../dist/project/standard/CreateRoot'
 
 
 describe('defname', () => {
 
   test('leaves conforming names untouched', () => {
-    // No churn: these are the shapes already on disk across the fleets.
     equal(sanitizeDefName('aareguru_0.1.0.json'), 'aareguru_0.1.0.json')
     equal(sanitizeDefName('gitlab-v4-swagger-2.0.yaml'), 'gitlab-v4-swagger-2.0.yaml')
     equal(sanitizeDefName('u.to-link-shortener_0.1.0.json'), 'u.to-link-shortener_0.1.0.json')

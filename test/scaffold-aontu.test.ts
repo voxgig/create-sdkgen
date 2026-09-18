@@ -1,17 +1,5 @@
 /* Copyright (c) 2024-2025 Richard Rodger, MIT License */
 
-// Aontu comments are `#` only. The npm engine's jsonic parser also enables
-// `//` and `/* */`, but @voxgig/model - the thing that actually compiles these
-// files - switches those off so the TypeScript and Go engines reject the same
-// sources. A scaffolded `//` line therefore parses fine here and blows up in
-// the user's project on the very first `voxgig-model` run, which is how
-// .model-config/model-config.aon shipped with a commented-out `docgen`
-// action written `// docgen: ...` while its neighbours used `#`.
-//
-// The obvious guard - compile every scaffolded model - is not available: the
-// files carrying imports (`@"@voxgig/model/..."`, `@"@voxgig/apidef/..."`) are
-// exactly the ones that need packages this repo does not depend on. So check
-// the syntax textually instead. It costs nothing and catches the whole class.
 
 import { test, describe } from 'node:test'
 import assert from 'node:assert'
