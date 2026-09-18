@@ -29,13 +29,13 @@
   "devDependencies": {
     "@types/node": ">=25.6",
     "typescript": ">=6.0",
-    "@voxgig/apidef": ">=8.6.0",
+    "@voxgig/apidef": ">=8.12.1",
     "@voxgig/model": ">=10.0",
-    "@voxgig/sdkgen": ">=4.17.0",
+    "@voxgig/sdkgen": ">=4.22.0",
     "@voxgig/util": ">=0.5",
     "@voxgig/struct": ">=0.2",
     "jostraca": ">=0.33.1",
-    "aontu": ">=0.52",
-    "@voxgig/docgen": ">=0.10.1"
+    "aontu": ">=0.68",
+    "@voxgig/docgen": ">=0.23.0"
   }
 }
