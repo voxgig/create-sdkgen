@@ -4,7 +4,6 @@
 @"@voxgig/sdkgen/model/sdkgen.aon"
 
 
-# SDK Details.
 name: 'NAME'
 origin: 'voxgig-sdk'
 def: 'DEF'
@@ -24,7 +23,7 @@ def: 'DEF'
 
 # SDK Features.
 @"feature/feature-index.aon"
- 
+
 
 # SDK Targets.
 @"target/target-index.aon"
@@ -34,10 +33,6 @@ def: 'DEF'
 @"flow/flow-index.aon"
 
 
-# Project overlay — user-owned, created once and never overwritten.
-#
-# LAST, deliberately: it may refine main.kit.target.<t>, and a target can only
-# be refined after target-index.aon has defined it.
 @"./project.aon"
 
 # Documentation editions. Settings belong in project.aon.

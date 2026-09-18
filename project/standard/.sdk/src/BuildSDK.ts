@@ -31,7 +31,6 @@ const BuildSDK = cmp(function BuildSDK(props: any) {
   const ctx$ = props.ctx$
   const model: Model = ctx$.model
 
-  // TODO: should come from ctx$ options
   const sdkBuildFolder = '.sdk'
 
   const entityMap: ModelEntity = getModelPath(model, `main.${KIT}.entity`)
@@ -77,13 +76,6 @@ function makeEntityTestData(_model: Model, entity: ModelEntity) {
   const pathParams = collectEntityPathParams(entity)
 
   const hasEntId = null != (entity as any).id
-  // Some entities don't declare a top-level `id` field but still need an
-  // `id` value in their fixture: any entity that has a non-list op (remove,
-  // update, load) will hit `data["id"]` in the generated test code. The
-  // test mock is lenient about extra/missing path params, so synthesising
-  // an `id` here keeps tests green for entities like
-  //   `/{namespace}/{key}` (no `id` in URL) or `/{resource}/{id}`
-  // alongside the simple `{id}`-only case.
   const needsFixtureId = hasEntId || entityHasMutatingOp(entity)
 
   let i = 1
@@ -124,12 +116,6 @@ function makeEntityTestData(_model: Model, entity: ModelEntity) {
 }
 
 
-// Detect whether the entity has any op other than `list` (which doesn't
-// take a per-item id). Used to decide whether the fixture needs a
-// synthesised `id` — the test code for load/update/remove ops references
-// `data["id"]` unconditionally in Python (and similarly in other strict
-// languages), so the fixture must provide one even when the URL path
-// params are named differently (e.g. `/{namespace}/{key}`).
 function entityHasMutatingOp(entity: any): boolean {
   const ops = entity?.op || {}
   for (const opname of Object.keys(ops)) {
@@ -139,12 +125,6 @@ function entityHasMutatingOp(entity: any): boolean {
 }
 
 
-// Walk every op point on the entity, collect the names of path params, and
-// pair each with its canonical idmap value. The canonical value mirrors the
-// flow generator's path-param defaulting in apidef:
-//   `step.match[name] = name.replace(/_id$/,'') + '01'`
-// Then setup.idmap maps that lower ref to upper:  `company01 → COMPANY01`.
-// So the value seeded into existing test data is the upper form: `COMPANY01`.
 function collectEntityPathParams(entity: any): [string, string][] {
   const out = new Map<string, string>()
   const ops = entity?.op || {}

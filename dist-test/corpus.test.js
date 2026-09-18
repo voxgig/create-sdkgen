@@ -37,28 +37,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// Guards on the SHARED TEST CORPUS this package owns.
-//
-// project/standard/.sdk/test/primary/*.aon are language-neutral fixtures
-// that compile into the test.json every generated SDK's own suite executes.
-// They are the only mechanism proving that 22 language targets behave
-// identically, which makes two failure modes expensive:
-//
-//   1. A fixture that compiles to an EMPTY `set`. Runners iterate the set, so
-//      zero cases means the section reports PASS while asserting nothing.
-//      Eight fixtures shipped like that — including preparePath, the path
-//      templating step — and nothing flagged it.
-//   2. A fixture that is not registered in primary-test-index.aon, so it is
-//      never compiled into test.json at all.
-//
-// An intentionally-deferred section is fine; a silently-blank one is not. The
-// difference is the deferral marker asserted below.
-//
-// That marker is DATA (`basic: pending: '<reason>'`), not a comment. Comments
-// do not survive compilation to test.json, so a marker written only in the
-// .aon source cannot be checked by the runners that consume the corpus —
-// which is how seven sections stayed blank in a generated SDK while its own
-// suite reported green.
 const node_test_1 = require("node:test");
 const node_assert_1 = __importDefault(require("node:assert"));
 const Fs = __importStar(require("node:fs"));
@@ -66,12 +44,6 @@ const node_path_1 = __importDefault(require("node:path"));
 const aontu_1 = require("aontu");
 const PRIMARY = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'primary');
 const INDEX = node_path_1.default.join(PRIMARY, 'primary-test-index.aon');
-// The second corpus family: per-FEATURE behaviour cases. Same contract as
-// primary/ — language-neutral data, compiled into the same test.json, run by
-// each target against a REAL generated SDK — so the same guards apply. They
-// are separate directories because the two answer different questions: a
-// primary section pins one utility function, a feature section drives whole
-// operations through a client with the feature active.
 const FEATURE = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'feature');
 const FEATURE_INDEX = node_path_1.default.join(FEATURE, 'feature-test-index.aon');
 // The COMPILED corpus every generated SDK actually executes. It is a
@@ -80,21 +52,10 @@ const FEATURE_INDEX = node_path_1.default.join(FEATURE, 'feature-test-index.aon'
 // happened: preparePath's fixture and test.json disagreed and no test knew.
 const TEST_JSON = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'test.json');
 const CI = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.github', 'workflows', 'ci.yml');
-// Sections deliberately empty. Each MUST carry a `basic: pending` reason, so
-// the gap is reviewable rather than accidental. Keep in step with the PENDING
-// lists in the language runners (tm/go/test/runner_test.go,
-// tm/ts/test/utility/PrimaryUtility.test.ts, tm/rust/tests/common/mod.rs).
-//
-// makePoint is NOT here any more. Its note claimed it needed "an op with
-// points plus SDK options.allow.op, i.e. a real client"; it does not. Context
-// rebuilds `op` from opname + entity + config.entity.<n>.op.<n>.points, and
-// `options` can be supplied literally, so all seven branches are expressible
-// as data. It now carries real cases.
 const PENDING = [
     'fetcher', 'makeFetchDef', 'makeResult',
     'featureAdd', 'featureHook', 'featureInit',
 ];
-// The fixtures in one corpus directory, index file excluded.
 function namesIn(dir, index) {
     return Fs.readdirSync(dir)
         .filter((f) => f.endsWith('.aon') && index !== f)
@@ -107,9 +68,6 @@ function fixtureNames() {
 function featureNames() {
     return namesIn(FEATURE, 'feature-test-index.aon');
 }
-// Deep copy with object keys sorted, array order preserved. aontu and the
-// model builder agree on the DATA but not on key order, so a raw deep-equal
-// would report 14 sections as drifted when nothing has changed.
 function canonical(v) {
     if (Array.isArray(v)) {
         return v.map(canonical);
@@ -160,9 +118,6 @@ function compileFeature(name) {
         }
     });
     (0, node_test_1.test)('the PENDING list and the fixtures agree', () => {
-        // Two places state which sections are deferred: this list (mirrored into
-        // the language runners) and the fixtures themselves. If they drift, one of
-        // them is lying — and the runners follow the list, not the fixture.
         const declared = [...PENDING].sort();
         const marked = fixtureNames()
             .filter((n) => 'string' === typeof compile(n).basic.pending)
@@ -201,29 +156,6 @@ function compileFeature(name) {
         node_assert_1.default.deepEqual(missing, [], 'index references fixtures that do not exist');
     });
     (0, node_test_1.test)('the compiled test.json matches its .aon sources', () => {
-        // Generated SDKs execute test.json, NOT the fixtures. An edited fixture
-        // that was never recompiled changes nothing for any target.
-        //
-        // Compare CONTENT, not just case counts: correcting one expected value in
-        // an existing case — the most likely edit — leaves the count identical, so
-        // a length check would pass while every target still asserted the old
-        // value. That is the same "green while checking nothing" failure this
-        // suite exists to prevent.
-        //
-        // Comparison is canonical (object keys sorted, array order preserved):
-        // aontu and the model builder emit the same data with different key
-        // ordering, which is not drift.
-        //
-        // Compared WHOLE, not just `.basic` - the same rule the feature check
-        // below already follows, and for the same reason. A primary fixture
-        // carries a `DEF` block that the cases do not: the setup options every
-        // case in that section runs against. `.basic` alone cannot see it, and it
-        // drifted exactly there - prepareAuth's fixture pins
-        // `setup.a.auth = {prefix:'', basic:false}` so the section tests raw
-        // single-token mechanics instead of inheriting whatever a given SDK's
-        // real spec declares, and test.json carried no `auth` key at all. Every
-        // target ran the section with different setup from the one its fixture
-        // documents, and this test reported the corpus as matching its sources.
         const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'));
         node_assert_1.default.ok(compiled?.primary, 'test.json has no primary section');
         const drift = [];
@@ -319,14 +251,6 @@ function compileFeature(name) {
         node_assert_1.default.deepEqual(missing, [], 'index references fixtures that do not exist');
     });
     (0, node_test_1.test)('the compiled test.json matches its .aon sources', () => {
-        // Same reason as the primary check: generated SDKs execute test.json, not
-        // the fixtures, so an uncompiled edit changes nothing for any target.
-        //
-        // Compared WHOLE, not just `.basic`. A feature section carries top-level
-        // metadata the cases do not — `partial`, and whatever a later section
-        // adds — and a `.basic`-only comparison lets that drift silently: the
-        // fixture says one thing, every generated SDK reads another, and this
-        // test still reports the compiled corpus as matching its sources.
         const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'));
         node_assert_1.default.ok(compiled?.feature, 'test.json has no feature section — is feature-test-index.aon included ' +
             'from test.aon?');
@@ -361,9 +285,6 @@ function compileFeature(name) {
             'back, patching only the changed sections');
     });
     (0, node_test_1.test)('cost is covered — it is the case the corpus route was proved on', () => {
-        // Regression pin, like makePoint and preparePath above. cost is the only
-        // feature using BOTH seams (it wraps the transport AND hooks the
-        // pipeline), so its cases are what keep the two halves honest.
         const set = compileFeature('cost').basic.set;
         node_assert_1.default.ok(10 <= set.length, 'cost needs its branches covered');
         const names = set.map((e) => String(e.name || ''));
@@ -375,8 +296,6 @@ function compileFeature(name) {
         ]) {
             node_assert_1.default.ok(names.some((n) => re.test(n)), `cost: ${what} is not asserted`);
         }
-        // Every case must actually drive an operation, or it asserts the record's
-        // initial state and nothing else.
         for (const e of set) {
             node_assert_1.default.ok(Array.isArray(e.op) && 0 < e.op.length, `cost: case "${e.name}" runs no operation`);
             node_assert_1.default.ok(null != e.out, `cost: case "${e.name}" asserts nothing`);

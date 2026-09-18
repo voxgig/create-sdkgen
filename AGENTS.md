@@ -279,3 +279,11 @@ Customise templates in `.sdk/tm/edition/` and add authored Markdown in
 `.sdk/doc/content/`. SDK README generation remains a separate SDK phase.
 The [docgen guide](https://github.com/voxgig/docgen) describes the model,
 local assets, presentation builds, and Vale text QA.
+
+## Source code comments
+
+Follow [COMMENT-POLICY.md](COMMENT-POLICY.md): comments are sparse and terse,
+only for intricate or surprising code. Names carry intent; documents carry
+requirements. Run `make comments comments-test` after editing source.
+
+Durable implementation rationale is in [COMMENT-NOTES.md](COMMENT-NOTES.md).

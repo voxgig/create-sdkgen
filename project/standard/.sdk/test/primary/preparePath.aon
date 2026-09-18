@@ -1,11 +1,4 @@
 
-# preparePath: join ctx.point.parts with '/', dropping empty segments.
-#
-# Path templating is the highest-risk request-shaping step, and this fixture
-# was an empty `set: []` — so every language "passed" it while running zero
-# cases. The cases below were lifted from the per-language hand-written tests
-# (go/py) that had drifted out of the shared corpus, plus the empty/blank
-# segment edges that `join(..., true)` is specifically responsible for.
 
 basic: set: [
   # Multi-segment path, placeholder left intact (params are substituted later,

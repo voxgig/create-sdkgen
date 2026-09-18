@@ -1,22 +1,4 @@
 
-# makePoint chooses which endpoint definition ("point") an operation call
-# should use, and records it on ctx.point.
-#
-# The whole selection is driven by DATA: `op` is rebuilt by Context from
-# `opname` + `entity.name` + `config.entity.<name>.op.<opname>.points`, and
-# `options.allow.op` gates the call. So every branch below is expressible as
-# a literal ctx, contrary to the deferral note this fixture used to carry,
-# which claimed it needed a real client.
-#
-# Errors are RETURNED, not thrown, and their JSON embeds a random ctx id, so
-# the error cases assert `match: out: code` rather than a whole-value `out`.
-# Go returns the error as a second result instead, and its runner normalises
-# it to the same `{code}` shape.
-#
-# `allow.op` is a COMMA-SEPARATED STRING, not a list — that is what the client
-# actually carries. Go reads it with strings.Contains and type-asserts to
-# string, so a list here silently denies every operation; TS's .includes()
-# accepts either and would have hidden the mismatch.
 
 basic: set: [
 
@@ -59,8 +41,6 @@ basic: set: [
     match: { out: { code: 'point_no_points' } }
   }
 
-  # Two points: `select.exist` picks the one whose required keys are present
-  # in the match. `id` is supplied, so the by-id point wins.
   {
     ctx: {
       opname: 'list'
@@ -75,8 +55,6 @@ basic: set: [
     out: { method: 'GET', path: ['byid'], select: { exist: ['id'] } }
   }
 
-  # Same two points, but `id` is absent — the exist check fails and selection
-  # falls through to the unconstrained point.
   {
     ctx: {
       opname: 'list'

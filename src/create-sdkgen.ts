@@ -45,8 +45,6 @@ const { names, Jostraca } = JostracaModule
 const SDK_FOLDER = '.sdk'
 
 
-// TODO: CreateSdkGen opts and generate opts should be mostly the same, and
-// generate should override
 function CreateSdkGen(opts: FullCreateSdkGenOptions) {
   const fs = opts.fs || Fs
 
@@ -107,12 +105,6 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
       folder,
       log: log.child({ cmp: 'jostraca' }),
       meta: { spec },
-      // Overwrite the scaffolded project (.sdk components, templates, build
-      // config) rather than 3-way merge. The scaffold is toolchain-derived and
-      // not hand-edited; merging against a drifting .jostraca base keeps STALE
-      // components/templates on a toolchain bump (so a fix never propagates) and
-      // can inject <<<<<<< markers. See @voxgig/sdkgen
-      // docs/explanation/regeneration-overwrite.md.
       existing: {
         txt: {
           write: true,
@@ -166,7 +158,6 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
     projectFolder = Path.resolve(Path.join(__dirname, 'project', spec.project))
 
-    // TODO: support auto install project npm package (specific version) in a special cache folder
 
     if (!fs.existsSync(projectFolder)) {
       projectFolder = spec.project
@@ -275,17 +266,6 @@ async function installNpm(spec: GenerateSpec, opts: any, model: any) {
     await runNpm(['install'], spawn_opts)
   }
 
-  // `-t` / `-f` are INDEPENDENT of `--no-install`: the documented contract is
-  // that --no-install skips `npm install`, not that it drops the requested
-  // targets and features. Adding them is still valid without an install when
-  // the project already has its toolchain (re-scaffolding an existing folder
-  // is a supported flow — "if run against an existing folder generated files
-  // will be overwritten").
-  //
-  // They ARE npm run scripts that resolve @voxgig/sdkgen from node_modules, so
-  // without one they cannot work. Fail with an actionable message rather than
-  // the raw module-resolution error — and rather than silently skipping, which
-  // reports success while leaving config.aon without the requested entries.
   const wanted = [
     (spec.target ?? []).length ? '--target' : '',
     (spec.feature ?? []).length ? '--feature' : '',
@@ -342,21 +322,6 @@ async function installFeatures(spec: GenerateSpec, opts: any, model: any, spawn_
 }
 
 
-/*
-function logfiles(info: any, log: ReturnType<typeof Pino>) {
-  const cwd = process.cwd()
-
-    ; Object.keys(info.files).map(action => {
-      let entries = info.files[action]
-      if (0 < entries.length) {
-        log.debug({
-          point: 'file-' + action, entries,
-          note: '\n' + entries.map((n: any) => n.replace(cwd, '.')).join('\n')
-        })
-      }
-    })
-}
-*/
 
 export type {
   CreateSdkGenOptions,
