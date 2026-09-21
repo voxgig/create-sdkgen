@@ -110,9 +110,9 @@ function makeEntityTestData(_model: Model, entity: ModelEntity) {
   // here made the test data a second copy of the model's own copy of them.
   data.requests = {}
   for (const op of Object.values(entity.op || {}) as any[]) for (const point of op.points || []) {
-    if (point.contract) data.requests[point.contract.id] = {
-      provenance: 'operation-contract', version: point.contract.version,
-      source: point.contract.source,
+    if (point.co) data.requests[point.co.id] = {
+      provenance: 'operation-contract', version: point.co.version,
+      source: point.co.source,
     }
   }
   return data
@@ -135,17 +135,17 @@ function collectEntityPathParams(entity: any): [string, string][] {
     const op = ops[opname]
     const points = op?.points || []
     for (const point of points) {
-      const params = point?.args?.params || []
-      const renameMap: Record<string, string> = point?.rename?.param || {}
+      const params = point?.g?.params || []
+      const renameMap: Record<string, string> = point?.r?.param || {}
       for (const param of params) {
-        if (!param?.name) continue
-        if ('id' === param.name) continue
+        if (!param?.n) continue
+        if ('id' === param.n) continue
         // Skip params that ARE the entity's own id under URL rename.
-        const camel = lcf(camelify(param.name))
+        const camel = lcf(camelify(param.n))
         if ('id' === renameMap[camel]) continue
-        if (out.has(param.name)) continue
-        const baseName = param.name.replace(/_id$/, '')
-        out.set(param.name, baseName.toUpperCase() + '01')
+        if (out.has(param.n)) continue
+        const baseName = param.n.replace(/_id$/, '')
+        out.set(param.n, baseName.toUpperCase() + '01')
       }
     }
   }
@@ -157,15 +157,15 @@ function makeEntityTestFields(entity: ModelEntity, start: number, entdata: Recor
   entdata = entdata ?? {}
   let num = (start * size(entity.fields) * 10)
   each(entity.fields, (field: ModelField) => {
-    entdata[field.name] =
-      field.name.endsWith('_id') ?
-        field.name.substring(0, field.name.length - 3).toUpperCase() + '01' :
-        ['`$NUMBER`', '`$INTEGER`'].includes(field.type) ? num :
-          '`$BOOLEAN`' === field.type ? 0 === num % 2 :
-            '`$OBJECT`' === field.type ? {} :
-              '`$MAP`' === field.type ? {} :
-                '`$ARRAY`' === field.type ? [] :
-                  '`$LIST`' === field.type ? [] :
+    entdata[field.n] =
+      field.n.endsWith('_id') ?
+        field.n.substring(0, field.n.length - 3).toUpperCase() + '01' :
+        ['`$NUMBER`', '`$INTEGER`'].includes(field.t) ? num :
+          '`$BOOLEAN`' === field.t ? 0 === num % 2 :
+            '`$OBJECT`' === field.t ? {} :
+              '`$MAP`' === field.t ? {} :
+                '`$ARRAY`' === field.t ? [] :
+                  '`$LIST`' === field.t ? [] :
                     's' + (num.toString(16))
     num++
   })
