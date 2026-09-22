@@ -21,7 +21,8 @@ positive and negative tests, including the repository gate. CI runs both on
 pushes and pull requests. `make hooks` installs the tracked pre-push hook;
 Node.js and Git are required, and a missing Node.js fails the hook.
 
-The automated scope covers `.ts`, `.go`, `.rs`, `.aon`, and `.aontu`, including
+The automated scope covers `.ts`, `.go`, `.rs`, and `.aontu` — plus the retired
+`.aon`, so a stray model file is not silently unchecked — including
 authored models, test corpora and generator templates. Other languages follow
 the written policy through review. JavaScript build/release tooling is outside
 the automated scope, as in Aontu. Tracked and unignored new files are checked;

@@ -14,7 +14,7 @@ const STANDARD = Path.resolve(__dirname, '..', 'project', 'standard')
 function aontuFiles(dir: string): string[] {
   return Fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? aontuFiles(Path.join(dir, e.name)) :
-      e.name.endsWith('.aon') ? [Path.join(dir, e.name)] : [])
+      e.name.endsWith('.aontu') ? [Path.join(dir, e.name)] : [])
 }
 
 
@@ -32,7 +32,7 @@ describe('scaffold-aontu-syntax', () => {
 
   // A miswired path would make the test vacuously pass.
   test('the scaffold has model files to check', () => {
-    assert.ok(0 < files.length, `no .aon files under ${STANDARD}`)
+    assert.ok(0 < files.length, `no .aontu files under ${STANDARD}`)
   })
 
   test('no scaffolded model uses a slash comment', () => {

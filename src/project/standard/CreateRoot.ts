@@ -61,7 +61,7 @@ log/
 `
 
 
-const PROJECT_FILE = 'project.aon'
+const PROJECT_FILE = 'project.aontu'
 const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this file once and never
 # overwrites it, unlike every other file it writes.
 #
@@ -69,7 +69,7 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 # regenerated so that toolchain fixes propagate. Put anything here that is a
 # decision about THIS project rather than a fact about the API.
 #
-# Included LAST by sdk.aon, after target/target-index.aon, because a key
+# Included LAST by sdk.aontu, after target/target-index.aontu, because a key
 # under main.kit.target.<t> can only refine a target that has already been
 # defined. Declared earlier, the model build fails with "Cannot unify value:
 # nil with value: string / key ext value was: nil", which names nothing that
@@ -89,19 +89,19 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 `
 
 
-const GUIDE_FILE = 'guide.aon'
+const GUIDE_FILE = 'guide.aontu'
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE]
 
 
 function migrateOverlay(fs: any, dir: string, name: string): void {
-  const next = Path.join(dir, name + '.aon')
-  const prev = Path.join(dir, name + '.aontu')
+  const next = Path.join(dir, name + '.aontu')
+  const prev = Path.join(dir, name + '.aon')
   if (fs.existsSync(next) || !fs.existsSync(prev)) {
     return
   }
   try {
     const src = String(fs.readFileSync(prev))
-      .replace(/(@['"][^'"]+)\.aontu(['"])/g, '$1.aon$2')
+      .replace(/(@['"][^'"]+)\.aon(['"])/g, '$1.aontu$2')
     fs.writeFileSync(next, src)
     fs.unlinkSync(prev)
   }
