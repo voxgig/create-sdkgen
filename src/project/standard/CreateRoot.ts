@@ -64,11 +64,12 @@ log/
 
 const PROJECT_FILE = 'project.aontu'
 const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this file once and never
-# overwrites it, unlike every other file it writes.
+# overwrites it.
 #
-# Everything else under model/ is toolchain-derived and is deliberately
-# regenerated so that toolchain fixes propagate. Put anything here that is a
-# decision about THIS project rather than a fact about the API.
+# Most of model/ is toolchain-derived and is deliberately regenerated so that
+# toolchain fixes propagate; this file, the guide, and the target, feature and
+# edition indexes are kept. Put anything here that is a decision about THIS
+# project rather than a fact about the API.
 #
 # Included LAST by sdk.aontu, after target/target-index.aontu, because a key
 # under main.kit.target.<t> can only refine a target that has already been
