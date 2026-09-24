@@ -61,7 +61,7 @@ log/
 `
 
 
-const PROJECT_FILE = 'project.aon'
+const PROJECT_FILE = 'project.aontu'
 const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this file once and never
 # overwrites it, unlike every other file it writes.
 #
@@ -69,7 +69,7 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 # regenerated so that toolchain fixes propagate. Put anything here that is a
 # decision about THIS project rather than a fact about the API.
 #
-# Included LAST by sdk.aon, after target/target-index.aon, because a key
+# Included LAST by sdk.aontu, after target/target-index.aontu, because a key
 # under main.kit.target.<t> can only refine a target that has already been
 # defined. Declared earlier, the model build fails with "Cannot unify value:
 # nil with value: string / key ext value was: nil", which names nothing that
@@ -231,7 +231,7 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
         // so an ignored project.aontu silently resets every generated manifest
         // to the sdkgen default 0.0.1 — the exact bug fixed earlier this week.
         if (!spec.dryrun) {
-          migrateOverlay(fs, Path.dirname(projectPath), 'project', 'aontu', 'aon')
+          migrateOverlay(fs, Path.dirname(projectPath), 'project', 'aon', 'aontu')
         }
         const existingProject =
           fs.existsSync(projectPath) ? fs.readFileSync(projectPath, 'utf8') : null

@@ -56,7 +56,7 @@ function unquoted(line) {
     const files = aontuFiles(STANDARD);
     // A miswired path would make the test vacuously pass.
     (0, node_test_1.test)('the scaffold has model files to check', () => {
-        node_assert_1.default.ok(0 < files.length, `no .aon files under ${STANDARD}`);
+        node_assert_1.default.ok(0 < files.length, `no model files under ${STANDARD}`);
         node_assert_1.default.ok(files.some((file) => file.endsWith('.aontu')), `no .aontu files under ${STANDARD}`);
     });
     (0, node_test_1.test)('no scaffolded model uses a slash comment', () => {

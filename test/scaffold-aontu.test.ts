@@ -32,7 +32,7 @@ describe('scaffold-aontu-syntax', () => {
 
   // A miswired path would make the test vacuously pass.
   test('the scaffold has model files to check', () => {
-    assert.ok(0 < files.length, `no .aon files under ${STANDARD}`)
+    assert.ok(0 < files.length, `no model files under ${STANDARD}`)
     assert.ok(files.some((file) => file.endsWith('.aontu')),
       `no .aontu files under ${STANDARD}`)
   })

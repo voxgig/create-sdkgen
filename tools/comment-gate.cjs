@@ -8,7 +8,9 @@ const REPO = Path.join(__dirname, '..')
 const Child = require('node:child_process')
 const CONFIG = require('./comment-scope.json')
 
-const SOURCE_EXTS = ['.ts', '.go', '.rs', '.aon', '.aontu']
+// `.aon` is a RETIRED extension, still gated so a stray model file is not
+// silently unchecked; `.aontu` is the only one written.
+const SOURCE_EXTS = ['.ts', '.go', '.rs', '.aontu', '.aon']
 const SKIP_DIRS = new Set([
   'node_modules', 'dist', 'dist-test', 'covdata', 'target', 'vendor', '.git',
 ])
