@@ -1,6 +1,6 @@
 
 # Model definitions.
-@"@voxgig/apidef/model/apidef.aon"
+@"@voxgig/apidef/model/apidef.aontu"
 @"@voxgig/sdkgen/model/sdkgen.aon"
 
 
@@ -10,7 +10,7 @@ def: 'DEF'
 
 
 # API Information
-@"api/api-info.aon"
+@"api/api-info.aontu"
 
 
 # SDK Configuration.
@@ -18,7 +18,7 @@ def: 'DEF'
 
 
 # SDK Entities
-@"entity/entity-index.aon"
+@"entity/entity-index.aontu"
 
 
 # SDK Features.
@@ -30,7 +30,7 @@ def: 'DEF'
 
 
 # Operation workflows.
-@"flow/flow-index.aon"
+@"flow/flow-index.aontu"
 
 
 @"./project.aon"

@@ -73,18 +73,19 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 #
 #   main: kit: target: ts: publish: registry: package: '@scope/name'
 `;
-const GUIDE_FILE = 'guide.aon';
+const GUIDE_FILE = 'guide.aontu';
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE];
-function migrateOverlay(fs, dir, name) {
-    const next = node_path_1.default.join(dir, name + '.aon');
-    const prev = node_path_1.default.join(dir, name + '.aontu');
+function renameIncludes(src, from, to) {
+    return src.replace(new RegExp(`(@['"][^'"]+)\\.${from}(['"])`, 'g'), `$1.${to}$2`);
+}
+function migrateOverlay(fs, dir, name, from, to) {
+    const next = node_path_1.default.join(dir, name + '.' + to);
+    const prev = node_path_1.default.join(dir, name + '.' + from);
     if (fs.existsSync(next) || !fs.existsSync(prev)) {
         return;
     }
     try {
-        const src = String(fs.readFileSync(prev))
-            .replace(/(@['"][^'"]+)\.aontu(['"])/g, '$1.aon$2');
-        fs.writeFileSync(next, src);
+        fs.writeFileSync(next, renameIncludes(String(fs.readFileSync(prev)), from, to));
         fs.unlinkSync(prev);
     }
     catch (_err) {
@@ -172,7 +173,9 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
                 // Same hazard, worse symptom: this file carries the release version,
                 // so an ignored project.aontu silently resets every generated manifest
                 // to the sdkgen default 0.0.1 — the exact bug fixed earlier this week.
-                migrateOverlay(fs, node_path_1.default.dirname(projectPath), 'project');
+                if (!spec.dryrun) {
+                    migrateOverlay(fs, node_path_1.default.dirname(projectPath), 'project', 'aontu', 'aon');
+                }
                 const existingProject = fs.existsSync(projectPath) ? fs.readFileSync(projectPath, 'utf8') : null;
                 (0, jostraca_1.File)({ name: PROJECT_FILE }, () => {
                     (0, jostraca_1.Content)(null == existingProject ? PROJECT_STUB : existingProject);
@@ -184,9 +187,13 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
                     const guideTemplate = fs.readFileSync(node_path_1.default.join(from, spec.sdk_folder, ...GUIDE_REL), 'utf8');
                     const guidePath = node_path_1.default.join(folder, spec.sdk_folder, ...GUIDE_REL);
                     // Before the merge looks for it — otherwise a project whose guide is
-                    // still named .aontu reads as having no overlay at all.
-                    migrateOverlay(fs, node_path_1.default.dirname(guidePath), 'guide');
-                    const existingGuide = fs.existsSync(guidePath) ? fs.readFileSync(guidePath, 'utf8') : null;
+                    // still named .aon reads as having no overlay at all.
+                    if (!spec.dryrun) {
+                        migrateOverlay(fs, node_path_1.default.dirname(guidePath), 'guide', 'aon', 'aontu');
+                    }
+                    // An entry already named .aontu can still include a retired .aon file.
+                    const existingGuide = fs.existsSync(guidePath) ?
+                        renameIncludes(fs.readFileSync(guidePath, 'utf8'), 'aon', 'aontu') : null;
                     (0, jostraca_1.File)({ name: GUIDE_FILE }, () => {
                         (0, jostraca_1.Content)(mergeGuide(existingGuide, guideTemplate));
                     });
