@@ -75,6 +75,8 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 `;
 const GUIDE_FILE = 'guide.aontu';
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE];
+const INDEX_KINDS = ['target', 'feature', 'edition'];
+const indexFile = (kind) => kind + '-index.aontu';
 function renameIncludes(src, from, to) {
     return src.replace(new RegExp(`(@['"][^'"]+)\\.${from}(['"])`, 'g'), `$1.${to}$2`);
 }
@@ -138,9 +140,10 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
     (0, jostraca_1.Project)({ folder }, () => {
         const from = node_path_1.default.resolve(node_path_1.default.join(__dirname, '..', '..', '..', 'project', 'standard'));
         const guideExclude = [spec.sdk_folder, ...GUIDE_REL].join('/');
+        const indexExclude = INDEX_KINDS.map((kind) => [spec.sdk_folder, 'model', kind, indexFile(kind)].join('/'));
         (0, jostraca_1.Copy)({
             from,
-            exclude: [/\.fragment\./, guideExclude, /^\.sdk\/admin\/.*\.sh$/]
+            exclude: [/\.fragment\./, guideExclude, ...indexExclude, /^\.sdk\/admin\/.*\.sh$/]
         });
         (0, jostraca_1.File)({ name: '.gitignore' }, () => {
             (0, jostraca_1.Content)(GITIGNORE_TOP);
@@ -184,6 +187,19 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
                 (0, jostraca_1.File)({ name: PROJECT_FILE }, () => {
                     (0, jostraca_1.Content)(null == existingProject ? PROJECT_STUB : existingProject);
                 });
+                // `target add`, `feature add` and docgen register their items here, and
+                // docgen bootstraps only once, so a reset index would lose them for good.
+                for (const kind of INDEX_KINDS) {
+                    (0, jostraca_1.Folder)({ name: kind }, () => {
+                        const name = indexFile(kind);
+                        const indexPath = node_path_1.default.join(folder, spec.sdk_folder, 'model', kind, name);
+                        (0, jostraca_1.File)({ name }, () => {
+                            (0, jostraca_1.Content)(fs.existsSync(indexPath) ?
+                                fs.readFileSync(indexPath, 'utf8') :
+                                fs.readFileSync(node_path_1.default.join(from, spec.sdk_folder, 'model', kind, name), 'utf8'));
+                        });
+                    });
+                }
                 // Re-emit the guide the Copy skipped, merged over whatever is already
                 // there. On a fresh scaffold there is no existing file and this writes
                 // the template unchanged; on a re-scaffold the user's overlay survives.

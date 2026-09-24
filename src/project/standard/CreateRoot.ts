@@ -92,6 +92,9 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 const GUIDE_FILE = 'guide.aontu'
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE]
 
+const INDEX_KINDS = ['target', 'feature', 'edition']
+const indexFile = (kind: string) => kind + '-index.aontu'
+
 
 function renameIncludes(src: string, from: string, to: string): string {
   return src.replace(new RegExp(`(@['"][^'"]+)\\.${from}(['"])`, 'g'), `$1.${to}$2`)
@@ -181,10 +184,12 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
 
 
     const guideExclude = [spec.sdk_folder, ...GUIDE_REL].join('/')
+    const indexExclude = INDEX_KINDS.map((kind: string) =>
+      [spec.sdk_folder, 'model', kind, indexFile(kind)].join('/'))
 
     Copy({
       from,
-      exclude: [/\.fragment\./, guideExclude, /^\.sdk\/admin\/.*\.sh$/]
+      exclude: [/\.fragment\./, guideExclude, ...indexExclude, /^\.sdk\/admin\/.*\.sh$/]
     })
 
     File({ name: '.gitignore' }, () => {
@@ -239,6 +244,20 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
         File({ name: PROJECT_FILE }, () => {
           Content(null == existingProject ? PROJECT_STUB : existingProject)
         })
+
+        // `target add`, `feature add` and docgen register their items here, and
+        // docgen bootstraps only once, so a reset index would lose them for good.
+        for (const kind of INDEX_KINDS) {
+          Folder({ name: kind }, () => {
+            const name = indexFile(kind)
+            const indexPath = Path.join(folder, spec.sdk_folder, 'model', kind, name)
+            File({ name }, () => {
+              Content(fs.existsSync(indexPath) ?
+                fs.readFileSync(indexPath, 'utf8') :
+                fs.readFileSync(Path.join(from, spec.sdk_folder, 'model', kind, name), 'utf8'))
+            })
+          })
+        }
 
         // Re-emit the guide the Copy skipped, merged over whatever is already
         // there. On a fresh scaffold there is no existing file and this writes

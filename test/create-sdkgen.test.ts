@@ -408,6 +408,55 @@ describe('project-overlay', () => {
 })
 
 
+describe('index-preservation', () => {
+
+  const TEMPLATE_MODEL = Path.resolve(
+    __dirname, '..', 'project', 'standard', '.sdk', 'model')
+
+  // What `target add`, `feature add` and docgen's first install leave behind.
+  const ADDED: Record<string, string> = {
+    target: '# SDK Targets.\n\n\n@"./ts.aontu"',
+    feature: '# Features\n\n\n\n@"./test.aontu"',
+    edition: '# Populated by docgen when the project toolchain is installed.\n\n' +
+      '@"./summary.aontu"\n\n@"./github-pages.aontu"\n',
+  }
+
+  const indexRel = (kind: string) =>
+    Path.join('.sdk', 'model', kind, kind + '-index.aontu')
+
+  async function rescaffold(s: any) {
+    await CreateSdkGen({ debug: 'warn' } as any).generate({
+      root: 'CreateRoot', name: 'petstore', def: Path.join(s.work, 'petstore.yml'),
+      project: 'standard', folder: s.out, install: false,
+    } as any)
+  }
+
+  test('a fresh scaffold writes each index placeholder', async () => {
+    const s = await scaffold()
+    for (const kind of Object.keys(ADDED)) {
+      assert.equal(s.read(indexRel(kind)),
+        Fs.readFileSync(Path.join(TEMPLATE_MODEL, kind, kind + '-index.aontu'), 'utf8'),
+        kind + ' index')
+    }
+  })
+
+  test('a re-scaffold keeps every target, feature and edition entry', async () => {
+    const s = await scaffold()
+    for (const [kind, content] of Object.entries(ADDED)) {
+      Fs.writeFileSync(Path.join(s.out, indexRel(kind)), content)
+    }
+
+    await rescaffold(s)
+
+    // docgen records its bootstrap and never re-adds an edition, so a reset
+    // index would drop every one of them from the model for good.
+    for (const [kind, content] of Object.entries(ADDED)) {
+      assert.equal(s.read(indexRel(kind)), content, kind + ' index must survive')
+    }
+  })
+})
+
+
 describe('overlay-extension-migration', () => {
 
   const GUIDE = Path.join('.sdk', 'model', 'guide', 'guide.aontu')

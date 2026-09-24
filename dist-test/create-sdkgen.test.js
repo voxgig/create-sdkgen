@@ -325,6 +325,41 @@ async function scaffold(over = {}) {
         node_assert_1.default.match(s.read(SDK_REL), /def: 'petstore-v2-swagger-2\.0\.yml'/);
     });
 });
+(0, node_test_1.describe)('index-preservation', () => {
+    const TEMPLATE_MODEL = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'model');
+    // What `target add`, `feature add` and docgen's first install leave behind.
+    const ADDED = {
+        target: '# SDK Targets.\n\n\n@"./ts.aontu"',
+        feature: '# Features\n\n\n\n@"./test.aontu"',
+        edition: '# Populated by docgen when the project toolchain is installed.\n\n' +
+            '@"./summary.aontu"\n\n@"./github-pages.aontu"\n',
+    };
+    const indexRel = (kind) => node_path_1.default.join('.sdk', 'model', kind, kind + '-index.aontu');
+    async function rescaffold(s) {
+        await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
+            root: 'CreateRoot', name: 'petstore', def: node_path_1.default.join(s.work, 'petstore.yml'),
+            project: 'standard', folder: s.out, install: false,
+        });
+    }
+    (0, node_test_1.test)('a fresh scaffold writes each index placeholder', async () => {
+        const s = await scaffold();
+        for (const kind of Object.keys(ADDED)) {
+            node_assert_1.default.equal(s.read(indexRel(kind)), Fs.readFileSync(node_path_1.default.join(TEMPLATE_MODEL, kind, kind + '-index.aontu'), 'utf8'), kind + ' index');
+        }
+    });
+    (0, node_test_1.test)('a re-scaffold keeps every target, feature and edition entry', async () => {
+        const s = await scaffold();
+        for (const [kind, content] of Object.entries(ADDED)) {
+            Fs.writeFileSync(node_path_1.default.join(s.out, indexRel(kind)), content);
+        }
+        await rescaffold(s);
+        // docgen records its bootstrap and never re-adds an edition, so a reset
+        // index would drop every one of them from the model for good.
+        for (const [kind, content] of Object.entries(ADDED)) {
+            node_assert_1.default.equal(s.read(indexRel(kind)), content, kind + ' index must survive');
+        }
+    });
+});
 (0, node_test_1.describe)('overlay-extension-migration', () => {
     const GUIDE = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
     const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
