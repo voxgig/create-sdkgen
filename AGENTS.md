@@ -28,6 +28,16 @@ If you are here to **modify the generator itself** (templates, components,
 language targets), you want [`@voxgig/sdkgen`'s AGENTS.md](https://github.com/voxgig/sdkgen/blob/main/AGENTS.md)
 instead — this guide is about *consuming* the generator to produce an SDK.
 
+## Status output from long-running work
+
+Every transient task reports its status at least every 30 seconds, even if
+the report is one line, with a percentage-complete estimate wherever one can
+be computed (items done of items total, phases done of phases). That covers a
+build, a test or validation run, a script, a background agent, and a wait on
+CI or a release. It covers an agent's own updates to the person it works for
+too: relay progress at the same cadence rather than going quiet until the
+work is done. Silence longer than that cannot be told apart from a hang.
+
 ---
 
 ## Mental model
@@ -41,7 +51,7 @@ OpenAPI 3 spec  ──apidef──▶  model (.sdk/model/)         ──sdkgen�
 ```
 
 - **`@voxgig/apidef`** parses your OpenAPI spec into the model (entities, ops, fields, types). See [apidef/AGENTS.md](https://github.com/voxgig/apidef/blob/main/AGENTS.md).
-- **The model** (`.sdk/model/`, unified by `aontu`) is what you edit to shape the SDK. Every file apidef ships or writes is `.aontu` (entities, flows, API info, the guide); the scaffold's own files (`sdk.aon`, `config.aon`, `project.aon`, the target/feature/edition indexes) are `.aon`.
+- **The model** (`.sdk/model/`, unified by `aontu`) is what you edit to shape the SDK. Every model file is `.aontu`, the only extension aontu reads (it refuses an include that names a `.aon` file): what apidef writes (entities, flows, API info, the guide), the scaffold's own files (`sdk.aontu`, `config.aontu`, `project.aontu`), and the target/feature/edition indexes and items that sdkgen and docgen write. A project from before the rename is migrated by re-scaffolding it (see "Re-scaffolding an existing project" below).
 - **`@voxgig/sdkgen`** renders the model into idiomatic per-language SDK source via `jostraca`. See [sdkgen/AGENTS.md](https://github.com/voxgig/sdkgen/blob/main/AGENTS.md).
 
 The API surface is exposed as **semantic entities** (Capitalised — e.g.
@@ -52,7 +62,7 @@ it actually has, drawn from `list`, `load`, `create`, `update`, `remove`.
 
 ## Prerequisites
 
-- Node.js (recent LTS).
+- Node.js 24 or later (the floor aontu and sdkgen declare).
 - An **OpenAPI 3** spec for your API (`.yaml` or `.json`).
 - That's it — the toolchain is npm packages; no other services required to generate + test offline.
 
@@ -86,7 +96,7 @@ npx voxgig-sdkgen feature add test                 # offline test mode — REQUI
 ```
 
 Available targets include `ts`, `js`, `py`, `go`, `php`, `rb`, `lua`, plus
-`go-cli` and `go-mcp`. `target add` / `feature add` edit `.sdk/model/target/target-index.aon` / `.sdk/model/feature/feature-index.aon`.
+`go-cli` and `go-mcp`. `target add` / `feature add` write `.sdk/model/target/<name>.aontu` / `.sdk/model/feature/<name>.aontu` and register each in `target-index.aontu` / `feature-index.aontu` beside it.
 
 ### 3. Generate the SDK source
 
@@ -96,7 +106,7 @@ npm run generate
 
 `generate` first compiles the `.sdk` build sources (`tsc --build src` —
 required; `voxgig-model` loads the compiled `.sdk/dist/` components), then
-runs `voxgig-model model/sdk.aon`, which compiles the model (`aontu`
+runs `voxgig-model model/sdk.aontu`, which compiles the model (`aontu`
 unification) and runs the generator, writing SDK source into the
 per-language directories (`../ts`, `../py`, …). Re-run this whenever you
 change the model.
@@ -124,10 +134,11 @@ Green tests mean the SDK works and its documentation is correct.
 
 | Path | Role | Edit it? |
 | --- | --- | --- |
-| `.sdk/model/sdk.aon` | Model entry — name, spec ref (`def`), imports | Yes (rarely) |
+| `.sdk/model/sdk.aontu` | Model entry — name, spec ref (`def`), imports; rewritten on re-scaffold | Rarely — put project decisions in `project.aontu` |
+| `.sdk/model/project.aontu` | Project overlay — release versions, published package names; kept on re-scaffold | Yes |
 | `.sdk/model/entity/*.aontu` | **Entities** — the semantic surface (ops, fields, types) | **Yes — this is the main lever** |
 | `.sdk/model/guide/guide.aontu` | Guide — corrections to how apidef reads the spec (entity names, active paths and ops); kept on re-scaffold | Yes |
-| `.sdk/model/target/`, `.sdk/model/feature/` | Active targets + features | Yes (or via `target add`/`feature add`) |
+| `.sdk/model/target/`, `.sdk/model/feature/`, `.sdk/model/edition/` | Active targets, features, documentation editions; the indexes are kept on re-scaffold | Yes (or via `target add`/`feature add`/`edition add`) |
 | `.sdk/model/api/*` | OpenAPI-derived info | Regenerated from the spec — avoid hand-editing |
 | `ts/  py/  go/  php/  rb/  lua/` | **Generated SDK source** | **Never** — overwritten on every generate |
 | `<target>/README.md`, `REFERENCE.md` | Generated docs | Never — driven by the model |
@@ -142,6 +153,24 @@ edit .sdk/model/entity/*.aontu  →  (cd .sdk && npm run generate)  →  re-run 
 ```
 
 Commit before regenerating — generation is destructive to the target dirs.
+
+### Re-scaffolding an existing project
+
+Re-run the same `create-sdkgen` command over the output directory to pick up
+a newer scaffold. It rewrites the scaffold's own files and leaves the
+project's alone: the guide, `project.aontu`, the target/feature/edition
+indexes and the items they name.
+
+It is also how a project from before the `.aontu` rename catches up: sdkgen
+4.25 and later refuse a project whose entry is still `sdk.aon`.
+Under `.sdk/model/` and `.sdk/test/`, a `.aon` file whose `.aontu` twin the
+scaffold writes is removed; every other `.aon` file (indexes, items, the
+project's own files) is renamed to `.aontu` with its content kept, and the
+include directives naming it are rewritten — nothing else in the file
+changes. If both names exist, the `.aontu` file wins and the `.aon` one is
+left. Anything that cannot be migrated, such as an include pointing outside
+`.sdk/`, is logged as a `migrate-aontu` warning naming the file; fix those by
+hand. Commit first, and read the diff.
 
 ---
 

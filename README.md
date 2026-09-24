@@ -59,6 +59,29 @@ Packagist, RubyGems, LuaRocks, or a Go module tag).
 The step-by-step tutorial, the model reference, and the generator's CLI flags
 are in the [sdkgen documentation](https://github.com/voxgig/sdkgen/tree/main/docs).
 
+## Re-scaffold an existing project
+
+Run the same command over the project's output directory to pick up a newer
+scaffold:
+
+```sh
+create-sdkgen my-api -d ./openapi.yaml -o ./my-api-sdk
+```
+
+A re-scaffold rewrites the scaffold's own files and keeps the project's: the
+guide in `.sdk/model/guide/`, the project overlay `.sdk/model/project.aontu`,
+and the target, feature, and edition indexes with the files they name.
+
+The same command brings a project from before the `.aontu` rename up to date,
+which it needs, because `aontu` now refuses to include a `.aon` file. The
+re-scaffold renames each `.aon` file under `.sdk/model/` and `.sdk/test/` to
+`.aontu`, or removes it where the scaffold writes its replacement, and updates
+every include that names a renamed file. Nothing else in a file changes. An
+include the scaffold can't update, such as one pointing outside `.sdk/`, gets
+a warning that names the file. Commit first, so the migration is a diff you
+can read. [`test/create-sdkgen.test.ts`](./test/create-sdkgen.test.ts) builds
+such a project and re-scaffolds it.
+
 ## The toolchain
 
 - **create-sdkgen** (this package) — scaffolds the project.

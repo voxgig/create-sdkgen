@@ -43,12 +43,12 @@ const Fs = __importStar(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const aontu_1 = require("aontu");
 const PRIMARY = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'primary');
-const INDEX = node_path_1.default.join(PRIMARY, 'primary-test-index.aon');
+const INDEX = node_path_1.default.join(PRIMARY, 'primary-test-index.aontu');
 const FEATURE = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'feature');
-const FEATURE_INDEX = node_path_1.default.join(FEATURE, 'feature-test-index.aon');
+const FEATURE_INDEX = node_path_1.default.join(FEATURE, 'feature-test-index.aontu');
 // The COMPILED corpus every generated SDK actually executes. It is a
 // committed artefact produced by `npm run test-model`, so it can silently
-// fall behind the .aon sources it is built from — which is exactly what
+// fall behind the .aontu sources it is built from — which is exactly what
 // happened: preparePath's fixture and test.json disagreed and no test knew.
 const TEST_JSON = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'test.json');
 const CI = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.github', 'workflows', 'ci.yml');
@@ -58,15 +58,15 @@ const PENDING = [
 ];
 function namesIn(dir, index) {
     return Fs.readdirSync(dir)
-        .filter((f) => f.endsWith('.aon') && index !== f)
-        .map((f) => f.replace(/\.aon$/, ''))
+        .filter((f) => f.endsWith('.aontu') && index !== f)
+        .map((f) => f.replace(/\.aontu$/, ''))
         .sort();
 }
 function fixtureNames() {
-    return namesIn(PRIMARY, 'primary-test-index.aon');
+    return namesIn(PRIMARY, 'primary-test-index.aontu');
 }
 function featureNames() {
-    return namesIn(FEATURE, 'feature-test-index.aon');
+    return namesIn(FEATURE, 'feature-test-index.aontu');
 }
 function canonical(v) {
     if (Array.isArray(v)) {
@@ -78,10 +78,10 @@ function canonical(v) {
     return v;
 }
 function compileIn(dir, name) {
-    const p = node_path_1.default.join(dir, name + '.aon');
+    const p = node_path_1.default.join(dir, name + '.aontu');
     const errs = [];
     const model = new aontu_1.Aontu().generate(Fs.readFileSync(p, 'utf8'), { path: p, errs });
-    node_assert_1.default.equal(errs.length, 0, `${name}.aon: ${errs.map((e) => `[${e.why}] ${e.msg}`).join(' | ')}`);
+    node_assert_1.default.equal(errs.length, 0, `${name}.aontu: ${errs.map((e) => `[${e.why}] ${e.msg}`).join(' | ')}`);
     return model;
 }
 function compile(name) {
@@ -112,9 +112,9 @@ function compileFeature(name) {
         // reach test.json, or the runners executing the corpus cannot see it.
         for (const name of PENDING) {
             const pending = compile(name).basic.pending;
-            node_assert_1.default.equal(typeof pending, 'string', `${name}.aon is deliberately empty but declares no ` +
+            node_assert_1.default.equal(typeof pending, 'string', `${name}.aontu is deliberately empty but declares no ` +
                 `\`basic: pending\` reason — a comment alone does not reach test.json`);
-            node_assert_1.default.ok(20 < pending.length, `${name}.aon: pending needs a reason, not just a marker`);
+            node_assert_1.default.ok(20 < pending.length, `${name}.aontu: pending needs a reason, not just a marker`);
         }
     });
     (0, node_test_1.test)('the PENDING list and the fixtures agree', () => {
@@ -145,17 +145,17 @@ function compileFeature(name) {
     (0, node_test_1.test)('every fixture is registered in the index', () => {
         const index = Fs.readFileSync(INDEX, 'utf8');
         for (const name of fixtureNames()) {
-            node_assert_1.default.match(index, new RegExp(`@"(?:\\./)?${name}\\.aon"`), `primary-test-index.aon missing @"${name}.aon" — the fixture ` +
+            node_assert_1.default.match(index, new RegExp(`@"(?:\\./)?${name}\\.aontu"`), `primary-test-index.aontu missing @"${name}.aontu" — the fixture ` +
                 `would never reach test.json`);
         }
     });
     (0, node_test_1.test)('the index registers nothing that does not exist', () => {
         const index = Fs.readFileSync(INDEX, 'utf8');
-        const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aon"/g)].map((m) => m[1]);
+        const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aontu"/g)].map((m) => m[1]);
         const missing = referenced.filter((n) => !fixtureNames().includes(n));
         node_assert_1.default.deepEqual(missing, [], 'index references fixtures that do not exist');
     });
-    (0, node_test_1.test)('the compiled test.json matches its .aon sources', () => {
+    (0, node_test_1.test)('the compiled test.json matches its .aontu sources', () => {
         const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'));
         node_assert_1.default.ok(compiled?.primary, 'test.json has no primary section');
         const drift = [];
@@ -224,7 +224,7 @@ function compileFeature(name) {
                 continue;
             }
             node_assert_1.default.equal(typeof partial, 'string', `${name}: partial must be a string`);
-            node_assert_1.default.ok(20 < partial.length, `${name}.aon: partial needs a reason, not just a marker`);
+            node_assert_1.default.ok(20 < partial.length, `${name}.aontu: partial needs a reason, not just a marker`);
         }
     });
     (0, node_test_1.test)('a section that runs does not also claim to be deferred', () => {
@@ -240,20 +240,20 @@ function compileFeature(name) {
     (0, node_test_1.test)('every fixture is registered in the index', () => {
         const index = Fs.readFileSync(FEATURE_INDEX, 'utf8');
         for (const name of featureNames()) {
-            node_assert_1.default.match(index, new RegExp(`@"(?:\\./)?${name}\\.aon"`), `feature-test-index.aon missing @"${name}.aon" — the fixture would ` +
+            node_assert_1.default.match(index, new RegExp(`@"(?:\\./)?${name}\\.aontu"`), `feature-test-index.aontu missing @"${name}.aontu" — the fixture would ` +
                 `never reach test.json`);
         }
     });
     (0, node_test_1.test)('the index registers nothing that does not exist', () => {
         const index = Fs.readFileSync(FEATURE_INDEX, 'utf8');
-        const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aon"/g)].map((m) => m[1]);
+        const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aontu"/g)].map((m) => m[1]);
         const missing = referenced.filter((n) => !featureNames().includes(n));
         node_assert_1.default.deepEqual(missing, [], 'index references fixtures that do not exist');
     });
-    (0, node_test_1.test)('the compiled test.json matches its .aon sources', () => {
+    (0, node_test_1.test)('the compiled test.json matches its .aontu sources', () => {
         const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'));
-        node_assert_1.default.ok(compiled?.feature, 'test.json has no feature section — is feature-test-index.aon included ' +
-            'from test.aon?');
+        node_assert_1.default.ok(compiled?.feature, 'test.json has no feature section — is feature-test-index.aontu included ' +
+            'from test.aontu?');
         const drift = [];
         for (const name of featureNames()) {
             const wantWhole = compileFeature(name);

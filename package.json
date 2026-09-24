@@ -1,6 +1,6 @@
 {
   "name": "@voxgig/create-sdkgen",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "main": "dist/create-sdkgen.js",
   "type": "commonjs",
   "types": "dist/create-sdkgen.d.ts",
@@ -27,8 +27,8 @@
     "watch": "tsc --build src test -w",
     "build": "tsc --build src test",
     "scan-prose": "python3 tools/check_prose.py",
-    "test-model": "voxgig-model project/.sdk/test/test.aon",
-    "test-model-watch": "voxgig-model -w project/.sdk/test/test.aon",
+    "test-model": "voxgig-model project/.sdk/test/test.aontu",
+    "test-model-watch": "voxgig-model -w project/.sdk/test/test.aontu",
     "clean": "rm -rf dist dist-test node_modules yarn.lock package-lock.json",
     "reset": "npm run clean && npm i && npm run build && npm test",
     "repo-bump": "npm version patch --no-git-tag-version && node -e \"console.log('bumped to v' + require('./package.json').version + ' (package.json only - commit via repo-tag / repo-release)')\"",
@@ -56,7 +56,7 @@
   },
   "dependencies": {
     "@voxgig/util": "0.5.4",
-    "aontu": ">=0.68",
+    "aontu": ">=0.75.0",
     "chokidar": "5.0.0",
     "jostraca": "0.31.2",
     "shape": ">=10"

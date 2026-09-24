@@ -56,8 +56,23 @@ function unquoted(line) {
     const files = aontuFiles(STANDARD);
     // A miswired path would make the test vacuously pass.
     (0, node_test_1.test)('the scaffold has model files to check', () => {
-        node_assert_1.default.ok(0 < files.length, `no .aon files under ${STANDARD}`);
+        node_assert_1.default.ok(0 < files.length, `no model files under ${STANDARD}`);
         node_assert_1.default.ok(files.some((file) => file.endsWith('.aontu')), `no .aontu files under ${STANDARD}`);
+    });
+    // aontu refuses a .aon include, and a re-scaffold removes the scaffold's own
+    // .aon files, so one shipped here would be deleted from every project.
+    (0, node_test_1.test)('the scaffold ships no .aon file and includes none', () => {
+        node_assert_1.default.deepEqual(files.filter((file) => file.endsWith('.aon'))
+            .map((file) => node_path_1.default.relative(STANDARD, file)), []);
+        const bad = [];
+        for (const file of files) {
+            Fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+                if (/@\s*["'`][^"'`]*\.aon["'`]/.test(line.replace(/#.*$/, ''))) {
+                    bad.push(`${node_path_1.default.relative(STANDARD, file)}:${i + 1}: ${line.trim()}`);
+                }
+            });
+        }
+        node_assert_1.default.deepEqual(bad, []);
     });
     (0, node_test_1.test)('no scaffolded model uses a slash comment', () => {
         const bad = [];

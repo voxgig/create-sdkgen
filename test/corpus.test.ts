@@ -13,16 +13,16 @@ import { Aontu } from 'aontu'
 const PRIMARY = Path.resolve(
   __dirname, '..', 'project', 'standard', '.sdk', 'test', 'primary')
 
-const INDEX = Path.join(PRIMARY, 'primary-test-index.aon')
+const INDEX = Path.join(PRIMARY, 'primary-test-index.aontu')
 
 const FEATURE = Path.resolve(
   __dirname, '..', 'project', 'standard', '.sdk', 'test', 'feature')
 
-const FEATURE_INDEX = Path.join(FEATURE, 'feature-test-index.aon')
+const FEATURE_INDEX = Path.join(FEATURE, 'feature-test-index.aontu')
 
 // The COMPILED corpus every generated SDK actually executes. It is a
 // committed artefact produced by `npm run test-model`, so it can silently
-// fall behind the .aon sources it is built from — which is exactly what
+// fall behind the .aontu sources it is built from — which is exactly what
 // happened: preparePath's fixture and test.json disagreed and no test knew.
 const TEST_JSON = Path.resolve(
   __dirname, '..', 'project', 'standard', '.sdk', 'test', 'test.json')
@@ -39,19 +39,19 @@ const PENDING = [
 
 function namesIn(dir: string, index: string): string[] {
   return Fs.readdirSync(dir)
-    .filter((f) => f.endsWith('.aon') && index !== f)
-    .map((f) => f.replace(/\.aon$/, ''))
+    .filter((f) => f.endsWith('.aontu') && index !== f)
+    .map((f) => f.replace(/\.aontu$/, ''))
     .sort()
 }
 
 
 function fixtureNames(): string[] {
-  return namesIn(PRIMARY, 'primary-test-index.aon')
+  return namesIn(PRIMARY, 'primary-test-index.aontu')
 }
 
 
 function featureNames(): string[] {
-  return namesIn(FEATURE, 'feature-test-index.aon')
+  return namesIn(FEATURE, 'feature-test-index.aontu')
 }
 
 
@@ -68,11 +68,11 @@ function canonical(v: any): any {
 
 
 function compileIn(dir: string, name: string): any {
-  const p = Path.join(dir, name + '.aon')
+  const p = Path.join(dir, name + '.aontu')
   const errs: any[] = []
   const model: any = new Aontu().generate(Fs.readFileSync(p, 'utf8'), { path: p, errs })
   assert.equal(errs.length, 0,
-    `${name}.aon: ${errs.map((e: any) => `[${e.why}] ${e.msg}`).join(' | ')}`)
+    `${name}.aontu: ${errs.map((e: any) => `[${e.why}] ${e.msg}`).join(' | ')}`)
   return model
 }
 
@@ -116,10 +116,10 @@ describe('shared test corpus', () => {
     for (const name of PENDING) {
       const pending = compile(name).basic.pending
       assert.equal(typeof pending, 'string',
-        `${name}.aon is deliberately empty but declares no ` +
+        `${name}.aontu is deliberately empty but declares no ` +
         `\`basic: pending\` reason — a comment alone does not reach test.json`)
       assert.ok(20 < pending.length,
-        `${name}.aon: pending needs a reason, not just a marker`)
+        `${name}.aontu: pending needs a reason, not just a marker`)
     }
   })
 
@@ -161,8 +161,8 @@ describe('shared test corpus', () => {
   test('every fixture is registered in the index', () => {
     const index = Fs.readFileSync(INDEX, 'utf8')
     for (const name of fixtureNames()) {
-      assert.match(index, new RegExp(`@"(?:\\./)?${name}\\.aon"`),
-        `primary-test-index.aon missing @"${name}.aon" — the fixture ` +
+      assert.match(index, new RegExp(`@"(?:\\./)?${name}\\.aontu"`),
+        `primary-test-index.aontu missing @"${name}.aontu" — the fixture ` +
         `would never reach test.json`)
     }
   })
@@ -170,13 +170,13 @@ describe('shared test corpus', () => {
 
   test('the index registers nothing that does not exist', () => {
     const index = Fs.readFileSync(INDEX, 'utf8')
-    const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aon"/g)].map((m) => m[1])
+    const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aontu"/g)].map((m) => m[1])
     const missing = referenced.filter((n) => !fixtureNames().includes(n))
     assert.deepEqual(missing, [], 'index references fixtures that do not exist')
   })
 
 
-  test('the compiled test.json matches its .aon sources', () => {
+  test('the compiled test.json matches its .aontu sources', () => {
     const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'))
     assert.ok(compiled?.primary, 'test.json has no primary section')
 
@@ -258,7 +258,7 @@ describe('shared feature corpus', () => {
       if (null == partial) { continue }
       assert.equal(typeof partial, 'string', `${name}: partial must be a string`)
       assert.ok(20 < partial.length,
-        `${name}.aon: partial needs a reason, not just a marker`)
+        `${name}.aontu: partial needs a reason, not just a marker`)
     }
   })
 
@@ -279,8 +279,8 @@ describe('shared feature corpus', () => {
   test('every fixture is registered in the index', () => {
     const index = Fs.readFileSync(FEATURE_INDEX, 'utf8')
     for (const name of featureNames()) {
-      assert.match(index, new RegExp(`@"(?:\\./)?${name}\\.aon"`),
-        `feature-test-index.aon missing @"${name}.aon" — the fixture would ` +
+      assert.match(index, new RegExp(`@"(?:\\./)?${name}\\.aontu"`),
+        `feature-test-index.aontu missing @"${name}.aontu" — the fixture would ` +
         `never reach test.json`)
     }
   })
@@ -288,17 +288,17 @@ describe('shared feature corpus', () => {
 
   test('the index registers nothing that does not exist', () => {
     const index = Fs.readFileSync(FEATURE_INDEX, 'utf8')
-    const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aon"/g)].map((m) => m[1])
+    const referenced = [...index.matchAll(/@"(?:\.\/)?([\w.-]+)\.aontu"/g)].map((m) => m[1])
     const missing = referenced.filter((n) => !featureNames().includes(n))
     assert.deepEqual(missing, [], 'index references fixtures that do not exist')
   })
 
 
-  test('the compiled test.json matches its .aon sources', () => {
+  test('the compiled test.json matches its .aontu sources', () => {
     const compiled = JSON.parse(Fs.readFileSync(TEST_JSON, 'utf8'))
     assert.ok(compiled?.feature,
-      'test.json has no feature section — is feature-test-index.aon included ' +
-      'from test.aon?')
+      'test.json has no feature section — is feature-test-index.aontu included ' +
+      'from test.aontu?')
 
     const drift: string[] = []
     for (const name of featureNames()) {

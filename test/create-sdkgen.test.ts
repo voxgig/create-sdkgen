@@ -99,7 +99,7 @@ describe('create-sdkgen', () => {
       '.sdk/admin/status.sh',
       '.sdk/admin/check-drift.sh',
       '.sdk/admin/README.md',
-      '.sdk/model/sdk.aon',
+      '.sdk/model/sdk.aontu',
       '.sdk/src/BuildSDK.ts',
       '.sdk/def/petstore.yml',
     ]) {
@@ -162,7 +162,7 @@ describe('create-sdkgen', () => {
 
   test('sdk-aontu-substitutes-name-and-def', async () => {
     const s = await scaffold({ name: 'petstore' })
-    const sdk = s.read('.sdk/model/sdk.aon')
+    const sdk = s.read('.sdk/model/sdk.aontu')
 
     // Fragment placeholders NAME/DEF are replaced with the real values.
     assert.match(sdk, /name:\s*'petstore'/)
@@ -182,34 +182,47 @@ describe('create-sdkgen', () => {
     'flow/flow-index.aontu',
   ]
 
-  test('sdk-aon-names-apidef-files-as-aontu', async () => {
+  test('sdk-aontu-names-apidef-files-as-aontu', async () => {
     const s = await scaffold()
-    const sdk = s.read('.sdk/model/sdk.aon')
+    const sdk = s.read('.sdk/model/sdk.aontu')
 
     for (const include of APIDEF_INCLUDES) {
-      assert.ok(sdk.includes('@"' + include + '"'), 'sdk.aon must include ' + include)
+      assert.ok(sdk.includes('@"' + include + '"'), 'sdk.aontu must include ' + include)
     }
-    assert.doesNotMatch(sdk, /@"@voxgig\/apidef\/[^"]*\.aon"/)
+    assert.doesNotMatch(sdk, /@"[^"]*\.aon"/, 'no include may name a retired .aon file')
   })
 
-  // `target add` unifies sdk.aon before apidef has written anything, so every
+  // `target add` unifies sdk.aontu before apidef has written anything, so every
   // local include needs a scaffolded placeholder under the name apidef writes.
-  test('sdk-aon-local-includes-resolve-before-apidef-runs', async () => {
+  test('sdk-aontu-local-includes-resolve-before-apidef-runs', async () => {
     const s = await scaffold()
-    const sdk = s.read('.sdk/model/sdk.aon')
+    const sdk = s.read('.sdk/model/sdk.aontu')
     const local = [...sdk.matchAll(/^@"([^"@][^"]*)"/gm)].map((m) => m[1])
 
     assert.ok(local.includes('api/api-info.aontu'), 'the scan must see the apidef files')
     for (const include of local) {
       assert.ok(s.exists(Path.join('.sdk', 'model', include)),
-        'sdk.aon includes a file the scaffold does not write: ' + include)
+        'sdk.aontu includes a file the scaffold does not write: ' + include)
     }
   })
 
-  test('scaffold-requires-an-apidef-that-ships-aontu', async () => {
+  // The first releases that ship and write only .aontu, and the aontu that
+  // refuses a .aon include.
+  const AONTU_FLOORS: Record<string, string> = {
+    '@voxgig/apidef': '>=8.17.0',
+    '@voxgig/model': '>=12.0.0',
+    '@voxgig/sdkgen': '>=4.25.0',
+    '@voxgig/docgen': '>=0.27.0',
+    'aontu': '>=0.75.0',
+    'jostraca': '>=0.39.0',
+  }
+
+  test('scaffold-requires-a-toolchain-that-reads-only-aontu', async () => {
     const s = await scaffold()
     const pkg = JSON.parse(s.read('.sdk/package.json'))
-    assert.equal(pkg.devDependencies['@voxgig/apidef'], '>=8.16.0')
+    for (const [name, floor] of Object.entries(AONTU_FLOORS)) {
+      assert.equal(pkg.devDependencies[name], floor, name)
+    }
   })
 
 
@@ -227,7 +240,7 @@ describe('create-sdkgen', () => {
   test('dryrun-writes-no-scaffold', async () => {
     const s = await scaffold({ dryrun: true })
     // The scaffold itself is not written on a dry run.
-    assert.equal(s.exists('.sdk/model/sdk.aon'), false)
+    assert.equal(s.exists('.sdk/model/sdk.aontu'), false)
     assert.equal(s.exists('.sdk/package.json'), false)
     assert.equal(s.exists('.gitignore'), false)
   })
@@ -262,7 +275,7 @@ describe('create-sdkgen', () => {
         project: 'standard', folder: '', install: false,
       } as any)
       assert.ok(
-        Fs.existsSync(Path.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.aon')),
+        Fs.existsSync(Path.join(work, 'alpha-sdk', '.sdk', 'model', 'sdk.aontu')),
         'alpha -> alpha-sdk')
 
       // Name already ending `-sdk` -> not doubled.
@@ -271,7 +284,7 @@ describe('create-sdkgen', () => {
         project: 'standard', folder: '', install: false,
       } as any)
       assert.ok(
-        Fs.existsSync(Path.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.aon')),
+        Fs.existsSync(Path.join(work, 'beta-sdk', '.sdk', 'model', 'sdk.aontu')),
         'beta-sdk -> beta-sdk')
       assert.equal(
         Fs.existsSync(Path.join(work, 'beta-sdk-sdk')), false,
@@ -342,7 +355,7 @@ describe('guide-overlay-merge', () => {
 
   test('the rest of the scaffold is still overwritten', async () => {
     const s = await scaffold()
-    const sdkAontu = Path.join(s.out, '.sdk', 'model', 'sdk.aon')
+    const sdkAontu = Path.join(s.out, '.sdk', 'model', 'sdk.aontu')
 
     Fs.writeFileSync(sdkAontu, '# clobbered\n')
     await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
@@ -356,8 +369,8 @@ describe('guide-overlay-merge', () => {
 
 describe('project-overlay', () => {
 
-  const PROJECT_REL = Path.join('.sdk', 'model', 'project.aon')
-  const SDK_REL = Path.join('.sdk', 'model', 'sdk.aon')
+  const PROJECT_REL = Path.join('.sdk', 'model', 'project.aontu')
+  const SDK_REL = Path.join('.sdk', 'model', 'sdk.aontu')
 
   async function rescaffold(out: string, def: string) {
     await CreateSdkGen({ debug: 'warn' } as any).generate({
@@ -366,19 +379,19 @@ describe('project-overlay', () => {
     } as any)
   }
 
-  test('a fresh scaffold writes the stub, and sdk.aon includes it LAST', async () => {
+  test('a fresh scaffold writes the stub, and sdk.aontu includes it LAST', async () => {
     const s = await scaffold()
     assert.equal(s.exists(PROJECT_REL), true)
 
     const sdk = s.read(SDK_REL)
-    assert.match(sdk, /@"\.\/project\.aon"/)
+    assert.match(sdk, /@"\.\/project\.aontu"/)
 
     // Order is load-bearing: a key under main.kit.target.<t> can only refine a
-    // target that target-index.aon has already defined. Declared earlier the
+    // target that target-index.aontu has already defined. Declared earlier the
     // model build dies on "key ext value was: nil".
-    assert.ok(sdk.indexOf('@"./project.aon"') >
-      sdk.indexOf('@"target/target-index.aon"'),
-      'project.aon must be included after target-index.aon')
+    assert.ok(sdk.indexOf('@"./project.aontu"') >
+      sdk.indexOf('@"target/target-index.aontu"'),
+      'project.aontu must be included after target-index.aontu')
   })
 
   test('a re-scaffold leaves a customized project overlay BYTE-IDENTICAL', async () => {
@@ -395,7 +408,7 @@ describe('project-overlay', () => {
       'a declared release version must survive a re-scaffold')
   })
 
-  test('sdk.aon itself is still template-owned, so a renamed def propagates', async () => {
+  test('sdk.aontu itself is still template-owned, so a renamed def propagates', async () => {
     const s = await scaffold()
     assert.match(s.read(SDK_REL), /def: 'petstore\.yml'/)
 
@@ -408,12 +421,61 @@ describe('project-overlay', () => {
 })
 
 
+describe('index-preservation', () => {
+
+  const TEMPLATE_MODEL = Path.resolve(
+    __dirname, '..', 'project', 'standard', '.sdk', 'model')
+
+  // What `target add`, `feature add` and docgen's first install leave behind.
+  const ADDED: Record<string, string> = {
+    target: '# SDK Targets.\n\n\n@"./ts.aontu"',
+    feature: '# Features\n\n\n\n@"./test.aontu"',
+    edition: '# Populated by docgen when the project toolchain is installed.\n\n' +
+      '@"./summary.aontu"\n\n@"./github-pages.aontu"\n',
+  }
+
+  const indexRel = (kind: string) =>
+    Path.join('.sdk', 'model', kind, kind + '-index.aontu')
+
+  async function rescaffold(s: any) {
+    await CreateSdkGen({ debug: 'warn' } as any).generate({
+      root: 'CreateRoot', name: 'petstore', def: Path.join(s.work, 'petstore.yml'),
+      project: 'standard', folder: s.out, install: false,
+    } as any)
+  }
+
+  test('a fresh scaffold writes each index placeholder', async () => {
+    const s = await scaffold()
+    for (const kind of Object.keys(ADDED)) {
+      assert.equal(s.read(indexRel(kind)),
+        Fs.readFileSync(Path.join(TEMPLATE_MODEL, kind, kind + '-index.aontu'), 'utf8'),
+        kind + ' index')
+    }
+  })
+
+  test('a re-scaffold keeps every target, feature and edition entry', async () => {
+    const s = await scaffold()
+    for (const [kind, content] of Object.entries(ADDED)) {
+      Fs.writeFileSync(Path.join(s.out, indexRel(kind)), content)
+    }
+
+    await rescaffold(s)
+
+    // docgen records its bootstrap and never re-adds an edition, so a reset
+    // index would drop every one of them from the model for good.
+    for (const [kind, content] of Object.entries(ADDED)) {
+      assert.equal(s.read(indexRel(kind)), content, kind + ' index must survive')
+    }
+  })
+})
+
+
 describe('overlay-extension-migration', () => {
 
   const GUIDE = Path.join('.sdk', 'model', 'guide', 'guide.aontu')
   const GUIDE_OLD = Path.join('.sdk', 'model', 'guide', 'guide.aon')
-  const PROJ_AON = Path.join('.sdk', 'model', 'project.aon')
-  const PROJ_OLD = Path.join('.sdk', 'model', 'project.aontu')
+  const PROJ = Path.join('.sdk', 'model', 'project.aontu')
+  const PROJ_OLD = Path.join('.sdk', 'model', 'project.aon')
 
   async function rescaffold(out: string, def: string, dryrun = false) {
     await CreateSdkGen({ debug: 'warn' } as any).generate({
@@ -439,22 +501,22 @@ describe('overlay-extension-migration', () => {
       'the customizations must survive the rename byte-for-byte')
   })
 
-  test('a legacy project.aontu is renamed, keeping the release version', async () => {
+  test('a legacy project.aon is renamed, keeping the release version', async () => {
     const s = await scaffold()
-    const declared = s.read(PROJ_AON) +
+    const declared = s.read(PROJ) +
       "\nmain: kit: target: ts: publish: version: '1.2.3'\n"
 
     Fs.writeFileSync(Path.join(s.out, PROJ_OLD), declared)
-    Fs.rmSync(Path.join(s.out, PROJ_AON))
+    Fs.rmSync(Path.join(s.out, PROJ))
 
     await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
 
     assert.equal(Fs.existsSync(Path.join(s.out, PROJ_OLD)), false)
-    assert.match(s.read(PROJ_AON), /version: '1\.2\.3'/,
+    assert.match(s.read(PROJ), /version: '1\.2\.3'/,
       'an ignored project overlay resets every manifest to 0.0.1')
   })
 
-  test('migration is a no-op once guide.aontu exists', async () => {
+  test('migration is a no-op once the .aontu files exist', async () => {
     const s = await scaffold()
     const before = s.read(GUIDE)
     await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
@@ -475,21 +537,25 @@ describe('overlay-extension-migration', () => {
     assert.equal(s.read(GUIDE_OLD), stale, 'apidef leaves the stale file too')
   })
 
-  test('a dry run migrates neither overlay', async () => {
+  test('a dry run migrates nothing', async () => {
     const s = await scaffold()
     const guide = s.read(GUIDE).replace(/\.aontu"/g, '.aon"') + '\n# MINE\n'
-    const project = s.read(PROJ_AON) + "\nmain: kit: target: ts: publish: version: '1.2.3'\n"
+    const project = s.read(PROJ) + "\nmain: kit: target: ts: publish: version: '1.2.3'\n"
+    const item = Path.join('.sdk', 'model', 'target', 'ts.aon')
     Fs.writeFileSync(Path.join(s.out, GUIDE_OLD), guide)
     Fs.rmSync(Path.join(s.out, GUIDE))
     Fs.writeFileSync(Path.join(s.out, PROJ_OLD), project)
-    Fs.rmSync(Path.join(s.out, PROJ_AON))
+    Fs.rmSync(Path.join(s.out, PROJ))
+    Fs.writeFileSync(Path.join(s.out, item), 'main: kit: target: ts: {}\n')
 
     await rescaffold(s.out, Path.join(s.work, 'petstore.yml'), true)
 
     assert.equal(s.read(GUIDE_OLD), guide, 'a dry run must not migrate the guide')
     assert.equal(Fs.existsSync(Path.join(s.out, GUIDE)), false)
     assert.equal(s.read(PROJ_OLD), project, 'a dry run must not migrate the project')
-    assert.equal(Fs.existsSync(Path.join(s.out, PROJ_AON)), false)
+    assert.equal(Fs.existsSync(Path.join(s.out, PROJ)), false)
+    assert.equal(s.exists(item), true, 'a dry run must not migrate an item')
+    assert.equal(s.exists(item + 'tu'), false)
   })
 })
 
@@ -505,6 +571,9 @@ describe('overlay-include-migration', () => {
     '@"./shared.aon"\n' +
     '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n'
 
+  const SHARED = Path.join('.sdk', 'model', 'guide', 'shared')
+  const SHARED_CONTENT = "# the project's own file\nguide: entity: { gadget: active: false }\n"
+
   async function rescaffold(s: any) {
     await CreateSdkGen({ debug: 'warn' } as any).generate({
       root: 'CreateRoot', name: 'petstore', def: Path.join(s.work, 'petstore.yml'),
@@ -512,10 +581,13 @@ describe('overlay-include-migration', () => {
     } as any)
   }
 
-  function assertAontuIncludes(got: string) {
-    assert.doesNotMatch(got, /(apidef\/model\/[^'"]+|base-guide)\.aon['"]/,
-      'no include of an apidef file may still name .aon')
-    assert.match(got, /@"\.\/shared\.aon"/, "a project's own include keeps its name")
+  function assertAontuIncludes(s: any) {
+    const got = s.read(GUIDE)
+    assert.doesNotMatch(got, /\.aon['"]/, 'aontu refuses every .aon include')
+    assert.match(got, /@"\.\/shared\.aontu"/, "a project's own include follows its file")
+    assert.equal(s.read(SHARED + '.aontu'), SHARED_CONTENT,
+      "the project's own file is renamed, byte for byte")
+    assert.equal(s.exists(SHARED + '.aon'), false)
     assert.match(got, /@"@voxgig\/apidef\/model\/guide\.aontu"/)
     assert.match(got, /@'petstore-base-guide\.aontu'/, 'single-quoted includes too')
     assert.match(got, /widget: active: false/, 'user content is untouched')
@@ -523,23 +595,224 @@ describe('overlay-include-migration', () => {
       'the renamed include must satisfy the merge, not gain a duplicate')
   }
 
-  test('a migrated guide has its package includes renamed too', async () => {
+  test('a migrated guide has its includes renamed too', async () => {
     const s = await scaffold()
     Fs.writeFileSync(Path.join(s.out, GUIDE_OLD), LEGACY_INCLUDES)
+    Fs.writeFileSync(Path.join(s.out, SHARED + '.aon'), SHARED_CONTENT)
     Fs.rmSync(Path.join(s.out, GUIDE))
 
     await rescaffold(s)
 
-    assertAontuIncludes(s.read(GUIDE))
+    assertAontuIncludes(s)
   })
 
   test('a guide.aontu that still includes .aon files has them renamed', async () => {
     const s = await scaffold()
     Fs.writeFileSync(Path.join(s.out, GUIDE), LEGACY_INCLUDES)
+    Fs.writeFileSync(Path.join(s.out, SHARED + '.aon'), SHARED_CONTENT)
 
     await rescaffold(s)
 
-    assertAontuIncludes(s.read(GUIDE))
+    assertAontuIncludes(s)
+  })
+})
+
+
+describe('aon-era-migration', () => {
+
+  const SDK = '.sdk'
+  const MODEL = Path.join(SDK, 'model')
+
+  // What an index and an item looked like before the rename: sdkgen and docgen
+  // wrote both, and an item includes its package's own model.
+  const LEGACY: Record<string, { index: string, item: string, body: string }> = {
+    target: {
+      index: '# SDK Targets.\n\n\n@"./ts.aon"',
+      item: 'ts',
+      body: "\nmain: kit: target: ts: {\n  title: TypeScript\n  comment: line: \"//\"\n}\n",
+    },
+    feature: {
+      index: '# Features\n\n\n\n@"./test.aon"',
+      item: 'test',
+      body: '@"@voxgig/sdkgen/model/sdkgen.aon"\n\nmain: kit: feature: test: {\n' +
+        "  title: 'In-memory mock transport; see test.aon'\n}\n",
+    },
+    edition: {
+      index: '# Populated by docgen when the project toolchain is installed.\n\n' +
+        '@"./summary.aon"\n\n@"./github-pages.aon"\n',
+      item: 'summary',
+      body: '@"@voxgig/docgen/model/docgen.aon"\n' +
+        "main: kit: doc: edition: 'summary': {\n  kind: 'summary'\n}\n",
+    },
+  }
+
+  const PAGES = '@"@voxgig/docgen/model/docgen.aon"\n' +
+    "main: kit: doc: edition: 'github-pages': { kind: 'github-pages' }\n"
+
+  const COMMON = '# @"@voxgig/sdkgen/model/sdkgen.aon" in a comment is not an include\n' +
+    "common: { note: '@\"@voxgig/sdkgen/model/sdkgen.aon\" as data is not one either' }\n"
+
+  const PROJECT_OVERLAY =
+    "@\"./shared/common.aon\"\nmain: kit: target: ts: publish: version: '1.2.3'\n"
+
+  const MINE = 'mine: { basic: pending: "a case the project wrote itself" }\n'
+
+  function recorder() {
+    const warnings: any[] = []
+    const log: any = {
+      level: 'warn',
+      child: () => log,
+      trace: () => null, debug: () => null, info: () => null,
+      error: () => null, fatal: () => null,
+      warn: (entry: any) => warnings.push(entry),
+    }
+    return { log, warnings }
+  }
+
+  async function rescaffold(s: any, over: any = {}) {
+    await CreateSdkGen({ debug: 'warn', ...over } as any).generate({
+      root: 'CreateRoot', name: 'petstore', def: Path.join(s.work, 'petstore.yml'),
+      project: 'standard', folder: s.out, install: false,
+    } as any)
+  }
+
+  const write = (s: any, rel: string, content: string) => {
+    Fs.mkdirSync(Path.dirname(Path.join(s.out, rel)), { recursive: true })
+    Fs.writeFileSync(Path.join(s.out, rel), content)
+  }
+
+  const underSdk = (s: any, ext: string) => s.files()
+    .filter((f: string) => /^\.sdk\/(model|test)\//.test(f) && f.endsWith(ext))
+
+  // A project as create-sdkgen 0.27 and the toolchain around it left it.
+  async function legacyProject() {
+    const s = await scaffold()
+    const scaffolded = underSdk(s, '.aontu').filter((f: string) =>
+      !/\/(api|entity|flow|guide)\//.test(f))
+    for (const rel of scaffolded) {
+      const content = s.read(rel)
+      Fs.rmSync(Path.join(s.out, rel))
+      write(s, rel.replace(/\.aontu$/, '.aon'), content)
+    }
+    for (const [kind, legacy] of Object.entries(LEGACY)) {
+      write(s, Path.join(MODEL, kind, kind + '-index.aon'), legacy.index)
+      write(s, Path.join(MODEL, kind, legacy.item + '.aon'), legacy.body)
+    }
+    write(s, Path.join(MODEL, 'edition', 'github-pages.aon'), PAGES)
+    write(s, Path.join(MODEL, 'project.aon'), PROJECT_OVERLAY)
+    write(s, Path.join(MODEL, 'shared', 'common.aon'), COMMON)
+    write(s, Path.join(SDK, 'test', 'mine.aon'), MINE)
+    return { s, scaffolded }
+  }
+
+  const LEGACY_INCLUDE_RE = /@\s*(["'`])[^"'`\n]*\.aon\1/
+
+  test('a re-scaffold leaves nothing aontu refuses', async () => {
+    const { s } = await legacyProject()
+    assert.ok(20 < underSdk(s, '.aon').length, 'the fixture must be .aon-era')
+
+    await rescaffold(s)
+
+    assert.deepEqual(underSdk(s, '.aon'), [], 'no .aon file may remain')
+    for (const rel of underSdk(s, '.aontu')) {
+      const code = s.read(rel).split('\n').filter((line: string) => !/^\s*#/.test(line))
+      assert.doesNotMatch(code.join('\n').replace(/'[^'\n]*'/g, "''"), LEGACY_INCLUDE_RE,
+        rel + ' still includes a .aon file')
+    }
+  })
+
+  test('each index keeps its entries, renamed with its items', async () => {
+    const { s } = await legacyProject()
+    await rescaffold(s)
+
+    for (const [kind, legacy] of Object.entries(LEGACY)) {
+      assert.equal(s.read(Path.join(MODEL, kind, kind + '-index.aontu')),
+        legacy.index.replace(/\.aon"/g, '.aontu"'), kind + ' index')
+      assert.equal(s.read(Path.join(MODEL, kind, legacy.item + '.aontu')),
+        legacy.body.replace(/(@"@voxgig\/[^"]+)\.aon"/g, '$1.aontu"'), kind + ' item')
+    }
+    assert.match(s.read(Path.join(MODEL, 'edition', 'github-pages.aontu')),
+      /^@"@voxgig\/docgen\/model\/docgen\.aontu"\n/)
+  })
+
+  test("the project's own files are renamed, never dropped", async () => {
+    const { s } = await legacyProject()
+    await rescaffold(s)
+
+    assert.equal(s.read(Path.join(MODEL, 'project.aontu')),
+      PROJECT_OVERLAY.replace('common.aon"', 'common.aontu"'))
+    assert.equal(s.read(Path.join(MODEL, 'shared', 'common.aontu')), COMMON,
+      'only include directives are rewritten, not comments or data')
+    assert.equal(s.read(Path.join(SDK, 'test', 'mine.aontu')), MINE)
+  })
+
+  test("the scaffold's own .aon files give way to their .aontu twins", async () => {
+    const { s, scaffolded } = await legacyProject()
+    await rescaffold(s)
+
+    for (const rel of scaffolded) {
+      assert.equal(s.exists(rel), true, rel + ' is written')
+      assert.equal(s.exists(rel.replace(/\.aontu$/, '.aon')), false, rel + ' legacy removed')
+    }
+    for (const rel of ['model/sdk.aontu', 'model/config.aontu',
+      'model/.model-config/model-config.aontu', 'test/test.aontu']) {
+      assert.ok(scaffolded.includes('.sdk/' + rel), 'the fixture must cover ' + rel)
+    }
+    assert.equal(s.exists(Path.join(MODEL, 'sdk.aon')), false)
+  })
+
+  test('when both exist, the .aontu item wins and the .aon one is reported', async () => {
+    const s = await scaffold()
+    const item = Path.join(MODEL, 'target', 'ts')
+    write(s, item + '.aontu', 'main: kit: target: ts: { title: Current }\n')
+    write(s, item + '.aon', 'main: kit: target: ts: { title: Stale }\n')
+    const { log, warnings } = recorder()
+
+    await rescaffold(s, { pino: log })
+
+    assert.match(s.read(item + '.aontu'), /Current/)
+    assert.match(s.read(item + '.aon'), /Stale/)
+    assert.ok(warnings.some((w: any) => /model\/target\/ts\.aon: left in place/.test(w.note)),
+      JSON.stringify(warnings))
+  })
+
+  test('an include that cannot be migrated is reported, not left silently', async () => {
+    const s = await scaffold()
+    const outside = '@"../../shared.aon"\n'
+    write(s, 'shared.aon', 'outside: true\n')
+    write(s, Path.join(MODEL, 'project.aontu'), outside)
+    const { log, warnings } = recorder()
+
+    await rescaffold(s, { pino: log })
+
+    assert.equal(s.read(Path.join(MODEL, 'project.aontu')), outside)
+    assert.equal(s.read('shared.aon'), 'outside: true\n', 'nothing outside .sdk is touched')
+    assert.ok(warnings.some((w: any) =>
+      /model\/project\.aontu: includes \.\.\/\.\.\/shared\.aon/.test(w.note)),
+      JSON.stringify(warnings))
+  })
+
+  test('a failed migration does not fail the scaffold', async () => {
+    const { s } = await legacyProject()
+    const fs: any = {
+      ...Fs,
+      writeFileSync: (path: any, ...rest: any[]) => {
+        if (String(path).includes(Path.join('target', 'ts.aontu'))) {
+          throw new Error('disk full')
+        }
+        return (Fs.writeFileSync as any)(path, ...rest)
+      },
+    }
+    const { log, warnings } = recorder()
+
+    await rescaffold(s, { fs, pino: log })
+
+    assert.equal(s.read(Path.join(MODEL, 'target', 'ts.aon')), LEGACY.target.body)
+    assert.equal(s.read(Path.join(MODEL, 'target', 'target-index.aontu')), LEGACY.target.index,
+      'an include is renamed only once its file is')
+    assert.ok(s.exists(Path.join(MODEL, 'sdk.aontu')), 'the rest of the scaffold is written')
+    assert.ok(warnings.some((w: any) => /target-index\.aontu: includes \.\/ts\.aon/.test(w.note)),
+      JSON.stringify(warnings))
   })
 })
 
@@ -547,11 +820,11 @@ describe('overlay-include-migration', () => {
 test('new projects prepare documentation editions through docgen', async () => {
   const p = await scaffold()
   const pkg = JSON.parse(p.read('.sdk/package.json'))
-  assert.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.23.0')
+  assert.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.27.0')
   assert.equal(pkg.scripts.postinstall, 'node build/docgen.js')
   assert.match(pkg.scripts.generate, /^node build\/docgen\.js/)
   assert.match(p.read('.sdk/build/docgen.js'), /prepareProject/)
-  assert.match(p.read('.sdk/model/sdk.aon'), /edition\/edition-index\.aon/)
+  assert.match(p.read('.sdk/model/sdk.aontu'), /edition\/edition-index\.aontu/)
   assert.ok(!p.exists('.sdk/src/DocStaticRoot.ts'))
 })
 
