@@ -189,7 +189,8 @@ async function scaffold(over = {}) {
     // The first releases that ship and write only .aontu, and the aontu that
     // refuses a .aon include.
     const AONTU_FLOORS = {
-        '@voxgig/apidef': '>=8.16.0',
+        '@voxgig/apidef': '>=8.17.0',
+        '@voxgig/model': '>=12.0.0',
         '@voxgig/sdkgen': '>=4.25.0',
         '@voxgig/docgen': '>=0.27.0',
         'aontu': '>=0.75.0',
