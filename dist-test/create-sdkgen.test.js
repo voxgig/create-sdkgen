@@ -160,6 +160,37 @@ async function scaffold(over = {}) {
         node_assert_1.default.doesNotMatch(sdk, /'NAME'/);
         node_assert_1.default.doesNotMatch(sdk, /'DEF'/);
     });
+    // What @voxgig/apidef ships in model/, and what it writes under .sdk/model.
+    const APIDEF_INCLUDES = [
+        '@voxgig/apidef/model/apidef.aontu',
+        'api/api-info.aontu',
+        'entity/entity-index.aontu',
+        'flow/flow-index.aontu',
+    ];
+    (0, node_test_1.test)('sdk-aon-names-apidef-files-as-aontu', async () => {
+        const s = await scaffold();
+        const sdk = s.read('.sdk/model/sdk.aon');
+        for (const include of APIDEF_INCLUDES) {
+            node_assert_1.default.ok(sdk.includes('@"' + include + '"'), 'sdk.aon must include ' + include);
+        }
+        node_assert_1.default.doesNotMatch(sdk, /@"@voxgig\/apidef\/[^"]*\.aon"/);
+    });
+    // `target add` unifies sdk.aon before apidef has written anything, so every
+    // local include needs a scaffolded placeholder under the name apidef writes.
+    (0, node_test_1.test)('sdk-aon-local-includes-resolve-before-apidef-runs', async () => {
+        const s = await scaffold();
+        const sdk = s.read('.sdk/model/sdk.aon');
+        const local = [...sdk.matchAll(/^@"([^"@][^"]*)"/gm)].map((m) => m[1]);
+        node_assert_1.default.ok(local.includes('api/api-info.aontu'), 'the scan must see the apidef files');
+        for (const include of local) {
+            node_assert_1.default.ok(s.exists(node_path_1.default.join('.sdk', 'model', include)), 'sdk.aon includes a file the scaffold does not write: ' + include);
+        }
+    });
+    (0, node_test_1.test)('scaffold-requires-an-apidef-that-ships-aontu', async () => {
+        const s = await scaffold();
+        const pkg = JSON.parse(s.read('.sdk/package.json'));
+        node_assert_1.default.equal(pkg.devDependencies['@voxgig/apidef'], '>=8.16.0');
+    });
     (0, node_test_1.test)('sdk-package-json-substitutes-name', async () => {
         const s = await scaffold({ name: 'petstore' });
         const pkg = JSON.parse(s.read('.sdk/package.json'));
@@ -210,7 +241,7 @@ async function scaffold(over = {}) {
     });
 });
 (0, node_test_1.describe)('guide-overlay-merge', () => {
-    const GUIDE_REL = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
+    const GUIDE_REL = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
     // Re-scaffold over an EXISTING project folder (the regen flow).
     async function rescaffold(out, def) {
         await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
@@ -221,8 +252,9 @@ async function scaffold(over = {}) {
     (0, node_test_1.test)('a fresh scaffold writes the guide template', async () => {
         const s = await scaffold();
         const guide = s.read(GUIDE_REL);
-        node_assert_1.default.match(guide, /@"@voxgig\/apidef\/model\/guide\.aon"/);
-        node_assert_1.default.match(guide, /@"\.\/base-guide\.aon"/);
+        node_assert_1.default.match(guide, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
+        node_assert_1.default.match(guide, /@"\.\/base-guide\.aontu"/);
+        node_assert_1.default.equal(s.exists(node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon')), false, 'apidef reads the guide entry as guide.aontu only');
     });
     (0, node_test_1.test)('a re-scaffold leaves a customized guide BYTE-IDENTICAL', async () => {
         const s = await scaffold();
@@ -240,12 +272,12 @@ async function scaffold(over = {}) {
         Fs.writeFileSync(guidePath, damaged);
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         const merged = Fs.readFileSync(guidePath, 'utf8');
-        node_assert_1.default.match(merged, /@"@voxgig\/apidef\/model\/guide\.aon"/);
-        node_assert_1.default.match(merged, /@"\.\/base-guide\.aon"/);
+        node_assert_1.default.match(merged, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
+        node_assert_1.default.match(merged, /@"\.\/base-guide\.aontu"/);
         node_assert_1.default.match(merged, /guide: entity: \{ widget: active: false \}/);
         // Restored at the TOP: the overrides unify over base-guide, so the
         // includes have to precede them.
-        node_assert_1.default.ok(merged.indexOf('@"./base-guide.aon"') < merged.indexOf('# only my stuff'), 'includes must be restored before the user content');
+        node_assert_1.default.ok(merged.indexOf('@"./base-guide.aontu"') < merged.indexOf('# only my stuff'), 'includes must be restored before the user content');
     });
     (0, node_test_1.test)('the rest of the scaffold is still overwritten', async () => {
         const s = await scaffold();
@@ -294,26 +326,26 @@ async function scaffold(over = {}) {
     });
 });
 (0, node_test_1.describe)('overlay-extension-migration', () => {
-    const GUIDE_AON = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
-    const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
+    const GUIDE = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
+    const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
     const PROJ_AON = node_path_1.default.join('.sdk', 'model', 'project.aon');
     const PROJ_OLD = node_path_1.default.join('.sdk', 'model', 'project.aontu');
-    async function rescaffold(out, def) {
+    async function rescaffold(out, def, dryrun = false) {
         await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
             root: 'CreateRoot', name: 'petstore', def,
-            project: 'standard', folder: out, install: false,
+            project: 'standard', folder: out, install: false, dryrun,
         });
     }
-    (0, node_test_1.test)('a legacy guide.aontu is renamed, keeping its customizations', async () => {
+    (0, node_test_1.test)('a legacy guide.aon is renamed to guide.aontu, keeping its customizations', async () => {
         const s = await scaffold();
-        const customized = s.read(GUIDE_AON) +
+        const customized = s.read(GUIDE) +
             '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n';
-        // Put the project back into its pre-rename shape.
-        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE_OLD), customized);
-        Fs.rmSync(node_path_1.default.join(s.out, GUIDE_AON));
+        // Put the project back into its pre-rename shape, includes and all.
+        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE_OLD), customized.replace(/\.aontu"/g, '.aon"'));
+        Fs.rmSync(node_path_1.default.join(s.out, GUIDE));
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, GUIDE_OLD)), false, 'the legacy file must be gone, not left behind to be ignored');
-        node_assert_1.default.equal(s.read(GUIDE_AON), customized, 'the customizations must survive the rename byte-for-byte');
+        node_assert_1.default.equal(s.read(GUIDE), customized, 'the customizations must survive the rename byte-for-byte');
     });
     (0, node_test_1.test)('a legacy project.aontu is renamed, keeping the release version', async () => {
         const s = await scaffold();
@@ -325,33 +357,71 @@ async function scaffold(over = {}) {
         node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, PROJ_OLD)), false);
         node_assert_1.default.match(s.read(PROJ_AON), /version: '1\.2\.3'/, 'an ignored project overlay resets every manifest to 0.0.1');
     });
-    (0, node_test_1.test)('migration is a no-op once the .aon file exists', async () => {
+    (0, node_test_1.test)('migration is a no-op once guide.aontu exists', async () => {
         const s = await scaffold();
-        const before = s.read(GUIDE_AON);
+        const before = s.read(GUIDE);
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
-        node_assert_1.default.equal(s.read(GUIDE_AON), before);
+        node_assert_1.default.equal(s.read(GUIDE), before);
         node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, GUIDE_OLD)), false);
+    });
+    (0, node_test_1.test)('when both exist, guide.aontu wins and guide.aon is left alone', async () => {
+        const s = await scaffold();
+        const current = s.read(GUIDE) + '\n# CURRENT\nguide: entity: { widget: active: false }\n';
+        const stale = '@"@voxgig/apidef/model/guide.aon"\n# STALE\n';
+        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE), current);
+        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE_OLD), stale);
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(s.read(GUIDE), current, 'the .aontu entry must not be replaced');
+        node_assert_1.default.equal(s.read(GUIDE_OLD), stale, 'apidef leaves the stale file too');
+    });
+    (0, node_test_1.test)('a dry run migrates neither overlay', async () => {
+        const s = await scaffold();
+        const guide = s.read(GUIDE).replace(/\.aontu"/g, '.aon"') + '\n# MINE\n';
+        const project = s.read(PROJ_AON) + "\nmain: kit: target: ts: publish: version: '1.2.3'\n";
+        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE_OLD), guide);
+        Fs.rmSync(node_path_1.default.join(s.out, GUIDE));
+        Fs.writeFileSync(node_path_1.default.join(s.out, PROJ_OLD), project);
+        Fs.rmSync(node_path_1.default.join(s.out, PROJ_AON));
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'), true);
+        node_assert_1.default.equal(s.read(GUIDE_OLD), guide, 'a dry run must not migrate the guide');
+        node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, GUIDE)), false);
+        node_assert_1.default.equal(s.read(PROJ_OLD), project, 'a dry run must not migrate the project');
+        node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(s.out, PROJ_AON)), false);
     });
 });
 (0, node_test_1.describe)('overlay-include-migration', () => {
-    const GUIDE_AON = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
-    const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
-    (0, node_test_1.test)('a migrated guide has its package includes renamed too', async () => {
-        const s = await scaffold();
-        const legacy = '@"@voxgig/apidef/model/guide.aontu"\n' +
-            "@'petstore-base-guide.aontu'\n" +
-            '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n';
-        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE_OLD), legacy);
-        Fs.rmSync(node_path_1.default.join(s.out, GUIDE_AON));
+    const GUIDE = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aontu');
+    const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
+    const LEGACY_INCLUDES = '@"@voxgig/apidef/model/guide.aon"\n' +
+        "@'petstore-base-guide.aon'\n" +
+        '@"./shared.aon"\n' +
+        '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n';
+    async function rescaffold(s) {
         await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
             root: 'CreateRoot', name: 'petstore', def: node_path_1.default.join(s.work, 'petstore.yml'),
             project: 'standard', folder: s.out, install: false,
         });
-        const got = s.read(GUIDE_AON);
-        node_assert_1.default.ok(!got.includes('.aontu'), 'no include may still name .aontu');
-        node_assert_1.default.match(got, /@"@voxgig\/apidef\/model\/guide\.aon"/);
-        node_assert_1.default.match(got, /@'petstore-base-guide\.aon'/, 'single-quoted includes too');
+    }
+    function assertAontuIncludes(got) {
+        node_assert_1.default.doesNotMatch(got, /(apidef\/model\/[^'"]+|base-guide)\.aon['"]/, 'no include of an apidef file may still name .aon');
+        node_assert_1.default.match(got, /@"\.\/shared\.aon"/, "a project's own include keeps its name");
+        node_assert_1.default.match(got, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
+        node_assert_1.default.match(got, /@'petstore-base-guide\.aontu'/, 'single-quoted includes too');
         node_assert_1.default.match(got, /widget: active: false/, 'user content is untouched');
+        node_assert_1.default.equal(got.split('@voxgig/apidef/model/guide.aontu').length, 2, 'the renamed include must satisfy the merge, not gain a duplicate');
+    }
+    (0, node_test_1.test)('a migrated guide has its package includes renamed too', async () => {
+        const s = await scaffold();
+        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE_OLD), LEGACY_INCLUDES);
+        Fs.rmSync(node_path_1.default.join(s.out, GUIDE));
+        await rescaffold(s);
+        assertAontuIncludes(s.read(GUIDE));
+    });
+    (0, node_test_1.test)('a guide.aontu that still includes .aon files has them renamed', async () => {
+        const s = await scaffold();
+        Fs.writeFileSync(node_path_1.default.join(s.out, GUIDE), LEGACY_INCLUDES);
+        await rescaffold(s);
+        assertAontuIncludes(s.read(GUIDE));
     });
 });
 (0, node_test_1.test)('new projects prepare documentation editions through docgen', async () => {

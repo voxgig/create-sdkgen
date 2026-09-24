@@ -44,7 +44,7 @@ const node_path_1 = __importDefault(require("node:path"));
 const STANDARD = node_path_1.default.resolve(__dirname, '..', 'project', 'standard');
 function aontuFiles(dir) {
     return Fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? aontuFiles(node_path_1.default.join(dir, e.name)) :
-        e.name.endsWith('.aon') ? [node_path_1.default.join(dir, e.name)] : []);
+        /\.aon(?:tu)?$/.test(e.name) ? [node_path_1.default.join(dir, e.name)] : []);
 }
 // Blank out quoted spans before looking for comment markers, so a `//` inside
 // a string - a url, or the `comment: line: '//'` a target model legitimately
@@ -57,6 +57,7 @@ function unquoted(line) {
     // A miswired path would make the test vacuously pass.
     (0, node_test_1.test)('the scaffold has model files to check', () => {
         node_assert_1.default.ok(0 < files.length, `no .aon files under ${STANDARD}`);
+        node_assert_1.default.ok(files.some((file) => file.endsWith('.aontu')), `no .aontu files under ${STANDARD}`);
     });
     (0, node_test_1.test)('no scaffolded model uses a slash comment', () => {
         const bad = [];

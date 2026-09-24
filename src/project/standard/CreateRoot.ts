@@ -89,20 +89,33 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 `
 
 
-const GUIDE_FILE = 'guide.aon'
+const GUIDE_FILE = 'guide.aontu'
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE]
 
 
-function migrateOverlay(fs: any, dir: string, name: string): void {
-  const next = Path.join(dir, name + '.aon')
-  const prev = Path.join(dir, name + '.aontu')
+function renameIncludes(src: string, from: string, to: string): string {
+  return src.replace(new RegExp(`(@['"][^'"]+)\\.${from}(['"])`, 'g'), `$1.${to}$2`)
+}
+
+
+// Only apidef's own files became .aontu; a project's own includes keep theirs.
+function migrateGuideIncludes(src: string): string {
+  return src.replace(
+    /(@(['"])(?:@voxgig\/apidef\/model\/[^'"]+|(?:[^'"]*\/)?[^'"/]*base-guide))\.aon\2/g,
+    '$1.aontu$2')
+}
+
+
+function migrateOverlay(
+  fs: any, dir: string, name: string, from: string, to: string,
+  rewrite: (src: string) => string = (src) => renameIncludes(src, from, to)): void {
+  const next = Path.join(dir, name + '.' + to)
+  const prev = Path.join(dir, name + '.' + from)
   if (fs.existsSync(next) || !fs.existsSync(prev)) {
     return
   }
   try {
-    const src = String(fs.readFileSync(prev))
-      .replace(/(@['"][^'"]+)\.aontu(['"])/g, '$1.aon$2')
-    fs.writeFileSync(next, src)
+    fs.writeFileSync(next, rewrite(String(fs.readFileSync(prev))))
     fs.unlinkSync(prev)
   }
   catch (_err: any) {
@@ -217,7 +230,9 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
         // Same hazard, worse symptom: this file carries the release version,
         // so an ignored project.aontu silently resets every generated manifest
         // to the sdkgen default 0.0.1 — the exact bug fixed earlier this week.
-        migrateOverlay(fs, Path.dirname(projectPath), 'project')
+        if (!spec.dryrun) {
+          migrateOverlay(fs, Path.dirname(projectPath), 'project', 'aontu', 'aon')
+        }
         const existingProject =
           fs.existsSync(projectPath) ? fs.readFileSync(projectPath, 'utf8') : null
 
@@ -234,10 +249,15 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
           const guidePath = Path.join(folder, spec.sdk_folder, ...GUIDE_REL)
 
           // Before the merge looks for it — otherwise a project whose guide is
-          // still named .aontu reads as having no overlay at all.
-          migrateOverlay(fs, Path.dirname(guidePath), 'guide')
-          const existingGuide =
-            fs.existsSync(guidePath) ? fs.readFileSync(guidePath, 'utf8') : null
+          // still named .aon reads as having no overlay at all.
+          if (!spec.dryrun) {
+            migrateOverlay(fs, Path.dirname(guidePath), 'guide', 'aon', 'aontu',
+              migrateGuideIncludes)
+          }
+
+          // An entry already named .aontu can still include a retired .aon file.
+          const existingGuide = fs.existsSync(guidePath) ?
+            migrateGuideIncludes(fs.readFileSync(guidePath, 'utf8')) : null
 
           File({ name: GUIDE_FILE }, () => {
             Content(mergeGuide(existingGuide, guideTemplate))
