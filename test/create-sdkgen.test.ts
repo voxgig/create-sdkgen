@@ -206,10 +206,22 @@ describe('create-sdkgen', () => {
     }
   })
 
-  test('scaffold-requires-an-apidef-that-ships-aontu', async () => {
+  // The first releases that ship and write only .aontu, and the aontu that
+  // refuses a .aon include.
+  const AONTU_FLOORS: Record<string, string> = {
+    '@voxgig/apidef': '>=8.16.0',
+    '@voxgig/sdkgen': '>=4.25.0',
+    '@voxgig/docgen': '>=0.27.0',
+    'aontu': '>=0.75.0',
+    'jostraca': '>=0.39.0',
+  }
+
+  test('scaffold-requires-a-toolchain-that-reads-only-aontu', async () => {
     const s = await scaffold()
     const pkg = JSON.parse(s.read('.sdk/package.json'))
-    assert.equal(pkg.devDependencies['@voxgig/apidef'], '>=8.16.0')
+    for (const [name, floor] of Object.entries(AONTU_FLOORS)) {
+      assert.equal(pkg.devDependencies[name], floor, name)
+    }
   })
 
 
@@ -596,7 +608,7 @@ describe('overlay-include-migration', () => {
 test('new projects prepare documentation editions through docgen', async () => {
   const p = await scaffold()
   const pkg = JSON.parse(p.read('.sdk/package.json'))
-  assert.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.23.0')
+  assert.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.27.0')
   assert.equal(pkg.scripts.postinstall, 'node build/docgen.js')
   assert.match(pkg.scripts.generate, /^node build\/docgen\.js/)
   assert.match(p.read('.sdk/build/docgen.js'), /prepareProject/)

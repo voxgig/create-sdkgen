@@ -186,10 +186,21 @@ async function scaffold(over = {}) {
             node_assert_1.default.ok(s.exists(node_path_1.default.join('.sdk', 'model', include)), 'sdk.aontu includes a file the scaffold does not write: ' + include);
         }
     });
-    (0, node_test_1.test)('scaffold-requires-an-apidef-that-ships-aontu', async () => {
+    // The first releases that ship and write only .aontu, and the aontu that
+    // refuses a .aon include.
+    const AONTU_FLOORS = {
+        '@voxgig/apidef': '>=8.16.0',
+        '@voxgig/sdkgen': '>=4.25.0',
+        '@voxgig/docgen': '>=0.27.0',
+        'aontu': '>=0.75.0',
+        'jostraca': '>=0.39.0',
+    };
+    (0, node_test_1.test)('scaffold-requires-a-toolchain-that-reads-only-aontu', async () => {
         const s = await scaffold();
         const pkg = JSON.parse(s.read('.sdk/package.json'));
-        node_assert_1.default.equal(pkg.devDependencies['@voxgig/apidef'], '>=8.16.0');
+        for (const [name, floor] of Object.entries(AONTU_FLOORS)) {
+            node_assert_1.default.equal(pkg.devDependencies[name], floor, name);
+        }
     });
     (0, node_test_1.test)('sdk-package-json-substitutes-name', async () => {
         const s = await scaffold({ name: 'petstore' });
@@ -462,7 +473,7 @@ async function scaffold(over = {}) {
 (0, node_test_1.test)('new projects prepare documentation editions through docgen', async () => {
     const p = await scaffold();
     const pkg = JSON.parse(p.read('.sdk/package.json'));
-    node_assert_1.default.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.23.0');
+    node_assert_1.default.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.27.0');
     node_assert_1.default.equal(pkg.scripts.postinstall, 'node build/docgen.js');
     node_assert_1.default.match(pkg.scripts.generate, /^node build\/docgen\.js/);
     node_assert_1.default.match(p.read('.sdk/build/docgen.js'), /prepareProject/);
