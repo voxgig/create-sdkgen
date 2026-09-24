@@ -14,7 +14,7 @@ const STANDARD = Path.resolve(__dirname, '..', 'project', 'standard')
 function aontuFiles(dir: string): string[] {
   return Fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? aontuFiles(Path.join(dir, e.name)) :
-      /\.aontu?$/.test(e.name) ? [Path.join(dir, e.name)] : [])
+      /\.aon(?:tu)?$/.test(e.name) ? [Path.join(dir, e.name)] : [])
 }
 
 

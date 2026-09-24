@@ -502,6 +502,7 @@ describe('overlay-include-migration', () => {
   const LEGACY_INCLUDES =
     '@"@voxgig/apidef/model/guide.aon"\n' +
     "@'petstore-base-guide.aon'\n" +
+    '@"./shared.aon"\n' +
     '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n'
 
   async function rescaffold(s: any) {
@@ -512,7 +513,9 @@ describe('overlay-include-migration', () => {
   }
 
   function assertAontuIncludes(got: string) {
-    assert.doesNotMatch(got, /\.aon['"]/, 'no include may still name .aon')
+    assert.doesNotMatch(got, /(apidef\/model\/[^'"]+|base-guide)\.aon['"]/,
+      'no include of an apidef file may still name .aon')
+    assert.match(got, /@"\.\/shared\.aon"/, "a project's own include keeps its name")
     assert.match(got, /@"@voxgig\/apidef\/model\/guide\.aontu"/)
     assert.match(got, /@'petstore-base-guide\.aontu'/, 'single-quoted includes too')
     assert.match(got, /widget: active: false/, 'user content is untouched')

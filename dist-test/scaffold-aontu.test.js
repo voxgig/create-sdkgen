@@ -44,7 +44,7 @@ const node_path_1 = __importDefault(require("node:path"));
 const STANDARD = node_path_1.default.resolve(__dirname, '..', 'project', 'standard');
 function aontuFiles(dir) {
     return Fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? aontuFiles(node_path_1.default.join(dir, e.name)) :
-        /\.aontu?$/.test(e.name) ? [node_path_1.default.join(dir, e.name)] : []);
+        /\.aon(?:tu)?$/.test(e.name) ? [node_path_1.default.join(dir, e.name)] : []);
 }
 // Blank out quoted spans before looking for comment markers, so a `//` inside
 // a string - a url, or the `comment: line: '//'` a target model legitimately

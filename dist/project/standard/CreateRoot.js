@@ -78,14 +78,18 @@ const GUIDE_REL = ['model', 'guide', GUIDE_FILE];
 function renameIncludes(src, from, to) {
     return src.replace(new RegExp(`(@['"][^'"]+)\\.${from}(['"])`, 'g'), `$1.${to}$2`);
 }
-function migrateOverlay(fs, dir, name, from, to) {
+// Only apidef's own files became .aontu; a project's own includes keep theirs.
+function migrateGuideIncludes(src) {
+    return src.replace(/(@(['"])(?:@voxgig\/apidef\/model\/[^'"]+|(?:[^'"]*\/)?[^'"/]*base-guide))\.aon\2/g, '$1.aontu$2');
+}
+function migrateOverlay(fs, dir, name, from, to, rewrite = (src) => renameIncludes(src, from, to)) {
     const next = node_path_1.default.join(dir, name + '.' + to);
     const prev = node_path_1.default.join(dir, name + '.' + from);
     if (fs.existsSync(next) || !fs.existsSync(prev)) {
         return;
     }
     try {
-        fs.writeFileSync(next, renameIncludes(String(fs.readFileSync(prev)), from, to));
+        fs.writeFileSync(next, rewrite(String(fs.readFileSync(prev))));
         fs.unlinkSync(prev);
     }
     catch (_err) {
@@ -189,11 +193,11 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
                     // Before the merge looks for it — otherwise a project whose guide is
                     // still named .aon reads as having no overlay at all.
                     if (!spec.dryrun) {
-                        migrateOverlay(fs, node_path_1.default.dirname(guidePath), 'guide', 'aon', 'aontu');
+                        migrateOverlay(fs, node_path_1.default.dirname(guidePath), 'guide', 'aon', 'aontu', migrateGuideIncludes);
                     }
                     // An entry already named .aontu can still include a retired .aon file.
                     const existingGuide = fs.existsSync(guidePath) ?
-                        renameIncludes(fs.readFileSync(guidePath, 'utf8'), 'aon', 'aontu') : null;
+                        migrateGuideIncludes(fs.readFileSync(guidePath, 'utf8')) : null;
                     (0, jostraca_1.File)({ name: GUIDE_FILE }, () => {
                         (0, jostraca_1.Content)(mergeGuide(existingGuide, guideTemplate));
                     });

@@ -394,6 +394,7 @@ async function scaffold(over = {}) {
     const GUIDE_OLD = node_path_1.default.join('.sdk', 'model', 'guide', 'guide.aon');
     const LEGACY_INCLUDES = '@"@voxgig/apidef/model/guide.aon"\n' +
         "@'petstore-base-guide.aon'\n" +
+        '@"./shared.aon"\n' +
         '\n# USER CUSTOMIZATION\nguide: entity: { widget: active: false }\n';
     async function rescaffold(s) {
         await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
@@ -402,7 +403,8 @@ async function scaffold(over = {}) {
         });
     }
     function assertAontuIncludes(got) {
-        node_assert_1.default.doesNotMatch(got, /\.aon['"]/, 'no include may still name .aon');
+        node_assert_1.default.doesNotMatch(got, /(apidef\/model\/[^'"]+|base-guide)\.aon['"]/, 'no include of an apidef file may still name .aon');
+        node_assert_1.default.match(got, /@"\.\/shared\.aon"/, "a project's own include keeps its name");
         node_assert_1.default.match(got, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
         node_assert_1.default.match(got, /@'petstore-base-guide\.aontu'/, 'single-quoted includes too');
         node_assert_1.default.match(got, /widget: active: false/, 'user content is untouched');

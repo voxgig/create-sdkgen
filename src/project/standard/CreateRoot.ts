@@ -98,15 +98,24 @@ function renameIncludes(src: string, from: string, to: string): string {
 }
 
 
+// Only apidef's own files became .aontu; a project's own includes keep theirs.
+function migrateGuideIncludes(src: string): string {
+  return src.replace(
+    /(@(['"])(?:@voxgig\/apidef\/model\/[^'"]+|(?:[^'"]*\/)?[^'"/]*base-guide))\.aon\2/g,
+    '$1.aontu$2')
+}
+
+
 function migrateOverlay(
-  fs: any, dir: string, name: string, from: string, to: string): void {
+  fs: any, dir: string, name: string, from: string, to: string,
+  rewrite: (src: string) => string = (src) => renameIncludes(src, from, to)): void {
   const next = Path.join(dir, name + '.' + to)
   const prev = Path.join(dir, name + '.' + from)
   if (fs.existsSync(next) || !fs.existsSync(prev)) {
     return
   }
   try {
-    fs.writeFileSync(next, renameIncludes(String(fs.readFileSync(prev)), from, to))
+    fs.writeFileSync(next, rewrite(String(fs.readFileSync(prev))))
     fs.unlinkSync(prev)
   }
   catch (_err: any) {
@@ -242,12 +251,13 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
           // Before the merge looks for it — otherwise a project whose guide is
           // still named .aon reads as having no overlay at all.
           if (!spec.dryrun) {
-            migrateOverlay(fs, Path.dirname(guidePath), 'guide', 'aon', 'aontu')
+            migrateOverlay(fs, Path.dirname(guidePath), 'guide', 'aon', 'aontu',
+              migrateGuideIncludes)
           }
 
           // An entry already named .aontu can still include a retired .aon file.
           const existingGuide = fs.existsSync(guidePath) ?
-            renameIncludes(fs.readFileSync(guidePath, 'utf8'), 'aon', 'aontu') : null
+            migrateGuideIncludes(fs.readFileSync(guidePath, 'utf8')) : null
 
           File({ name: GUIDE_FILE }, () => {
             Content(mergeGuide(existingGuide, guideTemplate))
