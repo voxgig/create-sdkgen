@@ -622,7 +622,7 @@ async function scaffold(over = {}) {
         const fs = {
             ...Fs,
             writeFileSync: (path, ...rest) => {
-                if (String(path).endsWith(node_path_1.default.join('target', 'ts.aontu'))) {
+                if (String(path).includes(node_path_1.default.join('target', 'ts.aontu'))) {
                     throw new Error('disk full');
                 }
                 return Fs.writeFileSync(path, ...rest);

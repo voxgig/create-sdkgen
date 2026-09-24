@@ -11,7 +11,7 @@ const TREES = ['model', 'test'];
 const LEGACY = '.aon';
 const CURRENT = '.aontu';
 const TOOLCHAIN_RE = /^@voxgig\//;
-const APIDEF_WRITES_RE = /(^|\/)[^/]*base-guide\.aontu$/;
+const APIDEF_WRITES_RE = /^model\/guide\/[^/]*base-guide\.aontu$/;
 // Comments and strings are matched whole, so an include is only ever an `@`
 // outside both: a `.aon` named in a comment or held as data is not rewritten.
 const TOKEN_RE = /#[^\n]*|@([ \t]*)(["'`])([^"'`\n]*)\2|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`/g;
@@ -61,12 +61,25 @@ function attempt(step) {
     catch (_err) {
     }
 }
+// Written beside the target and renamed over it, so a write that fails part
+// way leaves the file it would have replaced whole.
+function writeWhole(fs, path, data) {
+    const tmp = path + '.migrating';
+    try {
+        fs.writeFileSync(tmp, data);
+        fs.renameSync(tmp, path);
+    }
+    catch (err) {
+        attempt(() => fs.unlinkSync(tmp));
+        throw err;
+    }
+}
 function migrateFile(fs, prev, next) {
     if (fs.existsSync(next) || !fs.existsSync(prev)) {
         return;
     }
     attempt(() => {
-        fs.writeFileSync(next, fs.readFileSync(prev));
+        writeWhole(fs, next, fs.readFileSync(prev));
         fs.unlinkSync(prev);
     });
 }
@@ -100,7 +113,7 @@ function migrateToAontu(fs, sdk, scaffold, warn) {
             const src = String(fs.readFileSync(abs(rel)));
             const out = rewriteIncludes(src, includeRenamer(fs, sdk, scaffold, rel));
             if (out !== src) {
-                fs.writeFileSync(abs(rel), out);
+                writeWhole(fs, abs(rel), out);
             }
         });
     }

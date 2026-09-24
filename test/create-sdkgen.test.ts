@@ -797,7 +797,7 @@ describe('aon-era-migration', () => {
     const fs: any = {
       ...Fs,
       writeFileSync: (path: any, ...rest: any[]) => {
-        if (String(path).endsWith(Path.join('target', 'ts.aontu'))) {
+        if (String(path).includes(Path.join('target', 'ts.aontu'))) {
           throw new Error('disk full')
         }
         return (Fs.writeFileSync as any)(path, ...rest)
