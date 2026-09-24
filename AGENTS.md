@@ -36,12 +36,12 @@ One source of truth — a **model** — drives everything. You edit the model;
 every SDK is regenerated from it.
 
 ```
-OpenAPI 3 spec  ──apidef──▶  model (.sdk/model/*.aontu)  ──sdkgen──▶  ts/  py/  go/  php/  rb/  lua/  (+ go-cli, go-mcp)
+OpenAPI 3 spec  ──apidef──▶  model (.sdk/model/)         ──sdkgen──▶  ts/  py/  go/  php/  rb/  lua/  (+ go-cli, go-mcp)
    (your API)                (the source of truth you edit)             (generated SDK source — NEVER hand-edit)
 ```
 
 - **`@voxgig/apidef`** parses your OpenAPI spec into the model (entities, ops, fields, types). See [apidef/AGENTS.md](https://github.com/voxgig/apidef/blob/main/AGENTS.md).
-- **The model** (`.sdk/model/`, `.aontu` files, unified by `aontu`) is what you edit to shape the SDK.
+- **The model** (`.sdk/model/`, unified by `aontu`) is what you edit to shape the SDK. Every file apidef ships or writes is `.aontu` (entities, flows, API info, the guide); the scaffold's own files (`sdk.aon`, `config.aon`, `project.aon`, the target/feature/edition indexes) are `.aon`.
 - **`@voxgig/sdkgen`** renders the model into idiomatic per-language SDK source via `jostraca`. See [sdkgen/AGENTS.md](https://github.com/voxgig/sdkgen/blob/main/AGENTS.md).
 
 The API surface is exposed as **semantic entities** (Capitalised — e.g.
@@ -86,7 +86,7 @@ npx voxgig-sdkgen feature add test                 # offline test mode — REQUI
 ```
 
 Available targets include `ts`, `js`, `py`, `go`, `php`, `rb`, `lua`, plus
-`go-cli` and `go-mcp`. `target add` / `feature add` edit `.sdk/model/config.aontu`.
+`go-cli` and `go-mcp`. `target add` / `feature add` edit `.sdk/model/target/target-index.aon` / `.sdk/model/feature/feature-index.aon`.
 
 ### 3. Generate the SDK source
 
@@ -96,7 +96,7 @@ npm run generate
 
 `generate` first compiles the `.sdk` build sources (`tsc --build src` —
 required; `voxgig-model` loads the compiled `.sdk/dist/` components), then
-runs `voxgig-model model/sdk.aontu`, which compiles the model (`aontu`
+runs `voxgig-model model/sdk.aon`, which compiles the model (`aontu`
 unification) and runs the generator, writing SDK source into the
 per-language directories (`../ts`, `../py`, …). Re-run this whenever you
 change the model.
@@ -124,9 +124,10 @@ Green tests mean the SDK works and its documentation is correct.
 
 | Path | Role | Edit it? |
 | --- | --- | --- |
-| `.sdk/model/sdk.aontu` | Model entry — name, spec ref (`def`), imports | Yes (rarely) |
+| `.sdk/model/sdk.aon` | Model entry — name, spec ref (`def`), imports | Yes (rarely) |
 | `.sdk/model/entity/*.aontu` | **Entities** — the semantic surface (ops, fields, types) | **Yes — this is the main lever** |
-| `.sdk/model/config.aontu` | Active targets + features | Yes (or via `target add`/`feature add`) |
+| `.sdk/model/guide/guide.aontu` | Guide — corrections to how apidef reads the spec (entity names, active paths and ops); kept on re-scaffold | Yes |
+| `.sdk/model/target/`, `.sdk/model/feature/` | Active targets + features | Yes (or via `target add`/`feature add`) |
 | `.sdk/model/api/*` | OpenAPI-derived info | Regenerated from the spec — avoid hand-editing |
 | `ts/  py/  go/  php/  rb/  lua/` | **Generated SDK source** | **Never** — overwritten on every generate |
 | `<target>/README.md`, `REFERENCE.md` | Generated docs | Never — driven by the model |
