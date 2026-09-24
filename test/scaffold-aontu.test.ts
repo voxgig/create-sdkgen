@@ -37,6 +37,23 @@ describe('scaffold-aontu-syntax', () => {
       `no .aontu files under ${STANDARD}`)
   })
 
+  // aontu refuses a .aon include, and a re-scaffold removes the scaffold's own
+  // .aon files, so one shipped here would be deleted from every project.
+  test('the scaffold ships no .aon file and includes none', () => {
+    assert.deepEqual(files.filter((file) => file.endsWith('.aon'))
+      .map((file) => Path.relative(STANDARD, file)), [])
+
+    const bad: string[] = []
+    for (const file of files) {
+      Fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+        if (/@\s*["'`][^"'`]*\.aon["'`]/.test(line.replace(/#.*$/, ''))) {
+          bad.push(`${Path.relative(STANDARD, file)}:${i + 1}: ${line.trim()}`)
+        }
+      })
+    }
+    assert.deepEqual(bad, [])
+  })
+
   test('no scaffolded model uses a slash comment', () => {
     const bad: string[] = []
 
