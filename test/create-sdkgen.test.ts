@@ -207,11 +207,12 @@ describe('create-sdkgen', () => {
   })
 
   // The first releases that ship and write only .aontu, and the aontu that
-  // refuses a .aon include.
+  // refuses a .aon include. sdkgen's is later still: the first to generate
+  // the npm trust script the scaffold's admin README describes.
   const AONTU_FLOORS: Record<string, string> = {
     '@voxgig/apidef': '>=8.17.0',
     '@voxgig/model': '>=12.0.0',
-    '@voxgig/sdkgen': '>=4.25.0',
+    '@voxgig/sdkgen': '>=4.30.0',
     '@voxgig/docgen': '>=0.27.0',
     'aontu': '>=0.75.0',
     'jostraca': '>=0.39.0',
