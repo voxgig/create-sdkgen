@@ -84,8 +84,8 @@ const Root = cmp(function Root(props: any) {
       BuildSDK({})
     }
 
-    each(target, (target: any, key: string) => {
-      const place = plan.place[key]
+    each(target, (target: any) => {
+      const place = plan.place[target.name]
 
       if (null == place) {
         return

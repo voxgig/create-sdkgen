@@ -129,7 +129,7 @@ describe('root-plan', () => {
     match(root, /rootPlan\(model\.main\[KIT\], SdkGenError\)/)
     match(root, /if \(plan\.top\) \{\s*Top\(\{\}\)/)
     match(root, /if \(plan\.build\) \{\s*BuildSDK\(\{\}\)/)
-    match(root, /plan\.place\[key\]/)
+    match(root, /plan\.place\[target\.name\]/)
   })
 
 })

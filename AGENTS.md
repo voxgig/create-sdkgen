@@ -189,6 +189,8 @@ Together they make a repository that is one package rather than an SDK: a
 Seneca provider, say, that carries its own `.sdk/` and depends on an SDK
 released from another repository. The decisions are in `src/RootPlan.ts`,
 which imports nothing so that this repository's tests can load it.
+`admin/check-drift.sh` follows them: a target generated at the root owns
+every tracked file outside `.sdk/`, as another target owns its folder.
 
 ---
 

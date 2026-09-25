@@ -38,7 +38,9 @@ test, and the only symptom is a tree that disagrees with the model:
   anything whose output might be committed.
 
 The script deletes every target tree, regenerates, and reports what differs —
-which is the only way to see output the generator no longer emits. It refuses
+which is the only way to see output the generator no longer emits. A target
+generated at the project root (`output: root: true`) owns every tracked file
+outside `.sdk/`, so those are what it deletes for that target. It refuses
 to run on a dirty tree, restores the target's own build artifacts and
 lockfiles (which the generator never writes), and leaves the regenerated tree
 in place so the diff can be read.

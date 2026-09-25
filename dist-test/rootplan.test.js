@@ -102,7 +102,7 @@ const targets = (...names) => Object.fromEntries(names.map((name) => [name, { na
         (0, node_assert_1.match)(root, /rootPlan\(model\.main\[KIT\], SdkGenError\)/);
         (0, node_assert_1.match)(root, /if \(plan\.top\) \{\s*Top\(\{\}\)/);
         (0, node_assert_1.match)(root, /if \(plan\.build\) \{\s*BuildSDK\(\{\}\)/);
-        (0, node_assert_1.match)(root, /plan\.place\[key\]/);
+        (0, node_assert_1.match)(root, /plan\.place\[target\.name\]/);
     });
 });
 //# sourceMappingURL=rootplan.test.js.map
