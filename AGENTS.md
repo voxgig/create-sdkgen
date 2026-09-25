@@ -172,6 +172,26 @@ left. Anything that cannot be migrated, such as an include pointing outside
 `.sdk/`, is logged as a `migrate-aontu` warning naming the file; fix those by
 hand. Commit first, and read the diff.
 
+### What the standard Root generates
+
+`.sdk/src/Root.ts` is one of the scaffold's own files, rewritten on
+re-scaffold, so a project decides what it generates in `project.aontu`
+instead of editing it:
+
+| Declare | Effect |
+| --- | --- |
+| `main: kit: target: <t>: active: false` | `<t>` stays in the model and is not generated. |
+| `main: kit: phase: top: active: false` | No SDK repository files at the root: README, AGENTS.md, CLAUDE.md, LICENSE, SECURITY.md, CHANGELOG.md, the release Makefile and the publish workflows. |
+| `main: kit: phase: build: active: false` | No per-entity test data under `.sdk/test/entity/`, which only the SDK targets' own tests read. |
+| `main: kit: target: <t>: output: root: true` | `<t>` is generated at the project root instead of `<t>/`. At most one target, and only with `phase: top` off, or the repository files would overwrite its own. |
+
+Together they make a repository that is one package rather than an SDK: a
+Seneca provider, say, that carries its own `.sdk/` and depends on an SDK
+released from another repository. The decisions are in `src/RootPlan.ts`,
+which imports nothing so that this repository's tests can load it.
+`admin/check-drift.sh` follows them: a target generated at the root owns
+every tracked file outside `.sdk/`, as another target owns its folder.
+
 ---
 
 ## The guarantee: every documented example is tested
