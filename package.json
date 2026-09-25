@@ -47,7 +47,8 @@
     "dist",
     "bin",
     "project",
-    "LICENSE"
+    "LICENSE",
+    "README.md"
   ],
   "devDependencies": {
     "@types/node": "26.1.2",

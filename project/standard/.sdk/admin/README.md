@@ -62,7 +62,22 @@ The setup script configures GitHub Actions as the publishing source. It does
 not commit, push, merge, or deploy. Push the documentation workflow and project
 changes to its configured deployment branch to publish the website.
 
+When a target publishes to npm and the repository is on `github.com`, sdkgen
+generates `setup-npm-trust.sh` here. It registers each npm publish workflow as
+the trusted publisher of its package, from the same model the workflows are
+generated from, and leaves a package that is already set up alone:
+
+```sh
+.sdk/admin/setup-npm-trust.sh --dry-run
+.sdk/admin/setup-npm-trust.sh
+.sdk/admin/setup-npm-trust.sh --check
+```
+
+`--check` changes nothing and exits non-zero on any difference from what the
+workflows need, including a trusted publisher that no workflow names;
+`--replace` revokes those. It needs an npm login with publish rights.
+
 The status launcher and the drift check come from create-sdkgen; the status
-reporting code comes from sdkgen. Docgen owns the generated Pages setup
-script. Put project-specific administration scripts beside them with
-different names.
+reporting code and the npm trust script come from sdkgen. Docgen owns the
+generated Pages setup script. Put project-specific administration scripts
+beside them with different names.
