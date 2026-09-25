@@ -245,14 +245,16 @@ dispatch, so prepare the commit and dispatch the workflow.
 ### Releasing a generated SDK
 
 A generated project emits its own OIDC publish workflow per npm target
-(`.github/workflows/publish-<target>.yml`) and a maintainer guide at
-`.sdk/PUBLISHING.md` that names the one-time `npm trust` command. Release by
-dispatching that workflow; it publishes and cuts the release tag.
+(`.github/workflows/publish-<target>.yml`), a maintainer guide at
+`.sdk/PUBLISHING.md` that names the one-time `npm trust` command, and
+`.sdk/admin/setup-npm-trust.sh`, which runs that command from the same model
+and with `--check` reports any drift from it. Release by dispatching that
+workflow; it publishes and cuts the release tag.
 
 Only the FIRST version of a brand-new package goes out by hand: npm exposes
 the trusted-publisher settings only once a version exists, so there is nothing
-to register against until then. Register the publisher straight after, and
-every later release is a dispatch.
+to register against until then. Run `.sdk/admin/setup-npm-trust.sh` straight
+after, and every later release is a dispatch.
 
 The non-npm ports (PyPI, Packagist, RubyGems, LuaRocks, Go modules) release by
 per-target git tag (`<target>/vX.Y.Z`) through the generated root `Makefile`'s

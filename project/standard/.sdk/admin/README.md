@@ -77,6 +77,11 @@ generated from, and leaves a package that is already set up alone:
 workflows need, including a trusted publisher that no workflow names;
 `--replace` revokes those. It needs an npm login with publish rights.
 
+npm offers trusted publishing only for a package that already has a version,
+so a new package's first version is published by hand, as `.sdk/PUBLISHING.md`
+describes. Run the script straight after; every later release goes through the
+generated workflow.
+
 The status launcher and the drift check come from create-sdkgen; the status
 reporting code and the npm trust script come from sdkgen. Docgen owns the
 generated Pages setup script. Put project-specific administration scripts
