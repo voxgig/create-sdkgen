@@ -1,2 +1,2 @@
-declare const ModelSdk: import("jostraca").Component<any, never, never>;
+declare const ModelSdk: import("jostraca").Component;
 export { ModelSdk };
