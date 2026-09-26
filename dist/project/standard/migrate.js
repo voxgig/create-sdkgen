@@ -15,9 +15,16 @@ const APIDEF_WRITES_RE = /^model\/guide\/[^/]*base-guide\.aontu$/;
 // Comments and strings are matched whole, so an include is only ever an `@`
 // outside both: a `.aon` named in a comment or held as data is not rewritten.
 const TOKEN_RE = /#[^\n]*|@([ \t]*)(["'`])([^"'`\n]*)\2|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`/g;
+// A BARE FILENAME ALSO NEEDS `./`. aontu has required the prefix for a local
+// file since 0.65, so rewriting only the extension left an include still
+// refused, with "local files need a ./ prefix". An include already carrying a
+// directory segment is unambiguous and is left alone.
+function localPrefix(path) {
+    return path.includes('/') || path.startsWith('./') ? path : './' + path;
+}
 function rewriteIncludes(src, rename) {
     return src.replace(TOKEN_RE, (token, space, quote, path) => null != quote && path.endsWith(LEGACY) && rename(path) ?
-        '@' + space + quote + path.slice(0, -LEGACY.length) + CURRENT + quote : token);
+        '@' + space + quote + localPrefix(path.slice(0, -LEGACY.length) + CURRENT) + quote : token);
 }
 function legacyIncludes(src) {
     return [...src.matchAll(TOKEN_RE)]

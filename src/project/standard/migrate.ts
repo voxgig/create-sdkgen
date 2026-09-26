@@ -23,10 +23,19 @@ type Scaffold = {
 }
 
 
+// A BARE FILENAME ALSO NEEDS `./`. aontu has required the prefix for a local
+// file since 0.65, so rewriting only the extension left an include still
+// refused, with "local files need a ./ prefix". An include already carrying a
+// directory segment is unambiguous and is left alone.
+function localPrefix(path: string): string {
+  return path.includes('/') || path.startsWith('./') ? path : './' + path
+}
+
+
 function rewriteIncludes(src: string, rename: (path: string) => boolean): string {
   return src.replace(TOKEN_RE, (token: string, space: string, quote: string, path: string) =>
     null != quote && path.endsWith(LEGACY) && rename(path) ?
-      '@' + space + quote + path.slice(0, -LEGACY.length) + CURRENT + quote : token)
+      '@' + space + quote + localPrefix(path.slice(0, -LEGACY.length) + CURRENT) + quote : token)
 }
 
 

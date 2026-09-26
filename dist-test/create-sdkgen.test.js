@@ -463,7 +463,7 @@ async function scaffold(over = {}) {
         node_assert_1.default.equal(s.read(SHARED + '.aontu'), SHARED_CONTENT, "the project's own file is renamed, byte for byte");
         node_assert_1.default.equal(s.exists(SHARED + '.aon'), false);
         node_assert_1.default.match(got, /@"@voxgig\/apidef\/model\/guide\.aontu"/);
-        node_assert_1.default.match(got, /@'petstore-base-guide\.aontu'/, 'single-quoted includes too');
+        node_assert_1.default.match(got, /@'\.\/petstore-base-guide\.aontu'/, 'single-quoted includes too, and a bare filename gains the ./ aontu requires');
         node_assert_1.default.match(got, /widget: active: false/, 'user content is untouched');
         node_assert_1.default.equal(got.split('@voxgig/apidef/model/guide.aontu').length, 2, 'the renamed include must satisfy the merge, not gain a duplicate');
     }

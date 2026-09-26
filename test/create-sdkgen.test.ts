@@ -590,7 +590,8 @@ describe('overlay-include-migration', () => {
       "the project's own file is renamed, byte for byte")
     assert.equal(s.exists(SHARED + '.aon'), false)
     assert.match(got, /@"@voxgig\/apidef\/model\/guide\.aontu"/)
-    assert.match(got, /@'petstore-base-guide\.aontu'/, 'single-quoted includes too')
+    assert.match(got, /@'\.\/petstore-base-guide\.aontu'/,
+      'single-quoted includes too, and a bare filename gains the ./ aontu requires')
     assert.match(got, /widget: active: false/, 'user content is untouched')
     assert.equal(got.split('@voxgig/apidef/model/guide.aontu').length, 2,
       'the renamed include must satisfy the merge, not gain a duplicate')
