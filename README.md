@@ -33,7 +33,7 @@ generated output and is overwritten on each regenerate.
 | Flag | Meaning |
 | --- | --- |
 | `<name>` | SDK name (kebab-case), the package base name |
-| `-d, --def <spec>` | OpenAPI 3 spec file (`.yaml`/`.json`), with a `servers` entry naming the API's base URL |
+| `-d, --def <spec>` | OpenAPI 3 spec file (`.yaml`/`.json`), with a `servers` entry naming the base URL of the API |
 | `-o, --folder <dir>` | output directory (default `<name>-sdk`) |
 | `-t, --target <langs>` | targets to add during scaffold (e.g. `ts,py,go`) |
 | `-f, --feature <feats>` | features to add (e.g. `test`) |
@@ -91,8 +91,8 @@ such a project and re-scaffolds it.
 The scaffold's `.sdk/package.json` pins each Voxgig toolchain package to the
 patch line this release of create-sdkgen was released with: `~4.31.0` for
 `@voxgig/sdkgen`, and likewise for `@voxgig/apidef`, `@voxgig/model` and
-`@voxgig/docgen`. A project scaffolded by any release of create-sdkgen,
-pinned or not, installs a toolchain that can drive what the scaffold wrote.
+`@voxgig/docgen`. Any release of create-sdkgen, pinned or not, scaffolds a
+project that installs a toolchain able to drive what the scaffold wrote.
 Fixes arrive with `npm install`. A newer minor arrives with a re-scaffold
 from the current create-sdkgen, which rewrites the pins, or by editing the
 ranges by hand.
