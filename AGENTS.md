@@ -246,9 +246,11 @@ dispatch, so prepare the commit and dispatch the workflow.
 
 The scaffold pins the toolchain it was released with: `.sdk/package.json`
 names `~x.y.z` for `@voxgig/apidef`, `@voxgig/model`, `@voxgig/sdkgen` and
-`@voxgig/docgen`, so a project scaffolded by an older create-sdkgen, such as
-the one a tutorial pins, installs a toolchain that reads what the scaffold
-wrote rather than the newest release, which may refuse it. Before a release,
+`@voxgig/docgen`, so a project scaffolded by a release that carries the pins,
+such as one a tutorial pins, installs a toolchain that reads what the scaffold
+wrote rather than whatever the registry holds, which may refuse it. A release
+from before the pins declares open floors and cannot be fixed after the fact.
+Before a release,
 run `npm run toolchain` to move the pins to the latest patch line of each
 package (`npm run toolchain-check` only reports), then scaffold and generate
 a project against the result. `test/create-sdkgen.test.ts` fails on a pin

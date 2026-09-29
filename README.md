@@ -91,11 +91,12 @@ such a project and re-scaffolds it.
 The scaffold's `.sdk/package.json` pins each Voxgig toolchain package to the
 patch line this release of create-sdkgen was released with: `~4.31.0` for
 `@voxgig/sdkgen`, and likewise for `@voxgig/apidef`, `@voxgig/model` and
-`@voxgig/docgen`. Any release of create-sdkgen, pinned or not, scaffolds a
-project that installs a toolchain able to drive what the scaffold wrote.
-Fixes arrive with `npm install`. A newer minor arrives with a re-scaffold
-from the current create-sdkgen, which rewrites the pins, or by editing the
-ranges by hand.
+`@voxgig/docgen`. A release that carries these pins, pinned or not, scaffolds
+a project that installs a toolchain able to drive what the scaffold wrote. A
+release from before them declares open floors instead, so re-scaffold with one
+that has them. Fixes arrive with `npm install`. A newer minor arrives with a
+re-scaffold from the current create-sdkgen, which rewrites the pins, or by
+editing the ranges by hand.
 
 ## Contributing
 

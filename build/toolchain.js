@@ -12,8 +12,28 @@ const MANIFEST = Path.join(__dirname, '..', 'project', 'standard', '.sdk', 'pack
 
 const TOOLCHAIN = ['@voxgig/apidef', '@voxgig/model', '@voxgig/sdkgen', '@voxgig/docgen']
 
+// A registry lookup that has not answered by then is reported, so a stalled
+// registry fails inside the status cadence rather than hanging in silence.
+const LOOKUP_MS = 20_000
+
+// npm is npm.cmd on Windows, which only a shell can launch.
+const SHELL = 'win32' === process.platform
+
 function latest(name) {
-  return execFileSync('npm', ['view', name, 'version'], { encoding: 'utf8' }).trim()
+  try {
+    return execFileSync('npm', ['view', name, 'version'], {
+      encoding: 'utf8',
+      shell: SHELL,
+      timeout: LOOKUP_MS,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim()
+  }
+  catch (err) {
+    const why = null != err.signal
+      ? 'no answer within ' + (LOOKUP_MS / 1000) + 's'
+      : String(err.stderr || err.message).trim()
+    throw new Error('npm view ' + name + ' version: ' + why)
+  }
 }
 
 function pinLine(name) {
@@ -25,22 +45,23 @@ function main(args) {
   let text = Fs.readFileSync(MANIFEST, 'utf8')
   const lagging = []
 
-  for (const name of TOOLCHAIN) {
+  TOOLCHAIN.forEach((name, i) => {
     const match = text.match(pinLine(name))
     if (null == match) {
-      console.error('toolchain: ' + name + ' is not in ' + MANIFEST)
-      return 2
+      throw new Error(name + ' is not in ' + MANIFEST)
     }
+    console.log('toolchain: ' + (i + 1) + '/' + TOOLCHAIN.length +
+      ' (' + Math.round(100 * i / TOOLCHAIN.length) + '%) looking up ' + name)
     const current = match[2]
     const want = '~' + latest(name)
     if (current === want) {
       console.log(name + ' ' + current)
-      continue
+      return
     }
     lagging.push(name)
     console.log(name + ' ' + current + ' -> ' + want)
     text = text.replace(pinLine(name), '$1' + want + '$3')
-  }
+  })
 
   if (0 === lagging.length) {
     console.log('toolchain: every pin names the latest patch line')
@@ -57,4 +78,10 @@ function main(args) {
   return 0
 }
 
-process.exit(main(process.argv.slice(2)))
+try {
+  process.exit(main(process.argv.slice(2)))
+}
+catch (err) {
+  console.error('toolchain: ' + err.message)
+  process.exit(2)
+}
