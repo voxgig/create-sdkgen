@@ -63,7 +63,9 @@ it actually has, drawn from `list`, `load`, `create`, `update`, `remove`.
 ## Prerequisites
 
 - Node.js 24 or later (the floor aontu and sdkgen declare).
-- An **OpenAPI 3** spec for your API (`.yaml` or `.json`).
+- An **OpenAPI 3** spec for your API (`.yaml` or `.json`), with a top-level
+  `servers` entry naming the base URL: apidef refuses a definition without
+  one, and a FastAPI-generated document omits it unless the app declares it.
 - That's it — the toolchain is npm packages; no other services required to generate + test offline.
 
 ---
@@ -241,6 +243,17 @@ hand, the same mechanism is
 
 Never hand a release back as "run this locally yourself" — a release is a
 dispatch, so prepare the commit and dispatch the workflow.
+
+The scaffold pins the toolchain it was released with: `.sdk/package.json`
+names `~x.y.z` for `@voxgig/apidef`, `@voxgig/model`, `@voxgig/sdkgen` and
+`@voxgig/docgen`, so a project scaffolded by an older create-sdkgen, such as
+the one a tutorial pins, installs a toolchain that reads what the scaffold
+wrote rather than the newest release, which may refuse it. Before a release,
+run `npm run toolchain` to move the pins to the latest patch line of each
+package (`npm run toolchain-check` only reports), then scaffold and generate
+a project against the result. `test/create-sdkgen.test.ts` fails on a pin
+that is not a tilde range, or that is below the first release reading only
+`.aontu`.
 
 ### Releasing a generated SDK
 
