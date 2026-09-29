@@ -33,7 +33,7 @@ generated output and is overwritten on each regenerate.
 | Flag | Meaning |
 | --- | --- |
 | `<name>` | SDK name (kebab-case), the package base name |
-| `-d, --def <spec>` | OpenAPI 3 spec file (`.yaml`/`.json`), with a `servers` entry naming the base URL of the API |
+| `-d, --def <spec>` | OpenAPI 3 spec file (`.yaml`/`.json`). Its `servers` entry names the base URL of the API. A spec without one still builds: the SDK then takes the URL as its `base` server variable, or `.sdk/build/apidef.js` fixes one with the `server` option |
 | `-o, --folder <dir>` | output directory (default `<name>-sdk`) |
 | `-t, --target <langs>` | targets to add during scaffold (e.g. `ts,py,go`) |
 | `-f, --feature <feats>` | features to add (e.g. `test`) |
