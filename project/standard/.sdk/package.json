@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/node": ">=25.6",
     "typescript": ">=6.0",
-    "@voxgig/apidef": "~8.18.1",
+    "@voxgig/apidef": "~8.20.0",
     "@voxgig/model": "~12.0.0",
     "@voxgig/sdkgen": "~4.31.0",
     "@voxgig/util": ">=0.5",
