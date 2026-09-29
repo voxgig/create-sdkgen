@@ -316,8 +316,11 @@ entry at a time, never as a suffix pattern.
 
 New projects include `@voxgig/docgen`. Installing the `.sdk` dependencies adds
 the `summary` and `github-pages` editions. `npm run generate` then produces
-`SUMMARY.md` and the static HTML site in `docs/`, with text QA and a GitHub
-Pages workflow. With `--no-install`, setup happens when dependencies are installed.
+`SUMMARY.md` and a text QA workflow. The `github-pages` edition is off by
+default: to generate the static HTML site in `docs/` and its GitHub Pages
+deployment, set `main: kit: doc: edition: 'github-pages': active: true` in
+`.sdk/model/project.aontu`. With `--no-install`, setup happens when
+dependencies are installed.
 
 Add the optional Slidev presentation from `.sdk`:
 
