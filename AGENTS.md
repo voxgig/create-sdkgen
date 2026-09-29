@@ -63,9 +63,13 @@ it actually has, drawn from `list`, `load`, `create`, `update`, `remove`.
 ## Prerequisites
 
 - Node.js 24 or later (the floor aontu and sdkgen declare).
-- An **OpenAPI 3** spec for your API (`.yaml` or `.json`), with a top-level
-  `servers` entry naming the base URL: apidef refuses a definition without
-  one, and a FastAPI-generated document omits it unless the app declares it.
+- An **OpenAPI 3** spec for your API (`.yaml` or `.json`). A top-level
+  `servers` entry names the base URL. A spec without one still builds (a
+  FastAPI-generated document omits it unless the app declares it): the SDK
+  then takes the URL as its `base` server variable, passed at construction
+  as `server: { base: 'https://api.example.com' }`, or the project fixes one
+  by passing `server: 'https://api.example.com'` to `ApiDef.makeBuild` in
+  `.sdk/build/apidef.js`.
 - That's it — the toolchain is npm packages; no other services required to generate + test offline.
 
 ---
