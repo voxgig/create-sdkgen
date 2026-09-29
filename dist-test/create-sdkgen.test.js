@@ -189,18 +189,33 @@ async function scaffold(over = {}) {
     // The first releases that ship and write only .aontu, and the aontu that
     // refuses a .aon include. sdkgen's is later still: the first to generate
     // the npm trust script the scaffold's admin README describes.
-    const AONTU_FLOORS = {
-        '@voxgig/apidef': '>=8.17.0',
-        '@voxgig/model': '>=12.0.0',
-        '@voxgig/sdkgen': '>=4.30.0',
-        '@voxgig/docgen': '>=0.27.0',
+    const TOOLCHAIN_MIN = {
+        '@voxgig/apidef': '8.17.0',
+        '@voxgig/model': '12.0.0',
+        '@voxgig/sdkgen': '4.30.0',
+        '@voxgig/docgen': '0.27.0',
+    };
+    const LIBRARY_FLOORS = {
         'aontu': '>=0.75.0',
         'jostraca': '>=0.39.0',
     };
-    (0, node_test_1.test)('scaffold-requires-a-toolchain-that-reads-only-aontu', async () => {
+    const TILDE_RANGE_RE = /^~\d+\.\d+\.\d+$/;
+    const atLeast = (version, min) => {
+        const [a, b] = [version, min].map((v) => v.split('.').map(Number));
+        return a[0] !== b[0] ? a[0] > b[0] : a[1] !== b[1] ? a[1] > b[1] : a[2] >= b[2];
+    };
+    // The scaffold names the toolchain patch line it was released against, so
+    // a pinned create-sdkgen installs a toolchain it has driven; an open floor
+    // installs a later release that may refuse what the scaffold wrote.
+    (0, node_test_1.test)('scaffold-pins-the-toolchain-patch-line-above-the-aontu-floor', async () => {
         const s = await scaffold();
         const pkg = JSON.parse(s.read('.sdk/package.json'));
-        for (const [name, floor] of Object.entries(AONTU_FLOORS)) {
+        for (const [name, min] of Object.entries(TOOLCHAIN_MIN)) {
+            const range = pkg.devDependencies[name];
+            node_assert_1.default.match(range, TILDE_RANGE_RE, name + ': ' + range);
+            node_assert_1.default.ok(atLeast(range.slice(1), min), name + ': ' + range + ' is below ' + min);
+        }
+        for (const [name, floor] of Object.entries(LIBRARY_FLOORS)) {
             node_assert_1.default.equal(pkg.devDependencies[name], floor, name);
         }
     });
@@ -640,7 +655,7 @@ async function scaffold(over = {}) {
 (0, node_test_1.test)('new projects prepare documentation editions through docgen', async () => {
     const p = await scaffold();
     const pkg = JSON.parse(p.read('.sdk/package.json'));
-    node_assert_1.default.equal(pkg.devDependencies['@voxgig/docgen'], '>=0.27.0');
+    node_assert_1.default.match(pkg.devDependencies['@voxgig/docgen'], /^~\d+\.\d+\.\d+$/);
     node_assert_1.default.equal(pkg.scripts.postinstall, 'node build/docgen.js');
     node_assert_1.default.match(pkg.scripts.generate, /^node build\/docgen\.js/);
     node_assert_1.default.match(p.read('.sdk/build/docgen.js'), /prepareProject/);

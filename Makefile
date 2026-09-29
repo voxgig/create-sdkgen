@@ -45,6 +45,8 @@ publish:
 	  echo "publish: tag v$(V) already exists on origin"; exit 1; fi
 	@if git rev-parse -q --verify "refs/tags/v$(V)" >/dev/null 2>&1; then \
 	  echo "publish: tag v$(V) already exists locally"; exit 1; fi
+	@node build/toolchain.js --check || \
+	  echo "publish: releasing with the scaffold's toolchain pins as they are (npm run toolchain moves them)"
 	npm version --no-git-tag-version $(V)
 	npm ci && npm run build && npm test
 	git add package.json package-lock.json
