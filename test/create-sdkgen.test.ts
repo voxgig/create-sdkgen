@@ -3,6 +3,7 @@
 import { test, describe, after } from 'node:test'
 import assert from 'node:assert'
 
+import * as ChildProcess from 'node:child_process'
 import * as Fs from 'node:fs'
 import * as Os from 'node:os'
 import Path from 'node:path'
@@ -130,6 +131,20 @@ describe('create-sdkgen', () => {
     assert.match(sdk, /^node_modules$/m)
     assert.match(sdk, /dist\//)
     assert.match(sdk, /\*\.tsbuildinfo/)
+  })
+
+
+  test('gitignore-keeps-nested-log-folders', async () => {
+    const s = await scaffold()
+    const git = (...args: string[]) => ChildProcess.spawnSync('git',
+      ['-c', 'core.excludesFile=' + Path.join(s.work, 'no-excludes'), ...args],
+      { cwd: s.out, encoding: 'utf8' })
+    assert.equal(git('init', '-q').status, 0)
+    const ignoreStatus = (rel: string) => git('check-ignore', '-q', rel).status
+
+    assert.equal(ignoreStatus('.sdk/log/run.json'), 0, 'generator log folder is not ignored')
+    assert.equal(ignoreStatus('.sdk/test/entity/log/LogTestData.json'), 1,
+      'test data of an entity named log is ignored')
   })
 
 

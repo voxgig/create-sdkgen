@@ -39,6 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_test_1 = require("node:test");
 const node_assert_1 = __importDefault(require("node:assert"));
+const ChildProcess = __importStar(require("node:child_process"));
 const Fs = __importStar(require("node:fs"));
 const Os = __importStar(require("node:os"));
 const node_path_1 = __importDefault(require("node:path"));
@@ -133,6 +134,14 @@ async function scaffold(over = {}) {
         node_assert_1.default.match(sdk, /^node_modules$/m);
         node_assert_1.default.match(sdk, /dist\//);
         node_assert_1.default.match(sdk, /\*\.tsbuildinfo/);
+    });
+    (0, node_test_1.test)('gitignore-keeps-nested-log-folders', async () => {
+        const s = await scaffold();
+        const git = (...args) => ChildProcess.spawnSync('git', ['-c', 'core.excludesFile=' + node_path_1.default.join(s.work, 'no-excludes'), ...args], { cwd: s.out, encoding: 'utf8' });
+        node_assert_1.default.equal(git('init', '-q').status, 0);
+        const ignoreStatus = (rel) => git('check-ignore', '-q', rel).status;
+        node_assert_1.default.equal(ignoreStatus('.sdk/log/run.json'), 0, 'generator log folder is not ignored');
+        node_assert_1.default.equal(ignoreStatus('.sdk/test/entity/log/LogTestData.json'), 1, 'test data of an entity named log is ignored');
     });
     (0, node_test_1.test)('def-existing-is-copied-verbatim', async () => {
         const s = await scaffold();

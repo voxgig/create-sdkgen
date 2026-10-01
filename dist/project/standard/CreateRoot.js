@@ -41,8 +41,9 @@ dist/
 dist-test/
 *.tsbuildinfo
 
-# Generated logs
-log/
+# Generated logs (leading slash: a nested log/ folder, such as an entity's
+# test data, stays tracked)
+/log/
 *.log
 
 # OS
