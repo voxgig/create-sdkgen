@@ -53,8 +53,8 @@ dist/
 dist-test/
 *.tsbuildinfo
 
-# Generated logs
-log/
+# Generated logs. Not log/ itself: it holds sdkgen's copy record
+# (log/copies.jsonl), which belongs in the repository.
 *.log
 
 # OS
