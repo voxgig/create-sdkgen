@@ -11,6 +11,7 @@ def: 'DEF'
 
 # API Information
 @"api/api-info.aontu"
+@"./text.aontu"
 
 
 # SDK Configuration.
