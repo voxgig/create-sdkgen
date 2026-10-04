@@ -91,6 +91,26 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 `
 
 
+const TEXT_FILE = 'text.aontu'
+const TEXT_STUB = `# README wording — YOURS. The scaffold creates this file once and never
+# overwrites it.
+#
+# A slot set here words the generated README files over the same slot of
+# main.kit.info, where apidef puts the spec's metadata. A slot left out keeps
+# the spec's wording. Text edited into a generated README is lost on the next
+# generate; text here is not.
+#
+#   main: kit: text: {
+#     tagline: 'Payments, invoices and refunds from TypeScript, Go and Python.'
+#     summary: 'Acme Pay is a payments API for marketplaces.'
+#     entity_desc: { invoice: 'A bill sent to a customer.' }
+#   }
+#
+# The slots are title, summary, website, tagline, about_md, homepage,
+# docs_url, meta_source and entity_desc. Any other key fails the model build.
+`
+
+
 const GUIDE_FILE = 'guide.aontu'
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE]
 
@@ -100,6 +120,7 @@ const indexFile = (kind: string) => kind + '-index.aontu'
 // Written back from the project rather than from the template.
 const KEPT = [
   ['model', PROJECT_FILE],
+  ['model', TEXT_FILE],
   GUIDE_REL,
   ...INDEX_KINDS.map((kind: string) => ['model', kind, indexFile(kind)]),
 ].map((rel: string[]) => rel.join('/'))
@@ -224,6 +245,14 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
 
         File({ name: PROJECT_FILE }, () => {
           Content(null == existingProject ? PROJECT_STUB : existingProject)
+        })
+
+        const textPath = Path.join(folder, spec.sdk_folder, 'model', TEXT_FILE)
+        const existingText =
+          fs.existsSync(textPath) ? fs.readFileSync(textPath, 'utf8') : null
+
+        File({ name: TEXT_FILE }, () => {
+          Content(null == existingText ? TEXT_STUB : existingText)
         })
 
         // `target add`, `feature add` and docgen register their items here, and

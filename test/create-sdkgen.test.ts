@@ -440,6 +440,36 @@ describe('project-overlay', () => {
 })
 
 
+describe('text-overlay', () => {
+
+  const TEXT_REL = Path.join('.sdk', 'model', 'text.aontu')
+  const SDK_REL = Path.join('.sdk', 'model', 'sdk.aontu')
+
+  test('a fresh scaffold writes the stub, and sdk.aontu includes it', async () => {
+    const s = await scaffold()
+    assert.match(s.read(TEXT_REL), /main: kit: text:/)
+    assert.doesNotMatch(s.read(TEXT_REL), /^[^#\n]/m, 'the stub sets no slot')
+    assert.match(s.read(SDK_REL), /^@"\.\/text\.aontu"\r?$/m)
+  })
+
+  test('a re-scaffold leaves customized wording BYTE-IDENTICAL', async () => {
+    const s = await scaffold()
+    const textPath = Path.join(s.out, TEXT_REL)
+
+    const customized = s.read(TEXT_REL) +
+      "\nmain: kit: text: tagline: 'Pets, from every language.'\n"
+    Fs.writeFileSync(textPath, customized)
+
+    await CreateSdkGen({ debug: 'warn' } as any).generate({
+      root: 'CreateRoot', name: 'petstore', def: Path.join(s.work, 'petstore.yml'),
+      project: 'standard', folder: s.out, install: false,
+    } as any)
+
+    assert.equal(Fs.readFileSync(textPath, 'utf8'), customized)
+  })
+})
+
+
 describe('index-preservation', () => {
 
   const TEMPLATE_MODEL = Path.resolve(

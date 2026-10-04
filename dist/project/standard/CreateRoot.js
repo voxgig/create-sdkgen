@@ -75,6 +75,24 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 #
 #   main: kit: target: ts: publish: registry: package: '@scope/name'
 `;
+const TEXT_FILE = 'text.aontu';
+const TEXT_STUB = `# README wording — YOURS. The scaffold creates this file once and never
+# overwrites it.
+#
+# A slot set here words the generated README files over the same slot of
+# main.kit.info, where apidef puts the spec's metadata. A slot left out keeps
+# the spec's wording. Text edited into a generated README is lost on the next
+# generate; text here is not.
+#
+#   main: kit: text: {
+#     tagline: 'Payments, invoices and refunds from TypeScript, Go and Python.'
+#     summary: 'Acme Pay is a payments API for marketplaces.'
+#     entity_desc: { invoice: 'A bill sent to a customer.' }
+#   }
+#
+# The slots are title, summary, website, tagline, about_md, homepage,
+# docs_url, meta_source and entity_desc. Any other key fails the model build.
+`;
 const GUIDE_FILE = 'guide.aontu';
 const GUIDE_REL = ['model', 'guide', GUIDE_FILE];
 const INDEX_KINDS = ['target', 'feature', 'edition'];
@@ -82,6 +100,7 @@ const indexFile = (kind) => kind + '-index.aontu';
 // Written back from the project rather than from the template.
 const KEPT = [
     ['model', PROJECT_FILE],
+    ['model', TEXT_FILE],
     GUIDE_REL,
     ...INDEX_KINDS.map((kind) => ['model', kind, indexFile(kind)]),
 ].map((rel) => rel.join('/'));
@@ -174,6 +193,11 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
                 const existingProject = fs.existsSync(projectPath) ? fs.readFileSync(projectPath, 'utf8') : null;
                 (0, jostraca_1.File)({ name: PROJECT_FILE }, () => {
                     (0, jostraca_1.Content)(null == existingProject ? PROJECT_STUB : existingProject);
+                });
+                const textPath = node_path_1.default.join(folder, spec.sdk_folder, 'model', TEXT_FILE);
+                const existingText = fs.existsSync(textPath) ? fs.readFileSync(textPath, 'utf8') : null;
+                (0, jostraca_1.File)({ name: TEXT_FILE }, () => {
+                    (0, jostraca_1.Content)(null == existingText ? TEXT_STUB : existingText);
                 });
                 // `target add`, `feature add` and docgen register their items here, and
                 // docgen bootstraps only once, so a reset index would lose them for good.

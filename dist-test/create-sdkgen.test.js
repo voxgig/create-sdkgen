@@ -353,6 +353,28 @@ async function scaffold(over = {}) {
         node_assert_1.default.match(s.read(SDK_REL), /def: 'petstore-v2-swagger-2\.0\.yml'/);
     });
 });
+(0, node_test_1.describe)('text-overlay', () => {
+    const TEXT_REL = node_path_1.default.join('.sdk', 'model', 'text.aontu');
+    const SDK_REL = node_path_1.default.join('.sdk', 'model', 'sdk.aontu');
+    (0, node_test_1.test)('a fresh scaffold writes the stub, and sdk.aontu includes it', async () => {
+        const s = await scaffold();
+        node_assert_1.default.match(s.read(TEXT_REL), /main: kit: text:/);
+        node_assert_1.default.doesNotMatch(s.read(TEXT_REL), /^[^#\n]/m, 'the stub sets no slot');
+        node_assert_1.default.match(s.read(SDK_REL), /^@"\.\/text\.aontu"\r?$/m);
+    });
+    (0, node_test_1.test)('a re-scaffold leaves customized wording BYTE-IDENTICAL', async () => {
+        const s = await scaffold();
+        const textPath = node_path_1.default.join(s.out, TEXT_REL);
+        const customized = s.read(TEXT_REL) +
+            "\nmain: kit: text: tagline: 'Pets, from every language.'\n";
+        Fs.writeFileSync(textPath, customized);
+        await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
+            root: 'CreateRoot', name: 'petstore', def: node_path_1.default.join(s.work, 'petstore.yml'),
+            project: 'standard', folder: s.out, install: false,
+        });
+        node_assert_1.default.equal(Fs.readFileSync(textPath, 'utf8'), customized);
+    });
+});
 (0, node_test_1.describe)('index-preservation', () => {
     const TEMPLATE_MODEL = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'model');
     // What `target add`, `feature add` and docgen's first install leave behind.
