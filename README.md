@@ -89,7 +89,7 @@ such a project and re-scaffolds it.
 - **[@voxgig/sdkgen](https://github.com/voxgig/sdkgen)** — generates the SDKs from the model.
 
 The scaffold's `.sdk/package.json` pins each Voxgig toolchain package to the
-patch line this release of create-sdkgen was released with: `~4.34.2` for
+patch line this release of create-sdkgen was released with: `~4.34.3` for
 `@voxgig/sdkgen`, and likewise for `@voxgig/apidef`, `@voxgig/model` and
 `@voxgig/docgen`. A release that carries these pins, pinned or not, scaffolds
 a project that installs a toolchain able to drive what the scaffold wrote. A
