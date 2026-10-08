@@ -317,6 +317,14 @@ async function scaffold(over = {}) {
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         node_assert_1.default.equal(Fs.readFileSync(guidePath, 'utf8'), handwritten);
     });
+    (0, node_test_1.test)('a re-scaffold keeps the project\'s definition README', async () => {
+        const s = await scaffold();
+        const readmePath = node_path_1.default.join(s.out, '.sdk', 'def', 'README.md');
+        const provenance = '# Provenance\n\nSource: https://example.com/openapi.json\n';
+        Fs.writeFileSync(readmePath, provenance);
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(Fs.readFileSync(readmePath, 'utf8'), provenance);
+    });
     (0, node_test_1.test)('the rest of the scaffold is still overwritten', async () => {
         const s = await scaffold();
         const sdkAontu = node_path_1.default.join(s.out, '.sdk', 'model', 'sdk.aontu');

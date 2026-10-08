@@ -168,9 +168,14 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
     const indexExclude = INDEX_KINDS.map((kind: string) =>
       [spec.sdk_folder, 'model', kind, indexFile(kind)].join('/'))
 
+    // The project's own definition README records where its spec came from.
+    const defReadme = [spec.sdk_folder, 'def', 'README.md'].join('/')
+    const defExclude = fs.existsSync(Path.join(folder, defReadme)) ? [defReadme] : []
+
     Copy({
       from,
-      exclude: [/\.fragment\./, guideExclude, ...indexExclude, /^\.sdk\/admin\/.*\.sh$/]
+      exclude: [/\.fragment\./, guideExclude, ...indexExclude, ...defExclude,
+        /^\.sdk\/admin\/.*\.sh$/]
     })
 
     File({ name: '.gitignore' }, () => {

@@ -130,9 +130,13 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
         const from = node_path_1.default.resolve(node_path_1.default.join(__dirname, '..', '..', '..', 'project', 'standard'));
         const guideExclude = [spec.sdk_folder, ...GUIDE_REL].join('/');
         const indexExclude = INDEX_KINDS.map((kind) => [spec.sdk_folder, 'model', kind, indexFile(kind)].join('/'));
+        // The project's own definition README records where its spec came from.
+        const defReadme = [spec.sdk_folder, 'def', 'README.md'].join('/');
+        const defExclude = fs.existsSync(node_path_1.default.join(folder, defReadme)) ? [defReadme] : [];
         (0, jostraca_1.Copy)({
             from,
-            exclude: [/\.fragment\./, guideExclude, ...indexExclude, /^\.sdk\/admin\/.*\.sh$/]
+            exclude: [/\.fragment\./, guideExclude, ...indexExclude, ...defExclude,
+                /^\.sdk\/admin\/.*\.sh$/]
         });
         (0, jostraca_1.File)({ name: '.gitignore' }, () => {
             (0, jostraca_1.Content)(GITIGNORE_TOP);

@@ -386,6 +386,18 @@ describe('guide-overlay-merge', () => {
     assert.equal(Fs.readFileSync(guidePath, 'utf8'), handwritten)
   })
 
+  test('a re-scaffold keeps the project\'s definition README', async () => {
+    const s = await scaffold()
+    const readmePath = Path.join(s.out, '.sdk', 'def', 'README.md')
+
+    const provenance = '# Provenance\n\nSource: https://example.com/openapi.json\n'
+    Fs.writeFileSync(readmePath, provenance)
+
+    await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
+
+    assert.equal(Fs.readFileSync(readmePath, 'utf8'), provenance)
+  })
+
   test('the rest of the scaffold is still overwritten', async () => {
     const s = await scaffold()
     const sdkAontu = Path.join(s.out, '.sdk', 'model', 'sdk.aontu')
