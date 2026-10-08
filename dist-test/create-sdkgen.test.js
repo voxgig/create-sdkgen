@@ -307,6 +307,16 @@ async function scaffold(over = {}) {
         // includes have to precede them.
         node_assert_1.default.ok(merged.indexOf('@"./base-guide.aontu"') < merged.indexOf('# only my stuff'), 'includes must be restored before the user content');
     });
+    (0, node_test_1.test)('a re-scaffold keeps an include out of a guide that names it', async () => {
+        const s = await scaffold();
+        const guidePath = node_path_1.default.join(s.out, GUIDE_REL);
+        const handwritten = '# Replaces base-guide.aontu, so it is not included.\n' +
+            '@"@voxgig/apidef/model/guide.aontu"\n' +
+            'guide: entity: widget: path: "/widget": op: load: method: GET\n';
+        Fs.writeFileSync(guidePath, handwritten);
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(Fs.readFileSync(guidePath, 'utf8'), handwritten);
+    });
     (0, node_test_1.test)('the rest of the scaffold is still overwritten', async () => {
         const s = await scaffold();
         const sdkAontu = node_path_1.default.join(s.out, '.sdk', 'model', 'sdk.aontu');

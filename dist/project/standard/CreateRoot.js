@@ -91,11 +91,14 @@ function mergeGuide(existing, template) {
     }
     const isInclude = (line) => line.trim().startsWith('@');
     const key = (line) => line.trim().replace(/^@"\.\//, '@"');
+    // A guide that names an include without having it excludes that file, as a
+    // hand-written guide replacing base-guide.aontu does.
+    const named = (line) => existing.includes(node_path_1.default.basename(line.replace(/^@"|"$/g, '')));
     const have = new Set(existing.split('\n').map(key));
     const missing = template.split('\n')
         .filter(isInclude)
         .map((line) => line.trim())
-        .filter((line) => !have.has(key(line)));
+        .filter((line) => !have.has(key(line)) && !named(line));
     if (0 === missing.length) {
         return existing;
     }

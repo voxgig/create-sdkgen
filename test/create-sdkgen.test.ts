@@ -372,6 +372,20 @@ describe('guide-overlay-merge', () => {
       'includes must be restored before the user content')
   })
 
+  test('a re-scaffold keeps an include out of a guide that names it', async () => {
+    const s = await scaffold()
+    const guidePath = Path.join(s.out, GUIDE_REL)
+
+    const handwritten = '# Replaces base-guide.aontu, so it is not included.\n' +
+      '@"@voxgig/apidef/model/guide.aontu"\n' +
+      'guide: entity: widget: path: "/widget": op: load: method: GET\n'
+    Fs.writeFileSync(guidePath, handwritten)
+
+    await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
+
+    assert.equal(Fs.readFileSync(guidePath, 'utf8'), handwritten)
+  })
+
   test('the rest of the scaffold is still overwritten', async () => {
     const s = await scaffold()
     const sdkAontu = Path.join(s.out, '.sdk', 'model', 'sdk.aontu')
