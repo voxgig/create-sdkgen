@@ -91,11 +91,14 @@ function mergeGuide(existing, template) {
     }
     const isInclude = (line) => line.trim().startsWith('@');
     const key = (line) => line.trim().replace(/^@"\.\//, '@"');
+    // A guide that names an include without having it excludes that file, as a
+    // hand-written guide replacing base-guide.aontu does.
+    const named = (line) => existing.includes(node_path_1.default.basename(line.replace(/^@"|"$/g, '')));
     const have = new Set(existing.split('\n').map(key));
     const missing = template.split('\n')
         .filter(isInclude)
         .map((line) => line.trim())
-        .filter((line) => !have.has(key(line)));
+        .filter((line) => !have.has(key(line)) && !named(line));
     if (0 === missing.length) {
         return existing;
     }
@@ -127,9 +130,13 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
         const from = node_path_1.default.resolve(node_path_1.default.join(__dirname, '..', '..', '..', 'project', 'standard'));
         const guideExclude = [spec.sdk_folder, ...GUIDE_REL].join('/');
         const indexExclude = INDEX_KINDS.map((kind) => [spec.sdk_folder, 'model', kind, indexFile(kind)].join('/'));
+        // The project's own definition README records where its spec came from.
+        const defReadme = [spec.sdk_folder, 'def', 'README.md'].join('/');
+        const defExclude = fs.existsSync(node_path_1.default.join(folder, defReadme)) ? [defReadme] : [];
         (0, jostraca_1.Copy)({
             from,
-            exclude: [/\.fragment\./, guideExclude, ...indexExclude, /^\.sdk\/admin\/.*\.sh$/]
+            exclude: [/\.fragment\./, guideExclude, ...indexExclude, ...defExclude,
+                /^\.sdk\/admin\/.*\.sh$/]
         });
         (0, jostraca_1.File)({ name: '.gitignore' }, () => {
             (0, jostraca_1.Content)(GITIGNORE_TOP);

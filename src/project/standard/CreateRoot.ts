@@ -114,11 +114,15 @@ function mergeGuide(existing: string | null, template: string): string {
 
   const key = (line: string) => line.trim().replace(/^@"\.\//, '@"')
 
+  // A guide that names an include without having it excludes that file, as a
+  // hand-written guide replacing base-guide.aontu does.
+  const named = (line: string) => existing.includes(Path.basename(line.replace(/^@"|"$/g, '')))
+
   const have = new Set(existing.split('\n').map(key))
   const missing = template.split('\n')
     .filter(isInclude)
     .map((line: string) => line.trim())
-    .filter((line: string) => !have.has(key(line)))
+    .filter((line: string) => !have.has(key(line)) && !named(line))
 
   if (0 === missing.length) {
     return existing
@@ -164,9 +168,14 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
     const indexExclude = INDEX_KINDS.map((kind: string) =>
       [spec.sdk_folder, 'model', kind, indexFile(kind)].join('/'))
 
+    // The project's own definition README records where its spec came from.
+    const defReadme = [spec.sdk_folder, 'def', 'README.md'].join('/')
+    const defExclude = fs.existsSync(Path.join(folder, defReadme)) ? [defReadme] : []
+
     Copy({
       from,
-      exclude: [/\.fragment\./, guideExclude, ...indexExclude, /^\.sdk\/admin\/.*\.sh$/]
+      exclude: [/\.fragment\./, guideExclude, ...indexExclude, ...defExclude,
+        /^\.sdk\/admin\/.*\.sh$/]
     })
 
     File({ name: '.gitignore' }, () => {
