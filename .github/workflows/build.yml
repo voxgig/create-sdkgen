@@ -38,9 +38,9 @@ jobs:
     - run: npm test
 
   # A real scaffold, installed with the published toolchain and generated, on
-  # Linux and Windows: launching npm and resolving the model's includes are
-  # platform-specific, and the unit tests can only stub the platform. Windows
-  # is advisory until it has had a green run.
+  # Linux and Windows: launching npm, resolving the model's includes and the
+  # .sdk npm scripts are platform-specific, and the unit tests can only stub
+  # the platform. Windows is advisory until it has had a green run.
   scaffold:
 
     strategy:
@@ -67,3 +67,10 @@ jobs:
     - run: npm run generate
       working-directory: ${{ runner.temp }}/petstore-sdk/.sdk
     - run: node -e "require('fs').statSync(process.argv[1])" "$RUNNER_TEMP/petstore-sdk/ts/package.json"
+    # The .sdk scripts run under cmd.exe on Windows, whatever shell this step uses.
+    - run: npm run status
+      working-directory: ${{ runner.temp }}/petstore-sdk/.sdk
+    - run: npm run clean
+      working-directory: ${{ runner.temp }}/petstore-sdk/.sdk
+    - run: |
+        node -e "process.exit(require('fs').existsSync(process.argv[1]) ? 1 : 0)" "$RUNNER_TEMP/petstore-sdk/.sdk/node_modules"

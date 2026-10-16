@@ -220,8 +220,10 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
 
       Folder({ name: 'admin' }, () => {
         const admin = Path.join(from, spec.sdk_folder, 'admin')
+        // bash fails on a CRLF line ending, which a Windows checkout gives.
         for (const name of fs.readdirSync(admin).filter((name: string) => name.endsWith('.sh')).sort()) {
-          File({ name, mode: 0o755 }, () => Content(fs.readFileSync(Path.join(admin, name), 'utf8')))
+          File({ name, mode: 0o755 }, () =>
+            Content(fs.readFileSync(Path.join(admin, name), 'utf8').replace(/\r\n/g, '\n')))
         }
       })
 

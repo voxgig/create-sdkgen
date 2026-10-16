@@ -12,7 +12,7 @@
     "watch": "tsc --build src -w",
     "build": "tsc --build src",
     "test": "echo no-test",
-    "clean": "rm -rf dist dist-test node_modules yarn.lock package-lock.json",
+    "clean": "node -e \"for (const p of process.argv.slice(1)) require('fs').rmSync(p, { recursive: true, force: true })\" dist dist-test node_modules yarn.lock package-lock.json",
     "reset": "npm run clean && npm i && npm run build && npm test",
     "add-target": "voxgig-sdkgen target add",
     "dry-add-target": "voxgig-sdkgen -y target add",
@@ -21,7 +21,7 @@
     "add-edition": "voxgig-sdkgen edition add",
     "text-qa": "cd .. && voxgig-docgen qa",
     "postinstall": "node build/docgen.js",
-    "status": "bash admin/status.sh",
+    "status": "node -e \"require('fs').existsSync('node_modules/@voxgig/sdkgen/dist/admin/status.js') || (console.error('Install or update the .sdk dependencies to use the status report.'), process.exit(1))\" && node node_modules/@voxgig/sdkgen/dist/admin/status.js ..",
     "check-drift": "bash admin/check-drift.sh"
   },
   "author": "$$const.Name$$",

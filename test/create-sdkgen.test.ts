@@ -7,8 +7,11 @@ import * as Fs from 'node:fs'
 import * as Os from 'node:os'
 import Path from 'node:path'
 
+import ChildProcess from 'node:child_process'
+
 import {
-  CreateSdkGen
+  CreateSdkGen,
+  npmLaunch,
 } from '../'
 
 
@@ -971,7 +974,8 @@ test('admin status launcher is executable, preserved on dry run, and leaves proj
   const file = Path.join(s.out, '.sdk/admin/status.sh')
   assert.match(s.read('.sdk/admin/status.sh'), /sdkgen\/dist\/admin\/status.js/)
   if (process.platform !== 'win32') assert.ok(Fs.statSync(file).mode & 0o111)
-  assert.equal(JSON.parse(s.read('.sdk/package.json')).scripts.status, 'bash admin/status.sh')
+  assert.match(JSON.parse(s.read('.sdk/package.json')).scripts.status,
+    /&& node node_modules\/@voxgig\/sdkgen\/dist\/admin\/status\.js \.\.$/)
   // EVERY .sh in the scaffold's admin folder, not just status.sh: CreateRoot
   // reads the directory, so a script added there is scaffolded and made
   // executable with no code change - and this is what holds that true.
@@ -988,3 +992,74 @@ test('admin status launcher is executable, preserved on dry run, and leaves proj
   const dry=await scaffold({dryrun:true})
   assert.ok(!dry.exists('.sdk/admin/status.sh'))
 })
+
+
+// npm runs a script under cmd.exe on Windows, which has no rm and may have no
+// bash, so the scripts a project runs from .sdk name node alone.
+describe('sdk-npm-scripts', () => {
+
+  function npmRun(cwd: string, args: string[]) {
+    const launch = npmLaunch(['run', '--silent', ...args])
+    const run = ChildProcess.spawnSync(launch.command, launch.args,
+      { cwd, encoding: 'utf8', shell: launch.shell })
+    return { status: run.status, out: (run.stdout || '') + (run.stderr || '') }
+  }
+
+  const write = (dir: string, rel: string, content: string) => {
+    Fs.mkdirSync(Path.dirname(Path.join(dir, rel)), { recursive: true })
+    Fs.writeFileSync(Path.join(dir, rel), content)
+  }
+
+  test('no script but check-drift needs a POSIX shell', async () => {
+    const s = await scaffold()
+    const scripts = JSON.parse(s.read('.sdk/package.json')).scripts
+    const posix = Object.keys(scripts)
+      .filter((name) => /\b(rm|bash|sh|cp|mv)\s|\$\(|`/.test(scripts[name]))
+    assert.deepEqual(posix, ['check-drift'])
+  })
+
+  test('npm run clean removes the build output and dependencies', async () => {
+    const s = await scaffold()
+    const sdk = Path.join(s.out, '.sdk')
+    for (const rel of ['dist/a.js', 'dist-test/a.test.js', 'node_modules/x/index.js',
+      'yarn.lock', 'package-lock.json']) {
+      write(sdk, rel, 'x')
+    }
+
+    const run = npmRun(sdk, ['clean'])
+
+    assert.equal(run.status, 0, run.out)
+    for (const rel of ['dist', 'dist-test', 'node_modules', 'yarn.lock', 'package-lock.json']) {
+      assert.equal(Fs.existsSync(Path.join(sdk, rel)), false, rel)
+    }
+    assert.ok(Fs.existsSync(Path.join(sdk, 'model', 'sdk.aontu')), 'and nothing else')
+  })
+
+  test('npm run status runs sdkgen\'s report on the project, with its options', async () => {
+    const s = await scaffold()
+    const sdk = Path.join(s.out, '.sdk')
+
+    const missing = npmRun(sdk, ['status'])
+    assert.notEqual(missing.status, 0)
+    assert.match(missing.out, /Install or update the \.sdk dependencies/)
+
+    write(sdk, 'node_modules/@voxgig/sdkgen/dist/admin/status.js',
+      'console.log(JSON.stringify({ cwd: process.cwd(), args: process.argv.slice(2) }))\n')
+    const run = npmRun(sdk, ['status', '--', '--json'])
+
+    assert.equal(run.status, 0, run.out)
+    const got = JSON.parse(run.out.trim().split('\n').pop() as string)
+    assert.deepEqual(got.args, ['..', '--json'])
+    assert.equal(Fs.realpathSync.native(Path.resolve(got.cwd, got.args[0])),
+      Fs.realpathSync.native(s.out))
+  })
+
+  test('the admin scripts keep LF line endings in the project', async () => {
+    const s = await scaffold()
+    assert.match(s.read('.sdk/.gitattributes'), /^\*\.sh text eol=lf$/m)
+    for (const name of ['status.sh', 'check-drift.sh']) {
+      assert.doesNotMatch(s.read('.sdk/admin/' + name), /\r/, name)
+    }
+  })
+})
+

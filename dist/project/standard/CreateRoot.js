@@ -174,8 +174,9 @@ const CreateRoot = (0, jostraca_1.cmp)(function CreateRoot(props) {
             }
             (0, jostraca_1.Folder)({ name: 'admin' }, () => {
                 const admin = node_path_1.default.join(from, spec.sdk_folder, 'admin');
+                // bash fails on a CRLF line ending, which a Windows checkout gives.
                 for (const name of fs.readdirSync(admin).filter((name) => name.endsWith('.sh')).sort()) {
-                    (0, jostraca_1.File)({ name, mode: 0o755 }, () => (0, jostraca_1.Content)(fs.readFileSync(node_path_1.default.join(admin, name), 'utf8')));
+                    (0, jostraca_1.File)({ name, mode: 0o755 }, () => (0, jostraca_1.Content)(fs.readFileSync(node_path_1.default.join(admin, name), 'utf8').replace(/\r\n/g, '\n')));
                 }
             });
             (0, jostraca_1.File)({ name: '.gitignore' }, () => {

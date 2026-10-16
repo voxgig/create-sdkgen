@@ -42,6 +42,7 @@ const node_assert_1 = __importDefault(require("node:assert"));
 const Fs = __importStar(require("node:fs"));
 const Os = __importStar(require("node:os"));
 const node_path_1 = __importDefault(require("node:path"));
+const node_child_process_1 = __importDefault(require("node:child_process"));
 const __1 = require("../");
 // All test artefacts live under one temp root, removed after the suite.
 const TMP_ROOT = Fs.mkdtempSync(node_path_1.default.join(Os.tmpdir(), 'csdk-test-'));
@@ -754,7 +755,7 @@ async function scaffold(over = {}) {
     node_assert_1.default.match(s.read('.sdk/admin/status.sh'), /sdkgen\/dist\/admin\/status.js/);
     if (process.platform !== 'win32')
         node_assert_1.default.ok(Fs.statSync(file).mode & 0o111);
-    node_assert_1.default.equal(JSON.parse(s.read('.sdk/package.json')).scripts.status, 'bash admin/status.sh');
+    node_assert_1.default.match(JSON.parse(s.read('.sdk/package.json')).scripts.status, /&& node node_modules\/@voxgig\/sdkgen\/dist\/admin\/status\.js \.\.$/);
     // EVERY .sh in the scaffold's admin folder, not just status.sh: CreateRoot
     // reads the directory, so a script added there is scaffolded and made
     // executable with no code change - and this is what holds that true.
@@ -771,5 +772,59 @@ async function scaffold(over = {}) {
     node_assert_1.default.equal(s.read('.sdk/admin/custom.sh'), '# project script\n');
     const dry = await scaffold({ dryrun: true });
     node_assert_1.default.ok(!dry.exists('.sdk/admin/status.sh'));
+});
+// npm runs a script under cmd.exe on Windows, which has no rm and may have no
+// bash, so the scripts a project runs from .sdk name node alone.
+(0, node_test_1.describe)('sdk-npm-scripts', () => {
+    function npmRun(cwd, args) {
+        const launch = (0, __1.npmLaunch)(['run', '--silent', ...args]);
+        const run = node_child_process_1.default.spawnSync(launch.command, launch.args, { cwd, encoding: 'utf8', shell: launch.shell });
+        return { status: run.status, out: (run.stdout || '') + (run.stderr || '') };
+    }
+    const write = (dir, rel, content) => {
+        Fs.mkdirSync(node_path_1.default.dirname(node_path_1.default.join(dir, rel)), { recursive: true });
+        Fs.writeFileSync(node_path_1.default.join(dir, rel), content);
+    };
+    (0, node_test_1.test)('no script but check-drift needs a POSIX shell', async () => {
+        const s = await scaffold();
+        const scripts = JSON.parse(s.read('.sdk/package.json')).scripts;
+        const posix = Object.keys(scripts)
+            .filter((name) => /\b(rm|bash|sh|cp|mv)\s|\$\(|`/.test(scripts[name]));
+        node_assert_1.default.deepEqual(posix, ['check-drift']);
+    });
+    (0, node_test_1.test)('npm run clean removes the build output and dependencies', async () => {
+        const s = await scaffold();
+        const sdk = node_path_1.default.join(s.out, '.sdk');
+        for (const rel of ['dist/a.js', 'dist-test/a.test.js', 'node_modules/x/index.js',
+            'yarn.lock', 'package-lock.json']) {
+            write(sdk, rel, 'x');
+        }
+        const run = npmRun(sdk, ['clean']);
+        node_assert_1.default.equal(run.status, 0, run.out);
+        for (const rel of ['dist', 'dist-test', 'node_modules', 'yarn.lock', 'package-lock.json']) {
+            node_assert_1.default.equal(Fs.existsSync(node_path_1.default.join(sdk, rel)), false, rel);
+        }
+        node_assert_1.default.ok(Fs.existsSync(node_path_1.default.join(sdk, 'model', 'sdk.aontu')), 'and nothing else');
+    });
+    (0, node_test_1.test)('npm run status runs sdkgen\'s report on the project, with its options', async () => {
+        const s = await scaffold();
+        const sdk = node_path_1.default.join(s.out, '.sdk');
+        const missing = npmRun(sdk, ['status']);
+        node_assert_1.default.notEqual(missing.status, 0);
+        node_assert_1.default.match(missing.out, /Install or update the \.sdk dependencies/);
+        write(sdk, 'node_modules/@voxgig/sdkgen/dist/admin/status.js', 'console.log(JSON.stringify({ cwd: process.cwd(), args: process.argv.slice(2) }))\n');
+        const run = npmRun(sdk, ['status', '--', '--json']);
+        node_assert_1.default.equal(run.status, 0, run.out);
+        const got = JSON.parse(run.out.trim().split('\n').pop());
+        node_assert_1.default.deepEqual(got.args, ['..', '--json']);
+        node_assert_1.default.equal(Fs.realpathSync.native(node_path_1.default.resolve(got.cwd, got.args[0])), Fs.realpathSync.native(s.out));
+    });
+    (0, node_test_1.test)('the admin scripts keep LF line endings in the project', async () => {
+        const s = await scaffold();
+        node_assert_1.default.match(s.read('.sdk/.gitattributes'), /^\*\.sh text eol=lf$/m);
+        for (const name of ['status.sh', 'check-drift.sh']) {
+            node_assert_1.default.doesNotMatch(s.read('.sdk/admin/' + name), /\r/, name);
+        }
+    });
 });
 //# sourceMappingURL=create-sdkgen.test.js.map
