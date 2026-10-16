@@ -51,7 +51,7 @@ OpenAPI 3 spec  ──apidef──▶  model (.sdk/model/)         ──sdkgen�
 ```
 
 - **`@voxgig/apidef`** parses your OpenAPI spec into the model (entities, ops, fields, types). See [apidef/AGENTS.md](https://github.com/voxgig/apidef/blob/main/AGENTS.md).
-- **The model** (`.sdk/model/`, unified by `aontu`) is what you edit to shape the SDK. Every model file is `.aontu`, the only extension aontu reads (it refuses an include that names a `.aon` file): what apidef writes (entities, flows, API info, the guide), the scaffold's own files (`sdk.aontu`, `config.aontu`, `project.aontu`), and the target/feature/edition indexes and items that sdkgen and docgen write. A project from before the rename is migrated by re-scaffolding it (see "Re-scaffolding an existing project" below).
+- **The model** (`.sdk/model/`, unified by `aontu`) is what you edit to shape the SDK. Every model file is `.aontu`, the only extension aontu reads (it refuses an include that names a `.aon` file): what apidef writes (entities, flows, API info, the guide), the scaffold's own files (`sdk.aontu`, `config.aontu`, `project.aontu`, `text.aontu`), and the target/feature/edition indexes and items that sdkgen and docgen write. A project from before the rename is migrated by re-scaffolding it (see "Re-scaffolding an existing project" below).
 - **`@voxgig/sdkgen`** renders the model into idiomatic per-language SDK source via `jostraca`. See [sdkgen/AGENTS.md](https://github.com/voxgig/sdkgen/blob/main/AGENTS.md).
 
 The API surface is exposed as **semantic entities** (Capitalised — e.g.
@@ -142,6 +142,7 @@ Green tests mean the SDK works and its documentation is correct.
 | --- | --- | --- |
 | `.sdk/model/sdk.aontu` | Model entry — name, spec ref (`def`), imports; rewritten on re-scaffold | Rarely — put project decisions in `project.aontu` |
 | `.sdk/model/project.aontu` | Project overlay — release versions, published package names; kept on re-scaffold | Yes |
+| `.sdk/model/text.aontu` | README wording — tagline, summary, entity descriptions, over the spec's (`main.kit.text`); kept on re-scaffold | Yes |
 | `.sdk/model/entity/*.aontu` | **Entities** — the semantic surface (ops, fields, types) | **Yes — this is the main lever** |
 | `.sdk/model/guide/guide.aontu` | Guide — corrections to how apidef reads the spec (entity names, active paths and ops); kept on re-scaffold | Yes |
 | `.sdk/model/target/`, `.sdk/model/feature/`, `.sdk/model/edition/` | Active targets, features, documentation editions; the indexes are kept on re-scaffold | Yes (or via `target add`/`feature add`/`edition add`) |
@@ -164,8 +165,8 @@ Commit before regenerating — generation is destructive to the target dirs.
 
 Re-run the same `create-sdkgen` command over the output directory to pick up
 a newer scaffold. It rewrites the scaffold's own files and leaves the
-project's alone: the guide, `project.aontu`, the target/feature/edition
-indexes and the items they name.
+project's alone: the guide, `project.aontu`, `text.aontu`, the
+target/feature/edition indexes and the items they name.
 
 It is also how a project from before the `.aontu` rename catches up: sdkgen
 4.25 and later refuse a project whose entry is still `sdk.aon`.

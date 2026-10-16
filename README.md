@@ -70,7 +70,8 @@ create-sdkgen my-api -d ./openapi.yaml -o ./my-api-sdk
 
 A re-scaffold rewrites the scaffold's own files and keeps the project's: the
 guide in `.sdk/model/guide/`, the project overlay `.sdk/model/project.aontu`,
-and the target, feature, and edition indexes with the files they name.
+the README wording in `.sdk/model/text.aontu`, and the target, feature, and
+edition indexes with the files they name.
 
 The same command brings a project from before the `.aontu` rename up to date,
 which it needs, because `aontu` now refuses to include a `.aon` file. The
