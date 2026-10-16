@@ -43,6 +43,17 @@ generated output and is overwritten on each regenerate.
 | `--debug <level>` | log level: `trace`, `debug`, `info`, `warn`, `error` or `fatal` (default `info`) |
 | `-h`, `-v` | help, version |
 
+Through `npm create`, the options follow `--`. Without it, npm reads `-d`,
+`-o`, `-t`, `-f`, `--dryrun` and `--no-install` as its own settings and passes
+on only their values, which create-sdkgen then refuses:
+
+```sh
+npm create @voxgig/sdkgen@latest my-api -- -d ./openapi.yaml -t ts,py
+```
+
+`npx @voxgig/create-sdkgen` and an installed `create-sdkgen` take the options
+as written.
+
 ## After the scaffold
 
 The loop from here is:

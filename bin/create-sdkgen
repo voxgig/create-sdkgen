@@ -8,7 +8,7 @@ const { Shape, Fault, One } = require('shape')
 
 const Pkg = require('../package.json')
 
-const { CreateSdkGen } = require('../dist/create-sdkgen.js') 
+const { CreateSdkGen, forwardingError } = require('../dist/create-sdkgen.js')
 
 // const rootpath = require.resolve('../dist/standard/CreateRoot')
 
@@ -193,7 +193,14 @@ function resolveOptions() {
   }
 
   let features = args.values.feature || []
-  
+
+  if (!args.values.help && !args.values.version) {
+    const misplaced = forwardingError(name, args.positionals.slice(1), process.env)
+    if (misplaced) {
+      handleError(misplaced)
+    }
+  }
+
   const options = {
     name,
     def: args.values.def,
@@ -270,13 +277,16 @@ function help() {
   let s = `
 Create a Voxgig SDK Generator project.
 
-Usage: npm create @voxgig/sdkgen@latest <name> <args> 
+Usage: npm create @voxgig/sdkgen@latest <name> -- <args>
+       create-sdkgen <name> <args>
 
   <name> is the name of the SDK project. This is also used to
     create a project folder. If run against an existing folder
     generated files will be overwritten.
 
-  <args> are the command arguments:
+  <args> are the command arguments. npm create keeps the options
+    it reads itself (-d, -o, -t, -f, --dryrun, --no-install) unless
+    they follow --, so put -- before them.
 
     --def        Path to the OpenAPI definition file (optional).
     -d
@@ -313,6 +323,12 @@ Examples:
 # Basic usage
 > npm create @voxgig/sdkgen@latest foo
 # Creates the SDK Project in the folder ./foo-sdk
+
+# From a spec, with targets: the options follow --
+> npm create @voxgig/sdkgen@latest foo -- -d ./openapi.yaml -t ts,py
+
+# npx passes the options on as written
+> npx @voxgig/create-sdkgen foo -d ./openapi.yaml -t ts,py
 
 See also: https://voxgig.com/sdkgen
 `

@@ -93,6 +93,11 @@ create-sdkgen <name> -d <path/to/openapi.yaml> -o <output-dir>
 - `--debug <level>` — log level: `trace`, `debug`, `info`, `warn`, `error` or `fatal` (default `info`).
 - `-h` / `-v` — help / version.
 
+Through `npm create`, put `--` before the options:
+`npm create @voxgig/sdkgen@latest <name> -- -d <spec> -t ts`. Without it npm
+keeps `-d`, `-o`, `-t`, `-f`, `--dryrun` and `--no-install` for itself and
+passes on only their values, which the CLI refuses.
+
 This produces `<output-dir>/` containing a **`.sdk/`** build folder wired to
 `@voxgig/sdkgen`, plus the generated target directories once you generate.
 

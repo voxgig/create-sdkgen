@@ -1,4 +1,5 @@
 import { Pino } from '@voxgig/util';
+import { TARGETS, forwardingError } from './args';
 type FullCreateSdkGenOptions = {
     fs?: any;
     debug?: boolean | string;
@@ -22,4 +23,4 @@ declare function CreateSdkGen(opts: FullCreateSdkGenOptions): {
     generate: (spec: GenerateSpec) => Promise<void>;
 };
 export type { CreateSdkGenOptions, };
-export { CreateSdkGen, };
+export { CreateSdkGen, TARGETS, forwardingError, };

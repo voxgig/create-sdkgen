@@ -11,6 +11,8 @@ import { showChanges, prettyPino, Pino } from '@voxgig/util'
 
 import Pkg from '../package.json'
 
+import { TARGETS, forwardingError } from './args'
+
 
 type FullCreateSdkGenOptions = {
   fs?: any
@@ -331,4 +333,6 @@ export type {
 
 export {
   CreateSdkGen,
+  TARGETS,
+  forwardingError,
 }

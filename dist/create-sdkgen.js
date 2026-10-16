@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.forwardingError = exports.TARGETS = void 0;
 exports.CreateSdkGen = CreateSdkGen;
 const Fs = __importStar(require("node:fs"));
 const Os = __importStar(require("node:os"));
@@ -45,6 +46,9 @@ const child_process_1 = require("child_process");
 const JostracaModule = __importStar(require("jostraca"));
 const util_1 = require("@voxgig/util");
 const package_json_1 = __importDefault(require("../package.json"));
+const args_1 = require("./args");
+Object.defineProperty(exports, "TARGETS", { enumerable: true, get: function () { return args_1.TARGETS; } });
+Object.defineProperty(exports, "forwardingError", { enumerable: true, get: function () { return args_1.forwardingError; } });
 const { names, Jostraca } = JostracaModule;
 const SDK_FOLDER = '.sdk';
 function CreateSdkGen(opts) {
