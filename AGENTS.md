@@ -181,7 +181,9 @@ It is also how a project from before the `.aontu` rename catches up: sdkgen
 Under `.sdk/model/` and `.sdk/test/`, a `.aon` file whose `.aontu` twin the
 scaffold writes is removed; every other `.aon` file (indexes, items, the
 project's own files) is renamed to `.aontu` with its content kept, and the
-include directives naming it are rewritten — nothing else in the file
+include directives naming it are rewritten. An include of a local file
+without a `./` prefix (`@"entity/entity-index.aontu"`) gains one, because
+aontu reads a bare path as a package path first — nothing else in the file
 changes. If both names exist, the `.aontu` file wins and the `.aon` one is
 left. Anything that cannot be migrated, such as an include pointing outside
 `.sdk/`, is logged as a `migrate-aontu` warning naming the file; fix those by

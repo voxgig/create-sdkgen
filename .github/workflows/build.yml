@@ -37,9 +37,10 @@ jobs:
     - run: npm run build
     - run: npm test
 
-  # A real scaffold, installed with the published toolchain, on Linux and
-  # Windows: launching npm is platform-specific, and the unit tests can only
-  # stub the platform. Windows is advisory until it has had a green run.
+  # A real scaffold, installed with the published toolchain and generated, on
+  # Linux and Windows: launching npm and resolving the model's includes are
+  # platform-specific, and the unit tests can only stub the platform. Windows
+  # is advisory until it has had a green run.
   scaffold:
 
     strategy:
@@ -62,3 +63,7 @@ jobs:
     - run: npm ci
     - run: node bin/create-sdkgen petstore -d test/fixture/petstore.yaml -o "$RUNNER_TEMP/petstore-sdk" -t ts -f test
     - run: node -e "require('fs').statSync(process.argv[1])" "$RUNNER_TEMP/petstore-sdk/.sdk/model/target/ts.aontu"
+    # The spec through the model to the test model: every include resolves.
+    - run: npm run generate
+      working-directory: ${{ runner.temp }}/petstore-sdk/.sdk
+    - run: node -e "require('fs').statSync(process.argv[1])" "$RUNNER_TEMP/petstore-sdk/ts/package.json"

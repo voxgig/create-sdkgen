@@ -15,16 +15,22 @@ const APIDEF_WRITES_RE = /^model\/guide\/[^/]*base-guide\.aontu$/;
 // Comments and strings are matched whole, so an include is only ever an `@`
 // outside both: a `.aon` named in a comment or held as data is not rewritten.
 const TOKEN_RE = /#[^\n]*|@([ \t]*)(["'`])([^"'`\n]*)\2|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`/g;
-// A BARE FILENAME ALSO NEEDS `./`. aontu has required the prefix for a local
-// file since 0.65, so rewriting only the extension left an include still
-// refused, with "local files need a ./ prefix". An include already carrying a
-// directory segment is unambiguous and is left alone.
-function localPrefix(path) {
-    return path.includes('/') || path.startsWith('./') ? path : './' + path;
+// A local file needs a `./`, `../` or `/` prefix. Without one, aontu reads the
+// path as a package path first, and refuses a bare filename outright.
+function isBare(path) {
+    return !/^(\.{1,2}\/|\/|@)/.test(path) && !path.includes(':');
 }
-function rewriteIncludes(src, rename) {
-    return src.replace(TOKEN_RE, (token, space, quote, path) => null != quote && path.endsWith(LEGACY) && rename(path) ?
-        '@' + space + quote + localPrefix(path.slice(0, -LEGACY.length) + CURRENT) + quote : token);
+function localPrefix(path) {
+    return isBare(path) ? './' + path : path;
+}
+const NONE = () => false;
+// A `.aon` include is renamed when `rename` holds, and a bare one is prefixed
+// when `local` holds, so each says it names a local file.
+function rewriteIncludes(src, rename, local = NONE) {
+    return src.replace(TOKEN_RE, (token, space, quote, path) => null == quote ? token :
+        path.endsWith(LEGACY) && rename(path) ?
+            '@' + space + quote + localPrefix(path.slice(0, -LEGACY.length) + CURRENT) + quote :
+            isBare(path) && local(path) ? '@' + space + quote + './' + path + quote : token);
 }
 function legacyIncludes(src) {
     return [...src.matchAll(TOKEN_RE)]
@@ -60,6 +66,14 @@ function scaffoldFiles(fs, templateSdk, kept) {
         .map((rel) => rel.replace('.fragment.', '.'));
     return { kept: keep, replaced: new Set(written.filter((rel) => !keep.has(rel))) };
 }
+function isFile(fs, path) {
+    try {
+        return fs.statSync(path).isFile();
+    }
+    catch (_err) {
+        return false;
+    }
+}
 // A failed step must not fail the scaffold: the file keeps the name it had.
 function attempt(step) {
     try {
@@ -90,20 +104,21 @@ function migrateFile(fs, prev, next) {
         fs.unlinkSync(prev);
     });
 }
-function includeRenamer(fs, sdk, scaffold, from) {
+// Whether `path`, read from the file `from`, names a file that is, or will be
+// once the scaffold and apidef have run, under the .sdk folder.
+function localFile(fs, sdk, scaffold, from) {
     const dir = node_path_1.default.dirname(node_path_1.default.join(sdk, from));
     return (path) => {
-        if (TOOLCHAIN_RE.test(path)) {
-            return true;
-        }
-        if (path.startsWith('@')) {
-            return false;
-        }
-        const twin = node_path_1.default.resolve(dir, path.slice(0, -LEGACY.length) + CURRENT);
-        const rel = node_path_1.default.relative(sdk, twin).split(node_path_1.default.sep).join('/');
-        return fs.existsSync(twin) || scaffold.kept.has(rel) || scaffold.replaced.has(rel) ||
+        const full = node_path_1.default.resolve(dir, path);
+        const rel = node_path_1.default.relative(sdk, full).split(node_path_1.default.sep).join('/');
+        return isFile(fs, full) || scaffold.kept.has(rel) || scaffold.replaced.has(rel) ||
             APIDEF_WRITES_RE.test(rel);
     };
+}
+function includeRenamer(fs, sdk, scaffold, from) {
+    const local = localFile(fs, sdk, scaffold, from);
+    return (path) => TOOLCHAIN_RE.test(path) ||
+        (!path.startsWith('@') && local(path.slice(0, -LEGACY.length) + CURRENT));
 }
 // Renames first and rewrites after, so an include changes only once the file
 // it names is on disk as .aontu.
@@ -118,7 +133,7 @@ function migrateToAontu(fs, sdk, scaffold, warn) {
     for (const rel of sources) {
         attempt(() => {
             const src = String(fs.readFileSync(abs(rel)));
-            const out = rewriteIncludes(src, includeRenamer(fs, sdk, scaffold, rel));
+            const out = rewriteIncludes(src, includeRenamer(fs, sdk, scaffold, rel), localFile(fs, sdk, scaffold, rel));
             if (out !== src) {
                 writeWhole(fs, abs(rel), out);
             }

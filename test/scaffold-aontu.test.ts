@@ -54,6 +54,26 @@ describe('scaffold-aontu-syntax', () => {
     assert.deepEqual(bad, [])
   })
 
+  // aontu reads a path with no `./`, `../` or `/` prefix as a package path
+  // first, and refuses a bare filename outright.
+  test('every local include in the scaffold carries a ./ prefix', () => {
+    const seen: string[] = []
+    const bad: string[] = []
+    for (const file of files) {
+      Fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+        for (const m of line.replace(/#.*$/, '').matchAll(/@\s*(["'`])([^"'`]*)\1/g)) {
+          seen.push(m[2])
+          if (!/^(\.{1,2}\/|\/|@)/.test(m[2])) {
+            bad.push(`${Path.relative(STANDARD, file)}:${i + 1}: ${line.trim()}`)
+          }
+        }
+      })
+    }
+    assert.ok(seen.includes('./api/api-info.aontu') && seen.includes('./struct/test.aontu'),
+      'the scan must see the entry files')
+    assert.deepEqual(bad, [])
+  })
+
   test('no scaffolded model uses a slash comment', () => {
     const bad: string[] = []
 

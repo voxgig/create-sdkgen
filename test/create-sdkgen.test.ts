@@ -177,9 +177,9 @@ describe('create-sdkgen', () => {
   // What @voxgig/apidef ships in model/, and what it writes under .sdk/model.
   const APIDEF_INCLUDES = [
     '@voxgig/apidef/model/apidef.aontu',
-    'api/api-info.aontu',
-    'entity/entity-index.aontu',
-    'flow/flow-index.aontu',
+    './api/api-info.aontu',
+    './entity/entity-index.aontu',
+    './flow/flow-index.aontu',
   ]
 
   test('sdk-aontu-names-apidef-files-as-aontu', async () => {
@@ -199,7 +199,7 @@ describe('create-sdkgen', () => {
     const sdk = s.read('.sdk/model/sdk.aontu')
     const local = [...sdk.matchAll(/^@"([^"@][^"]*)"/gm)].map((m) => m[1])
 
-    assert.ok(local.includes('api/api-info.aontu'), 'the scan must see the apidef files')
+    assert.ok(local.includes('./api/api-info.aontu'), 'the scan must see the apidef files')
     for (const include of local) {
       assert.ok(s.exists(Path.join('.sdk', 'model', include)),
         'sdk.aontu includes a file the scaffold does not write: ' + include)
@@ -435,7 +435,7 @@ describe('project-overlay', () => {
     // target that target-index.aontu has already defined. Declared earlier the
     // model build dies on "key ext value was: nil".
     assert.ok(sdk.indexOf('@"./project.aontu"') >
-      sdk.indexOf('@"target/target-index.aontu"'),
+      sdk.indexOf('@"./target/target-index.aontu"'),
       'project.aontu must be included after target-index.aontu')
   })
 
@@ -690,6 +690,67 @@ describe('overlay-include-migration', () => {
     await rescaffold(s)
 
     assertAontuIncludes(s)
+  })
+})
+
+
+describe('bare-include-migration', () => {
+
+  const MODEL = Path.join('.sdk', 'model')
+  const PROJECT = Path.join(MODEL, 'project.aontu')
+  const TARGET_INDEX = Path.join(MODEL, 'target', 'target-index.aontu')
+
+  // The include first, then the same text where it is not one.
+  const OVERLAY = '@"shared/common.aontu"\n' +
+    '# @"shared/common.aontu" in a comment is not an include\n' +
+    "note: '@\"shared/common.aontu\" as data is not one either'\n" +
+    '@"corp.example/schemas"\n' +
+    '@"missing/gone.aontu"\n'
+
+  const LOCAL_SDK_INCLUDE_RE = /^@"(?!\.{0,2}\/|@)[^"]*"/m
+
+  async function rescaffold(s: any) {
+    await CreateSdkGen({ debug: 'warn' } as any).generate({
+      root: 'CreateRoot', name: 'petstore', def: Path.join(s.work, 'petstore.yml'),
+      project: 'standard', folder: s.out, install: false,
+    } as any)
+  }
+
+  const write = (s: any, rel: string, content: string) => {
+    Fs.mkdirSync(Path.dirname(Path.join(s.out, rel)), { recursive: true })
+    Fs.writeFileSync(Path.join(s.out, rel), content)
+  }
+
+  test("the scaffold's own entry files include nothing bare", async () => {
+    const s = await scaffold()
+    assert.doesNotMatch(s.read(Path.join(MODEL, 'sdk.aontu')), LOCAL_SDK_INCLUDE_RE)
+    assert.doesNotMatch(s.read(Path.join('.sdk', 'test', 'test.aontu')), LOCAL_SDK_INCLUDE_RE)
+    assert.match(s.read(Path.join('.sdk', 'test', 'test.aontu')), /^@"\.\/struct\/test\.aontu"$/m)
+  })
+
+  test("a re-scaffold gives the project's bare local includes the ./ prefix", async () => {
+    const s = await scaffold()
+    write(s, Path.join(MODEL, 'shared', 'common.aontu'), 'common: true\n')
+    write(s, Path.join(MODEL, 'target', 'ts.aontu'), 'main: kit: target: ts: {}\n')
+    write(s, PROJECT, OVERLAY)
+    write(s, TARGET_INDEX, '# SDK Targets.\n\n\n@"ts.aontu"')
+
+    await rescaffold(s)
+
+    assert.equal(s.read(PROJECT), OVERLAY.replace('@"shared/', '@"./shared/'),
+      'only the include of a file on disk changes')
+    assert.equal(s.read(TARGET_INDEX), '# SDK Targets.\n\n\n@"./ts.aontu"')
+  })
+
+  test('a bare include of a file apidef writes later is prefixed too', async () => {
+    const s = await scaffold()
+    const guide = Path.join(MODEL, 'guide', 'guide.aontu')
+    write(s, guide, s.read(guide).replace('@"./base-guide.aontu"', '@"base-guide.aontu"'))
+
+    await rescaffold(s)
+
+    assert.match(s.read(guide), /^@"\.\/base-guide\.aontu"$/m)
+    assert.equal(s.read(guide).split('base-guide.aontu').length, 2, 'and not restored twice')
   })
 })
 

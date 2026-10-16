@@ -91,9 +91,11 @@ The same command brings a project from before the `.aontu` rename up to date,
 which it needs, because `aontu` now refuses to include a `.aon` file. The
 re-scaffold renames each `.aon` file under `.sdk/model/` and `.sdk/test/` to
 `.aontu`, or removes it where the scaffold writes its replacement, and updates
-every include that names a renamed file. Nothing else in a file changes. An
-include the scaffold can't update, such as one pointing outside `.sdk/`, gets
-a warning that names the file. Commit first, so the migration is a diff you
+every include that names a renamed file. An include of a local file that has
+no `./` prefix, such as `@"entity/entity-index.aontu"`, gains one, since
+`aontu` reads a path without it as a package path first. Nothing else in a
+file changes. An include the scaffold can't update, such as one pointing
+outside `.sdk/`, gets a warning that names the file. Commit first, so the migration is a diff you
 can read. [`test/create-sdkgen.test.ts`](./test/create-sdkgen.test.ts) builds
 such a project and re-scaffolds it.
 

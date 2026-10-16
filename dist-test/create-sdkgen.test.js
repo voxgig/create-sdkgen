@@ -163,9 +163,9 @@ async function scaffold(over = {}) {
     // What @voxgig/apidef ships in model/, and what it writes under .sdk/model.
     const APIDEF_INCLUDES = [
         '@voxgig/apidef/model/apidef.aontu',
-        'api/api-info.aontu',
-        'entity/entity-index.aontu',
-        'flow/flow-index.aontu',
+        './api/api-info.aontu',
+        './entity/entity-index.aontu',
+        './flow/flow-index.aontu',
     ];
     (0, node_test_1.test)('sdk-aontu-names-apidef-files-as-aontu', async () => {
         const s = await scaffold();
@@ -181,7 +181,7 @@ async function scaffold(over = {}) {
         const s = await scaffold();
         const sdk = s.read('.sdk/model/sdk.aontu');
         const local = [...sdk.matchAll(/^@"([^"@][^"]*)"/gm)].map((m) => m[1]);
-        node_assert_1.default.ok(local.includes('api/api-info.aontu'), 'the scan must see the apidef files');
+        node_assert_1.default.ok(local.includes('./api/api-info.aontu'), 'the scan must see the apidef files');
         for (const include of local) {
             node_assert_1.default.ok(s.exists(node_path_1.default.join('.sdk', 'model', include)), 'sdk.aontu includes a file the scaffold does not write: ' + include);
         }
@@ -351,7 +351,7 @@ async function scaffold(over = {}) {
         // target that target-index.aontu has already defined. Declared earlier the
         // model build dies on "key ext value was: nil".
         node_assert_1.default.ok(sdk.indexOf('@"./project.aontu"') >
-            sdk.indexOf('@"target/target-index.aontu"'), 'project.aontu must be included after target-index.aontu');
+            sdk.indexOf('@"./target/target-index.aontu"'), 'project.aontu must be included after target-index.aontu');
     });
     (0, node_test_1.test)('a re-scaffold leaves a customized project overlay BYTE-IDENTICAL', async () => {
         const s = await scaffold();
@@ -536,6 +536,52 @@ async function scaffold(over = {}) {
         Fs.writeFileSync(node_path_1.default.join(s.out, SHARED + '.aon'), SHARED_CONTENT);
         await rescaffold(s);
         assertAontuIncludes(s);
+    });
+});
+(0, node_test_1.describe)('bare-include-migration', () => {
+    const MODEL = node_path_1.default.join('.sdk', 'model');
+    const PROJECT = node_path_1.default.join(MODEL, 'project.aontu');
+    const TARGET_INDEX = node_path_1.default.join(MODEL, 'target', 'target-index.aontu');
+    // The include first, then the same text where it is not one.
+    const OVERLAY = '@"shared/common.aontu"\n' +
+        '# @"shared/common.aontu" in a comment is not an include\n' +
+        "note: '@\"shared/common.aontu\" as data is not one either'\n" +
+        '@"corp.example/schemas"\n' +
+        '@"missing/gone.aontu"\n';
+    const LOCAL_SDK_INCLUDE_RE = /^@"(?!\.{0,2}\/|@)[^"]*"/m;
+    async function rescaffold(s) {
+        await (0, __1.CreateSdkGen)({ debug: 'warn' }).generate({
+            root: 'CreateRoot', name: 'petstore', def: node_path_1.default.join(s.work, 'petstore.yml'),
+            project: 'standard', folder: s.out, install: false,
+        });
+    }
+    const write = (s, rel, content) => {
+        Fs.mkdirSync(node_path_1.default.dirname(node_path_1.default.join(s.out, rel)), { recursive: true });
+        Fs.writeFileSync(node_path_1.default.join(s.out, rel), content);
+    };
+    (0, node_test_1.test)("the scaffold's own entry files include nothing bare", async () => {
+        const s = await scaffold();
+        node_assert_1.default.doesNotMatch(s.read(node_path_1.default.join(MODEL, 'sdk.aontu')), LOCAL_SDK_INCLUDE_RE);
+        node_assert_1.default.doesNotMatch(s.read(node_path_1.default.join('.sdk', 'test', 'test.aontu')), LOCAL_SDK_INCLUDE_RE);
+        node_assert_1.default.match(s.read(node_path_1.default.join('.sdk', 'test', 'test.aontu')), /^@"\.\/struct\/test\.aontu"$/m);
+    });
+    (0, node_test_1.test)("a re-scaffold gives the project's bare local includes the ./ prefix", async () => {
+        const s = await scaffold();
+        write(s, node_path_1.default.join(MODEL, 'shared', 'common.aontu'), 'common: true\n');
+        write(s, node_path_1.default.join(MODEL, 'target', 'ts.aontu'), 'main: kit: target: ts: {}\n');
+        write(s, PROJECT, OVERLAY);
+        write(s, TARGET_INDEX, '# SDK Targets.\n\n\n@"ts.aontu"');
+        await rescaffold(s);
+        node_assert_1.default.equal(s.read(PROJECT), OVERLAY.replace('@"shared/', '@"./shared/'), 'only the include of a file on disk changes');
+        node_assert_1.default.equal(s.read(TARGET_INDEX), '# SDK Targets.\n\n\n@"./ts.aontu"');
+    });
+    (0, node_test_1.test)('a bare include of a file apidef writes later is prefixed too', async () => {
+        const s = await scaffold();
+        const guide = node_path_1.default.join(MODEL, 'guide', 'guide.aontu');
+        write(s, guide, s.read(guide).replace('@"./base-guide.aontu"', '@"base-guide.aontu"'));
+        await rescaffold(s);
+        node_assert_1.default.match(s.read(guide), /^@"\.\/base-guide\.aontu"$/m);
+        node_assert_1.default.equal(s.read(guide).split('base-guide.aontu').length, 2, 'and not restored twice');
     });
 });
 (0, node_test_1.describe)('aon-era-migration', () => {

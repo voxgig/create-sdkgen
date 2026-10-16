@@ -23,19 +23,31 @@ type Scaffold = {
 }
 
 
-// A BARE FILENAME ALSO NEEDS `./`. aontu has required the prefix for a local
-// file since 0.65, so rewriting only the extension left an include still
-// refused, with "local files need a ./ prefix". An include already carrying a
-// directory segment is unambiguous and is left alone.
-function localPrefix(path: string): string {
-  return path.includes('/') || path.startsWith('./') ? path : './' + path
+// A local file needs a `./`, `../` or `/` prefix. Without one, aontu reads the
+// path as a package path first, and refuses a bare filename outright.
+function isBare(path: string): boolean {
+  return !/^(\.{1,2}\/|\/|@)/.test(path) && !path.includes(':')
 }
 
 
-function rewriteIncludes(src: string, rename: (path: string) => boolean): string {
+function localPrefix(path: string): string {
+  return isBare(path) ? './' + path : path
+}
+
+
+type Include = (path: string) => boolean
+
+const NONE: Include = () => false
+
+
+// A `.aon` include is renamed when `rename` holds, and a bare one is prefixed
+// when `local` holds, so each says it names a local file.
+function rewriteIncludes(src: string, rename: Include, local: Include = NONE): string {
   return src.replace(TOKEN_RE, (token: string, space: string, quote: string, path: string) =>
-    null != quote && path.endsWith(LEGACY) && rename(path) ?
-      '@' + space + quote + localPrefix(path.slice(0, -LEGACY.length) + CURRENT) + quote : token)
+    null == quote ? token :
+      path.endsWith(LEGACY) && rename(path) ?
+        '@' + space + quote + localPrefix(path.slice(0, -LEGACY.length) + CURRENT) + quote :
+        isBare(path) && local(path) ? '@' + space + quote + './' + path + quote : token)
 }
 
 
@@ -79,6 +91,16 @@ function scaffoldFiles(fs: any, templateSdk: string, kept: string[]): Scaffold {
 }
 
 
+function isFile(fs: any, path: string): boolean {
+  try {
+    return fs.statSync(path).isFile()
+  }
+  catch (_err: any) {
+    return false
+  }
+}
+
+
 // A failed step must not fail the scaffold: the file keeps the name it had.
 function attempt(step: () => void): void {
   try {
@@ -115,20 +137,24 @@ function migrateFile(fs: any, prev: string, next: string): void {
 }
 
 
-function includeRenamer(fs: any, sdk: string, scaffold: Scaffold, from: string) {
+// Whether `path`, read from the file `from`, names a file that is, or will be
+// once the scaffold and apidef have run, under the .sdk folder.
+function localFile(fs: any, sdk: string, scaffold: Scaffold, from: string): Include {
   const dir = Path.dirname(Path.join(sdk, from))
   return (path: string): boolean => {
-    if (TOOLCHAIN_RE.test(path)) {
-      return true
-    }
-    if (path.startsWith('@')) {
-      return false
-    }
-    const twin = Path.resolve(dir, path.slice(0, -LEGACY.length) + CURRENT)
-    const rel = Path.relative(sdk, twin).split(Path.sep).join('/')
-    return fs.existsSync(twin) || scaffold.kept.has(rel) || scaffold.replaced.has(rel) ||
+    const full = Path.resolve(dir, path)
+    const rel = Path.relative(sdk, full).split(Path.sep).join('/')
+    return isFile(fs, full) || scaffold.kept.has(rel) || scaffold.replaced.has(rel) ||
       APIDEF_WRITES_RE.test(rel)
   }
+}
+
+
+function includeRenamer(fs: any, sdk: string, scaffold: Scaffold, from: string): Include {
+  const local = localFile(fs, sdk, scaffold, from)
+  return (path: string): boolean =>
+    TOOLCHAIN_RE.test(path) ||
+    (!path.startsWith('@') && local(path.slice(0, -LEGACY.length) + CURRENT))
 }
 
 
@@ -147,7 +173,8 @@ function migrateToAontu(fs: any, sdk: string, scaffold: Scaffold, warn: Warn): v
   for (const rel of sources) {
     attempt(() => {
       const src = String(fs.readFileSync(abs(rel)))
-      const out = rewriteIncludes(src, includeRenamer(fs, sdk, scaffold, rel))
+      const out = rewriteIncludes(src, includeRenamer(fs, sdk, scaffold, rel),
+        localFile(fs, sdk, scaffold, rel))
       if (out !== src) {
         writeWhole(fs, abs(rel), out)
       }

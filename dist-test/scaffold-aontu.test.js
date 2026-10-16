@@ -74,6 +74,24 @@ function unquoted(line) {
         }
         node_assert_1.default.deepEqual(bad, []);
     });
+    // aontu reads a path with no `./`, `../` or `/` prefix as a package path
+    // first, and refuses a bare filename outright.
+    (0, node_test_1.test)('every local include in the scaffold carries a ./ prefix', () => {
+        const seen = [];
+        const bad = [];
+        for (const file of files) {
+            Fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+                for (const m of line.replace(/#.*$/, '').matchAll(/@\s*(["'`])([^"'`]*)\1/g)) {
+                    seen.push(m[2]);
+                    if (!/^(\.{1,2}\/|\/|@)/.test(m[2])) {
+                        bad.push(`${node_path_1.default.relative(STANDARD, file)}:${i + 1}: ${line.trim()}`);
+                    }
+                }
+            });
+        }
+        node_assert_1.default.ok(seen.includes('./api/api-info.aontu') && seen.includes('./struct/test.aontu'), 'the scan must see the entry files');
+        node_assert_1.default.deepEqual(bad, []);
+    });
     (0, node_test_1.test)('no scaffolded model uses a slash comment', () => {
         const bad = [];
         for (const file of files) {
