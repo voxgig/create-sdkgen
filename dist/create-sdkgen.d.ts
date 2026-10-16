@@ -22,5 +22,18 @@ type GenerateSpec = {
 declare function CreateSdkGen(opts: FullCreateSdkGenOptions): {
     generate: (spec: GenerateSpec) => Promise<void>;
 };
-export type { CreateSdkGenOptions, };
-export { CreateSdkGen, TARGETS, forwardingError, };
+type Host = {
+    platform: string;
+    env: Record<string, string | undefined>;
+    execPath: string;
+    exists: (path: string) => boolean;
+};
+type NpmLaunch = {
+    command: string;
+    args: string[];
+    shell?: boolean;
+};
+declare function npmLaunch(args: string[], host?: Host): NpmLaunch;
+declare function npmEnv(host?: Host): Record<string, string | undefined>;
+export type { CreateSdkGenOptions, Host, NpmLaunch, };
+export { CreateSdkGen, TARGETS, forwardingError, npmEnv, npmLaunch, };

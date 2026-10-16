@@ -227,10 +227,80 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
 
 
 
+type Host = {
+  platform: string
+  env: Record<string, string | undefined>
+  execPath: string
+  exists: (path: string) => boolean
+}
+
+type NpmLaunch = {
+  command: string
+  args: string[]
+  shell?: boolean
+}
+
+
+const HOST: Host = {
+  platform: process.platform,
+  env: process.env,
+  execPath: process.execPath,
+  exists: (path: string) => Fs.existsSync(path),
+}
+
+const NPM_CLI_RE = /[\\/]npm-cli\.js$/
+
+const CMD_UNSAFE_RE = /["%\r\n]/
+
+
+// On Windows npm is npm.cmd, which spawn cannot find without a shell and
+// refuses to run without one, so npm's own script runs on this node instead.
+function npmLaunch(args: string[], host: Host = HOST): NpmLaunch {
+  if ('win32' !== host.platform) {
+    return { command: 'npm', args }
+  }
+
+  const bundled = Path.win32.join(
+    Path.win32.dirname(host.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js')
+  const cli = [host.env.npm_execpath, bundled]
+    .find((file) => null != file && NPM_CLI_RE.test(file) && host.exists(file))
+
+  if (null != cli) {
+    return { command: host.execPath, args: [cli, ...args] }
+  }
+
+  // A command string, so cmd.exe sees each argument quoted, and only quoted.
+  const unsafe = args.find((arg: string) => CMD_UNSAFE_RE.test(arg))
+  if (null != unsafe) {
+    throw new Error(`Cannot pass ${JSON.stringify(unsafe)} to npm.cmd through cmd.exe.`)
+  }
+  return {
+    command: ['npm.cmd', ...args.map((arg: string) => '"' + arg + '"')].join(' '),
+    args: [],
+    shell: true,
+  }
+}
+
+
+// The child resolves `node` to this one. Windows spells the key `Path`, and a
+// second spelling beside it would leave the choice to key order.
+function npmEnv(host: Host = HOST): Record<string, string | undefined> {
+  const win = 'win32' === host.platform
+  const P = win ? Path.win32 : Path.posix
+  const key = (win ?
+    Object.keys(host.env).find((name: string) => 'PATH' === name.toUpperCase()) :
+    undefined) ?? 'PATH'
+  const dirs = [P.dirname(host.execPath), host.env[key]].filter(Boolean)
+  return { ...host.env, [key]: dirs.join(P.delimiter) }
+}
+
+
 // Run `npm <args>` to completion, rejecting on spawn error or non-zero exit.
 function runNpm(args: string[], spawn_opts: any): Promise<null> {
   return new Promise((resolve, reject) => {
-    const child = spawn('npm', args, spawn_opts)
+    const launch = npmLaunch(args)
+    const child = spawn(launch.command, launch.args,
+      launch.shell ? { ...spawn_opts, shell: true } : spawn_opts)
 
     child.on('error', (err) => reject(new Error(`Failed to start npm: ${err.message}`)))
 
@@ -252,10 +322,7 @@ async function installNpm(spec: GenerateSpec, opts: any, model: any) {
 
   const cwd = Path.resolve(folder, SDK_FOLDER)
 
-  const env = {
-    ...process.env,
-    PATH: `${Path.dirname(process.execPath)}${Path.delimiter}${process.env.PATH}`,
-  }
+  const env = npmEnv()
 
   const spawn_opts: any = {
     cwd,
@@ -327,6 +394,8 @@ async function installFeatures(spec: GenerateSpec, opts: any, model: any, spawn_
 
 export type {
   CreateSdkGenOptions,
+  Host,
+  NpmLaunch,
 }
 
 
@@ -335,4 +404,6 @@ export {
   CreateSdkGen,
   TARGETS,
   forwardingError,
+  npmEnv,
+  npmLaunch,
 }

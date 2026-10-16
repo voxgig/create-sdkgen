@@ -36,3 +36,29 @@ jobs:
     # node --test matches zero files and exits 0 — green CI testing nothing.
     - run: npm run build
     - run: npm test
+
+  # A real scaffold, installed with the published toolchain, on Linux and
+  # Windows: launching npm is platform-specific, and the unit tests can only
+  # stub the platform. Windows is advisory until it has had a green run.
+  scaffold:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.os == 'windows-latest' }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      with:
+        node-version: 24.x
+    - run: npm ci
+    - run: node bin/create-sdkgen petstore -d test/fixture/petstore.yaml -o "$RUNNER_TEMP/petstore-sdk" -t ts -f test
+    - run: node -e "require('fs').statSync(process.argv[1])" "$RUNNER_TEMP/petstore-sdk/.sdk/model/target/ts.aontu"
