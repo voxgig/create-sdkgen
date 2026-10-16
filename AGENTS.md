@@ -87,7 +87,10 @@ create-sdkgen <name> -d <path/to/openapi.yaml> -o <output-dir>
 - `-o, --folder <dir>` — output directory.
 - `-t, --target <langs>` — comma-separated targets to add during scaffold (e.g. `-t ts,py,go`). Optional; can also add later.
 - `-f, --feature <features>` — features to add (e.g. `-f test`). Optional.
+- `-p, --project <name>` — project template, by name or folder (default `standard`).
 - `--no-install` — skip `npm install` (default is to install).
+- `--dryrun` — report what the scaffold would write, and write nothing.
+- `--debug <level>` — log level: `trace`, `debug`, `info`, `warn`, `error` or `fatal` (default `info`).
 - `-h` / `-v` — help / version.
 
 This produces `<output-dir>/` containing a **`.sdk/`** build folder wired to

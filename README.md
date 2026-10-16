@@ -37,7 +37,10 @@ generated output and is overwritten on each regenerate.
 | `-o, --folder <dir>` | output directory (default `<name>-sdk`) |
 | `-t, --target <langs>` | targets to add during scaffold (e.g. `ts,py,go`) |
 | `-f, --feature <feats>` | features to add (e.g. `test`) |
+| `-p, --project <name>` | project template, by name or folder (default `standard`) |
 | `--no-install` | skip `npm install` |
+| `--dryrun` | report what the scaffold would write, and write nothing |
+| `--debug <level>` | log level: `trace`, `debug`, `info`, `warn`, `error` or `fatal` (default `info`) |
 | `-h`, `-v` | help, version |
 
 ## After the scaffold
