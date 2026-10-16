@@ -9,6 +9,8 @@ import Path from 'node:path'
 
 import { Aontu } from 'aontu'
 
+import { TARGETS } from '../dist/create-sdkgen'
+
 
 const PRIMARY = Path.resolve(
   __dirname, '..', 'project', 'standard', '.sdk', 'test', 'primary')
@@ -362,15 +364,11 @@ describe('shared feature corpus', () => {
 
 describe('generated-SDK CI covers every target', () => {
 
-  // Every language target sdkgen can add. A target with no CI job is
-  // generated into consumer repos and never compiled there.
-  const TARGETS = [
-    'go', 'go-cli', 'go-mcp', 'ts', 'js', 'py', 'rb', 'php', 'lua',
-    'csharp', 'java', 'kotlin', 'scala', 'swift', 'dart', 'rust', 'c', 'cpp',
-    'zig', 'perl', 'clojure', 'elixir', 'ocaml', 'haskell',
-  ]
-
+  // TARGETS is the list the CLI takes a positional target from. A target with
+  // no CI job is generated into consumer repos and never compiled there.
   test('each target has a job', () => {
+    assert.ok(TARGETS.includes('py-data') && TARGETS.includes('lean'),
+      'the packaged and data targets are targets too')
     const ci = Fs.readFileSync(CI, 'utf8')
     const jobs = [...ci.matchAll(/^ {2}([\w-]+):$/gm)].map((m) => m[1])
     const missing = TARGETS.filter((t) => !jobs.includes(t))

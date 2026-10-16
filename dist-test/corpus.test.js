@@ -42,6 +42,7 @@ const node_assert_1 = __importDefault(require("node:assert"));
 const Fs = __importStar(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const aontu_1 = require("aontu");
+const create_sdkgen_1 = require("../dist/create-sdkgen");
 const PRIMARY = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'primary');
 const INDEX = node_path_1.default.join(PRIMARY, 'primary-test-index.aontu');
 const FEATURE = node_path_1.default.resolve(__dirname, '..', 'project', 'standard', '.sdk', 'test', 'feature');
@@ -303,17 +304,13 @@ function compileFeature(name) {
     });
 });
 (0, node_test_1.describe)('generated-SDK CI covers every target', () => {
-    // Every language target sdkgen can add. A target with no CI job is
-    // generated into consumer repos and never compiled there.
-    const TARGETS = [
-        'go', 'go-cli', 'go-mcp', 'ts', 'js', 'py', 'rb', 'php', 'lua',
-        'csharp', 'java', 'kotlin', 'scala', 'swift', 'dart', 'rust', 'c', 'cpp',
-        'zig', 'perl', 'clojure', 'elixir', 'ocaml', 'haskell',
-    ];
+    // TARGETS is the list the CLI takes a positional target from. A target with
+    // no CI job is generated into consumer repos and never compiled there.
     (0, node_test_1.test)('each target has a job', () => {
+        node_assert_1.default.ok(create_sdkgen_1.TARGETS.includes('py-data') && create_sdkgen_1.TARGETS.includes('lean'), 'the packaged and data targets are targets too');
         const ci = Fs.readFileSync(CI, 'utf8');
         const jobs = [...ci.matchAll(/^ {2}([\w-]+):$/gm)].map((m) => m[1]);
-        const missing = TARGETS.filter((t) => !jobs.includes(t));
+        const missing = create_sdkgen_1.TARGETS.filter((t) => !jobs.includes(t));
         node_assert_1.default.deepEqual(missing, [], 'these targets are generated but never built or tested in a consumer ' +
             'repo — add a job to project/standard/.github/workflows/ci.yml');
     });
