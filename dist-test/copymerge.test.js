@@ -122,6 +122,15 @@ async function project() {
         await p.create();
         node_assert_1.default.equal(p.read(ROOT_TS), original);
     });
+    (0, node_test_1.test)('a file the build regenerates is overwritten, not merged', async () => {
+        const p = await project();
+        const seed = '.sdk/model/entity/entity-index.aontu';
+        const original = p.read(seed);
+        p.write(seed, original + '\n@"./pet.aontu"\n');
+        await p.create();
+        node_assert_1.default.equal(p.read(seed), original);
+        node_assert_1.default.equal((0, scaffold_record_1.readScaffold)(Fs, p.out)[seed], undefined);
+    });
     (0, node_test_1.test)('a project scaffolded before the record cannot be merged', async () => {
         const p = await project();
         Fs.rmSync(p.path('.sdk/log/scaffold.jsonl'));

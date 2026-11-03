@@ -127,6 +127,19 @@ describe('re-scaffold merge', () => {
   })
 
 
+  test('a file the build regenerates is overwritten, not merged', async () => {
+    const p = await project()
+    const seed = '.sdk/model/entity/entity-index.aontu'
+    const original = p.read(seed)
+    p.write(seed, original + '\n@"./pet.aontu"\n')
+
+    await p.create()
+
+    assert.equal(p.read(seed), original)
+    assert.equal(readScaffold(Fs, p.out)[seed], undefined)
+  })
+
+
   test('a project scaffolded before the record cannot be merged', async () => {
     const p = await project()
     Fs.rmSync(p.path('.sdk/log/scaffold.jsonl'))

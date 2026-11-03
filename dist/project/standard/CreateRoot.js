@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.KEPT = exports.CreateRoot = void 0;
+exports.SEEDS = exports.KEPT = exports.CreateRoot = void 0;
 exports.sanitizeDefName = sanitizeDefName;
 const node_path_1 = __importDefault(require("node:path"));
 const jostraca_1 = require("jostraca");
@@ -111,6 +111,16 @@ const KEPT = [
     ...INDEX_KINDS.map((kind) => ['model', kind, indexFile(kind)]),
 ].map((rel) => rel.join('/'));
 exports.KEPT = KEPT;
+// Starting points that apidef or the model build rewrites, so a difference
+// is the build's, not the project's: a re-scaffold overwrites them.
+const SEEDS = [
+    'model/api/api-info.aontu',
+    'model/entity/entity-index.aontu',
+    'model/flow/flow-index.aontu',
+    'test/.model-config/model-config.json',
+    'test/test.json',
+];
+exports.SEEDS = SEEDS;
 function mergeGuide(existing, template) {
     if (null == existing) {
         return template;

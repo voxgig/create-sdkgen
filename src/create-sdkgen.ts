@@ -144,7 +144,7 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
       note: JSON.stringify(jopts, null, 2)
     })
 
-    const kept = new Set<string>((rootModule.KEPT ?? [])
+    const kept = new Set<string>([...(rootModule.KEPT ?? []), ...(rootModule.SEEDS ?? [])]
       .map((rel: string) => SDK_FOLDER + '/' + rel))
 
     const manage = (rel: string) => !kept.has(rel) &&

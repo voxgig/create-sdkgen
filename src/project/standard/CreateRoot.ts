@@ -132,6 +132,17 @@ const KEPT = [
 ].map((rel: string[]) => rel.join('/'))
 
 
+// Starting points that apidef or the model build rewrites, so a difference
+// is the build's, not the project's: a re-scaffold overwrites them.
+const SEEDS = [
+  'model/api/api-info.aontu',
+  'model/entity/entity-index.aontu',
+  'model/flow/flow-index.aontu',
+  'test/.model-config/model-config.json',
+  'test/test.json',
+]
+
+
 function mergeGuide(existing: string | null, template: string): string {
   if (null == existing) {
     return template
@@ -310,5 +321,6 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
 export {
   CreateRoot,
   KEPT,
+  SEEDS,
   sanitizeDefName,
 }

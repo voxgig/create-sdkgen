@@ -96,7 +96,10 @@ and re-run with `--keep`, or re-run with `--force` to take the incoming
 scaffold. A project regenerated in full from the toolchain sets
 `main: kit: copies: 'overwrite'` in `.sdk/model/project.aontu`, and then a
 re-scaffold overwrites the scaffold files instead. sdkgen's adds follow the
-same setting for the templates and components they copy.
+same setting for the templates and components they copy. The few scaffold
+files that apidef or the model build rewrite, such as
+`.sdk/model/entity/entity-index.aontu` and `.sdk/test/test.json`, are always
+overwritten, since a difference there is the build's.
 
 The same command brings a project from before the `.aontu` rename up to date,
 which it needs, because `aontu` now refuses to include a `.aon` file. The

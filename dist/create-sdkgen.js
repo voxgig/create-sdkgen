@@ -124,7 +124,7 @@ function CreateSdkGen(opts) {
             jostraca: jopts,
             note: JSON.stringify(jopts, null, 2)
         });
-        const kept = new Set((rootModule.KEPT ?? [])
+        const kept = new Set([...(rootModule.KEPT ?? []), ...(rootModule.SEEDS ?? [])]
             .map((rel) => SDK_FOLDER + '/' + rel));
         const manage = (rel) => !kept.has(rel) &&
             !rel.startsWith(SDK_FOLDER + '/def/') && !rel.startsWith(SDK_FOLDER + '/log/') &&
