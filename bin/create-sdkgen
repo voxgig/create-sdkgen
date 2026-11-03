@@ -97,6 +97,8 @@ async function generate(options) {
     project: options.project,
     folder: options.folder,
     install: options.install,
+    force: options.force,
+    keep: options.keep,
     target: options.target,
     feature: options.feature,
   }
@@ -143,6 +145,16 @@ function resolveOptions() {
         install: {
           type: 'boolean',
           default: true,
+        },
+
+        force: {
+          type: 'boolean',
+          default: false,
+        },
+
+        keep: {
+          type: 'boolean',
+          default: false,
         },
 
         target: {
@@ -208,6 +220,8 @@ function resolveOptions() {
     folder: args.values.folder,
     dryrun: !!args.values.dryrun,
     install: !!args.values.install,
+    force: !!args.values.force,
+    keep: !!args.values.keep,
     target: targets,
     feature: features,
     debug: args.values.debug,
@@ -233,6 +247,8 @@ function validateOptions(rawOptions) {
     folder: String,
     dryrun: Boolean,
     install: Boolean,
+    force: Boolean,
+    keep: Boolean,
     target: [String],
     feature: [String],
     debug: String,
@@ -281,8 +297,9 @@ Usage: npm create @voxgig/sdkgen@latest <name> -- <args>
        create-sdkgen <name> <args>
 
   <name> is the name of the SDK project. This is also used to
-    create a project folder. If run against an existing folder
-    generated files will be overwritten.
+    create a project folder. Run against an existing project, it
+    merges the newer scaffold into any scaffold file the project
+    changed, unless the project sets main: kit: copies: 'overwrite'.
 
   <args> are the command arguments. npm create keeps the options
     it reads itself (-d, -o, -t, -f, --dryrun, --no-install) unless
@@ -306,6 +323,12 @@ Usage: npm create @voxgig/sdkgen@latest <name> -- <args>
 
     --install    Run installation scripts. Default: install.
     --no-install
+
+    --force      On an existing project, take the incoming scaffold over
+                 locally changed files instead of merging.
+
+    --keep       On an existing project, keep each locally changed file
+                 whose merge stops, recording the incoming file as its base.
 
     --dryrun     Perform a dry run, where no files are modified. Default: no-dryrun.
 

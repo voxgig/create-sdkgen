@@ -1,3 +1,4 @@
+declare const KEPT: string[];
 declare function sanitizeDefName(filename: string): string;
 declare const CreateRoot: import("jostraca").Component;
-export { CreateRoot, sanitizeDefName, };
+export { CreateRoot, KEPT, sanitizeDefName, };

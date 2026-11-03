@@ -401,15 +401,28 @@ describe('guide-overlay-merge', () => {
     assert.equal(Fs.readFileSync(readmePath, 'utf8'), provenance)
   })
 
-  test('the rest of the scaffold is still overwritten', async () => {
+  test('the rest of the scaffold is overwritten in overwrite mode', async () => {
     const s = await scaffold()
     const sdkAontu = Path.join(s.out, '.sdk', 'model', 'sdk.aontu')
+    const project = Path.join(s.out, '.sdk', 'model', 'project.aontu')
 
+    Fs.appendFileSync(project, "\nmain: kit: copies: 'overwrite'\n")
     Fs.writeFileSync(sdkAontu, '# clobbered\n')
     await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
 
     assert.notEqual(Fs.readFileSync(sdkAontu, 'utf8'), '# clobbered\n',
       'toolchain-derived files must still be overwritten so fixes propagate')
+  })
+
+  test('the rest of the scaffold keeps a local change in merge mode', async () => {
+    const s = await scaffold()
+    const sdkAontu = Path.join(s.out, '.sdk', 'model', 'sdk.aontu')
+    const changed = Fs.readFileSync(sdkAontu, 'utf8') + '\n# a local change\n'
+
+    Fs.writeFileSync(sdkAontu, changed)
+    await rescaffold(s.out, Path.join(s.work, 'petstore.yml'))
+
+    assert.equal(Fs.readFileSync(sdkAontu, 'utf8'), changed)
   })
 
 })

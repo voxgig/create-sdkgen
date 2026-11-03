@@ -172,9 +172,14 @@ Commit before regenerating — generation is destructive to the target dirs.
 ### Re-scaffolding an existing project
 
 Re-run the same `create-sdkgen` command over the output directory to pick up
-a newer scaffold. It rewrites the scaffold's own files and leaves the
+a newer scaffold. It refreshes the scaffold's own files and leaves the
 project's alone: the guide, `project.aontu`, `text.aontu`, the
-target/feature/edition indexes and the items they name.
+target/feature/edition indexes and the items they name. A scaffold file the
+project changed is merged with the newer scaffold rather than replaced; a
+conflict stops the run with nothing changed (`--keep` keeps the local files,
+`--force` takes the incoming ones). `main: kit: copies: 'overwrite'` in
+`project.aontu` makes a re-scaffold overwrite instead, for a project
+regenerated in full. The record is `.sdk/log/scaffold.jsonl`; commit it.
 
 It is also how a project from before the `.aontu` rename catches up: sdkgen
 4.25 and later refuse a project whose entry is still `sdk.aon`.

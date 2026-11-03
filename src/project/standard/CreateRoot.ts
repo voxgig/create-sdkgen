@@ -88,6 +88,12 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 # A published package name that does not follow the derivation:
 #
 #   main: kit: target: ts: publish: registry: package: '@scope/name'
+#
+# How an add, or a re-scaffold, treats a file in .sdk the project changed:
+# merged with the update (the default), or overwritten, for a project
+# regenerated in full from the toolchain:
+#
+#   main: kit: copies: 'overwrite'
 `
 
 
@@ -303,5 +309,6 @@ const CreateRoot = cmp(function CreateRoot(props: any) {
 
 export {
   CreateRoot,
+  KEPT,
   sanitizeDefName,
 }

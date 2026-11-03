@@ -326,12 +326,22 @@ async function scaffold(over = {}) {
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         node_assert_1.default.equal(Fs.readFileSync(readmePath, 'utf8'), provenance);
     });
-    (0, node_test_1.test)('the rest of the scaffold is still overwritten', async () => {
+    (0, node_test_1.test)('the rest of the scaffold is overwritten in overwrite mode', async () => {
         const s = await scaffold();
         const sdkAontu = node_path_1.default.join(s.out, '.sdk', 'model', 'sdk.aontu');
+        const project = node_path_1.default.join(s.out, '.sdk', 'model', 'project.aontu');
+        Fs.appendFileSync(project, "\nmain: kit: copies: 'overwrite'\n");
         Fs.writeFileSync(sdkAontu, '# clobbered\n');
         await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
         node_assert_1.default.notEqual(Fs.readFileSync(sdkAontu, 'utf8'), '# clobbered\n', 'toolchain-derived files must still be overwritten so fixes propagate');
+    });
+    (0, node_test_1.test)('the rest of the scaffold keeps a local change in merge mode', async () => {
+        const s = await scaffold();
+        const sdkAontu = node_path_1.default.join(s.out, '.sdk', 'model', 'sdk.aontu');
+        const changed = Fs.readFileSync(sdkAontu, 'utf8') + '\n# a local change\n';
+        Fs.writeFileSync(sdkAontu, changed);
+        await rescaffold(s.out, node_path_1.default.join(s.work, 'petstore.yml'));
+        node_assert_1.default.equal(Fs.readFileSync(sdkAontu, 'utf8'), changed);
     });
 });
 (0, node_test_1.describe)('project-overlay', () => {

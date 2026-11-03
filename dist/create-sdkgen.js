@@ -51,6 +51,8 @@ const package_json_1 = __importDefault(require("../package.json"));
 const args_1 = require("./args");
 Object.defineProperty(exports, "TARGETS", { enumerable: true, get: function () { return args_1.TARGETS; } });
 Object.defineProperty(exports, "forwardingError", { enumerable: true, get: function () { return args_1.forwardingError; } });
+const copymerge_1 = require("./copymerge");
+const scaffold_record_1 = require("./scaffold-record");
 const { names, Jostraca } = JostracaModule;
 const SDK_FOLDER = '.sdk';
 function CreateSdkGen(opts) {
@@ -122,7 +124,34 @@ function CreateSdkGen(opts) {
             jostraca: jopts,
             note: JSON.stringify(jopts, null, 2)
         });
-        const jres = await jostraca.generate(jopts, () => CreateRoot({ model, spec }));
+        const kept = new Set((rootModule.KEPT ?? [])
+            .map((rel) => SDK_FOLDER + '/' + rel));
+        const manage = (rel) => !kept.has(rel) &&
+            !rel.startsWith(SDK_FOLDER + '/def/') && !rel.startsWith(SDK_FOLDER + '/log/') &&
+            !rel.split('/').includes('.jostraca') && !rel.endsWith('.aon');
+        const record = (0, scaffold_record_1.readScaffold)(fs, folder);
+        const jres = await (0, copymerge_1.withCopyMerge)({
+            fs,
+            folder,
+            log,
+            mode: (0, scaffold_record_1.scaffoldMode)(fs, folder),
+            what: 'create-sdkgen ' + name,
+            force: !!spec.force,
+            keep: !!spec.keep,
+            dryrun,
+            manage,
+            recorded: (rel) => record[rel],
+            fingerprint: scaffold_record_1.fingerprint,
+            basedir: scaffold_record_1.SCAFFOLD_BASE,
+            conflictdir: scaffold_record_1.SCAFFOLD_CONFLICT,
+            versions: copymerge_1.gitVersions,
+        }, async (gfs) => {
+            const res = await jostraca.generate({ ...jopts, fs: () => gfs }, () => CreateRoot({ model, spec }));
+            if (!dryrun) {
+                (0, scaffold_record_1.recordScaffold)(gfs, folder, res, package_json_1.default.version, manage, record);
+            }
+            return res;
+        });
         (0, util_1.showChanges)(jopts.log, 'generate-result', jres, process.cwd());
         if (spec.dryrun || !spec.install) {
             log.info({ point: 'generate-install', note: 'skipping npm install' });

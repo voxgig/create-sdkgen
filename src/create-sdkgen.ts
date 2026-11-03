@@ -13,6 +13,13 @@ import Pkg from '../package.json'
 
 import { TARGETS, forwardingError } from './args'
 
+import { gitVersions, withCopyMerge } from './copymerge'
+
+import {
+  SCAFFOLD_BASE, SCAFFOLD_CONFLICT,
+  fingerprint, scaffoldMode, readScaffold, recordScaffold,
+} from './scaffold-record'
+
 
 type FullCreateSdkGenOptions = {
   fs?: any
@@ -36,6 +43,8 @@ type GenerateSpec = {
   target?: string[]
   feature?: string[]
   install?: boolean // perform installation - run npm install
+  force?: boolean // take the incoming scaffold over local changes
+  keep?: boolean // keep local changes whose merge stops
   folder?: string // Target folder for project
 
 }
@@ -135,7 +144,40 @@ function CreateSdkGen(opts: FullCreateSdkGenOptions) {
       note: JSON.stringify(jopts, null, 2)
     })
 
-    const jres = await jostraca.generate(jopts, () => CreateRoot({ model, spec }))
+    const kept = new Set<string>((rootModule.KEPT ?? [])
+      .map((rel: string) => SDK_FOLDER + '/' + rel))
+
+    const manage = (rel: string) => !kept.has(rel) &&
+      !rel.startsWith(SDK_FOLDER + '/def/') && !rel.startsWith(SDK_FOLDER + '/log/') &&
+      !rel.split('/').includes('.jostraca') && !rel.endsWith('.aon')
+
+    const record = readScaffold(fs, folder)
+
+    const jres = await withCopyMerge({
+      fs,
+      folder,
+      log,
+      mode: scaffoldMode(fs, folder),
+      what: 'create-sdkgen ' + name,
+      force: !!spec.force,
+      keep: !!spec.keep,
+      dryrun,
+      manage,
+      recorded: (rel: string) => record[rel],
+      fingerprint,
+      basedir: SCAFFOLD_BASE,
+      conflictdir: SCAFFOLD_CONFLICT,
+      versions: gitVersions,
+    }, async (gfs: any) => {
+      const res = await jostraca.generate({ ...jopts, fs: () => gfs },
+        () => CreateRoot({ model, spec }))
+
+      if (!dryrun) {
+        recordScaffold(gfs, folder, res, Pkg.version, manage, record)
+      }
+
+      return res
+    })
 
     showChanges(jopts.log, 'generate-result', jres, process.cwd())
 

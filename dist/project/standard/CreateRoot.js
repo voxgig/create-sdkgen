@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateRoot = void 0;
+exports.KEPT = exports.CreateRoot = void 0;
 exports.sanitizeDefName = sanitizeDefName;
 const node_path_1 = __importDefault(require("node:path"));
 const jostraca_1 = require("jostraca");
@@ -74,6 +74,12 @@ const PROJECT_STUB = `# Project overlay — YOURS. The scaffold creates this fil
 # A published package name that does not follow the derivation:
 #
 #   main: kit: target: ts: publish: registry: package: '@scope/name'
+#
+# How an add, or a re-scaffold, treats a file in .sdk the project changed:
+# merged with the update (the default), or overwritten, for a project
+# regenerated in full from the toolchain:
+#
+#   main: kit: copies: 'overwrite'
 `;
 const TEXT_FILE = 'text.aontu';
 const TEXT_STUB = `# README wording — YOURS. The scaffold creates this file once and never
@@ -104,6 +110,7 @@ const KEPT = [
     GUIDE_REL,
     ...INDEX_KINDS.map((kind) => ['model', kind, indexFile(kind)]),
 ].map((rel) => rel.join('/'));
+exports.KEPT = KEPT;
 function mergeGuide(existing, template) {
     if (null == existing) {
         return template;

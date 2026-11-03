@@ -17,6 +17,8 @@ type GenerateSpec = {
     target?: string[];
     feature?: string[];
     install?: boolean;
+    force?: boolean;
+    keep?: boolean;
     folder?: string;
 };
 declare function CreateSdkGen(opts: FullCreateSdkGenOptions): {

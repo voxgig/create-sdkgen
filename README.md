@@ -82,10 +82,21 @@ scaffold:
 create-sdkgen my-api -d ./openapi.yaml -o ./my-api-sdk
 ```
 
-A re-scaffold rewrites the scaffold's own files and keeps the project's: the
+A re-scaffold refreshes the scaffold's own files and keeps the project's: the
 guide in `.sdk/model/guide/`, the project overlay `.sdk/model/project.aontu`,
 the README wording in `.sdk/model/text.aontu`, and the target, feature, and
 edition indexes with the files they name.
+
+A scaffold file the project changed, such as `.sdk/src/Root.ts`, keeps the
+change: the newer scaffold is merged into it, against what the last scaffold
+wrote, which `.sdk/log/scaffold.jsonl` records. When both sides changed the
+same lines, the re-scaffold stops and changes nothing, and leaves the
+incoming files in `.sdk/log/scaffold-conflict/`. Fold the change in by hand
+and re-run with `--keep`, or re-run with `--force` to take the incoming
+scaffold. A project regenerated in full from the toolchain sets
+`main: kit: copies: 'overwrite'` in `.sdk/model/project.aontu`, and then a
+re-scaffold overwrites the scaffold files instead. sdkgen's adds follow the
+same setting for the templates and components they copy.
 
 The same command brings a project from before the `.aontu` rename up to date,
 which it needs, because `aontu` now refuses to include a `.aon` file. The
