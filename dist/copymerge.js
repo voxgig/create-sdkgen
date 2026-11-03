@@ -24,7 +24,11 @@ function copyMode(value) {
 }
 async function withCopyMerge(spec, run) {
     if (MERGE !== spec.mode || true === spec.force || true === spec.dryrun) {
-        return run(spec.fs);
+        const result = await run(spec.fs);
+        if (true !== spec.dryrun) {
+            clearConflicts(spec);
+        }
+        return result;
     }
     const guard = new CopyGuard(spec);
     let result;
@@ -37,6 +41,13 @@ async function withCopyMerge(spec, run) {
     }
     guard.finish();
     return result;
+}
+// The previews of a run that stopped are stale once a later run completes.
+function clearConflicts(spec) {
+    const dir = node_path_1.default.join(node_path_1.default.resolve(spec.folder), ...spec.conflictdir.split('/'));
+    if (spec.fs.existsSync(dir)) {
+        spec.fs.rmSync(dir, { recursive: true, force: true });
+    }
 }
 class CopyGuard {
     constructor(spec) {
@@ -303,7 +314,7 @@ class CopyGuard {
             }
         }
         this.keepBases(bases);
-        this.clearDir(this.spec.conflictdir);
+        clearConflicts(this.spec);
         this.report(outcome);
         return outcome;
     }
@@ -351,7 +362,7 @@ class CopyGuard {
         }
     }
     previews(conflicts) {
-        this.clearDir(this.spec.conflictdir);
+        clearConflicts(this.spec);
         const dir = this.storePath(this.spec.conflictdir, '');
         this.real.mkdirSync(dir, { recursive: true });
         this.real.writeFileSync(node_path_1.default.join(dir, '.gitignore'), '*\n');
@@ -359,12 +370,6 @@ class CopyGuard {
             const at = this.storePath(this.spec.conflictdir, conflict.rel);
             this.real.mkdirSync(node_path_1.default.dirname(at), { recursive: true });
             this.real.writeFileSync(at, conflict.preview ?? Buffer.alloc(0));
-        }
-    }
-    clearDir(rel) {
-        const dir = this.storePath(rel, '');
-        if (this.real.existsSync(dir)) {
-            this.real.rmSync(dir, { recursive: true, force: true });
         }
     }
     writeAtomic(abs, content) {

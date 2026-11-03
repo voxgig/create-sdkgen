@@ -76,7 +76,11 @@ async function withCopyMerge<T>(
   spec: GuardSpec, run: (fs: any) => Promise<T>,
 ): Promise<T> {
   if (MERGE !== spec.mode || true === spec.force || true === spec.dryrun) {
-    return run(spec.fs)
+    const result = await run(spec.fs)
+    if (true !== spec.dryrun) {
+      clearConflicts(spec)
+    }
+    return result
   }
 
   const guard = new CopyGuard(spec)
@@ -92,6 +96,15 @@ async function withCopyMerge<T>(
 
   guard.finish()
   return result
+}
+
+
+// The previews of a run that stopped are stale once a later run completes.
+function clearConflicts(spec: GuardSpec) {
+  const dir = Path.join(Path.resolve(spec.folder), ...spec.conflictdir.split('/'))
+  if (spec.fs.existsSync(dir)) {
+    spec.fs.rmSync(dir, { recursive: true, force: true })
+  }
 }
 
 
@@ -438,7 +451,7 @@ class CopyGuard {
     }
 
     this.keepBases(bases)
-    this.clearDir(this.spec.conflictdir)
+    clearConflicts(this.spec)
     this.report(outcome)
 
     return outcome
@@ -495,7 +508,7 @@ class CopyGuard {
 
 
   previews(conflicts: Conflict[]) {
-    this.clearDir(this.spec.conflictdir)
+    clearConflicts(this.spec)
 
     const dir = this.storePath(this.spec.conflictdir, '')
     this.real.mkdirSync(dir, { recursive: true })
@@ -505,14 +518,6 @@ class CopyGuard {
       const at = this.storePath(this.spec.conflictdir, conflict.rel)
       this.real.mkdirSync(Path.dirname(at), { recursive: true })
       this.real.writeFileSync(at, conflict.preview ?? Buffer.alloc(0))
-    }
-  }
-
-
-  clearDir(rel: string) {
-    const dir = this.storePath(rel, '')
-    if (this.real.existsSync(dir)) {
-      this.real.rmSync(dir, { recursive: true, force: true })
     }
   }
 
