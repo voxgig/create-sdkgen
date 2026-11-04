@@ -221,7 +221,7 @@ describe('create-sdkgen', () => {
 
   const LIBRARY_FLOORS: Record<string, string> = {
     'aontu': '>=0.75.0',
-    'jostraca': '>=0.39.0',
+    'jostraca': '>=0.41.0',
   }
 
   const TILDE_RANGE_RE = /^~\d+\.\d+\.\d+$/

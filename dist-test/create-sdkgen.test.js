@@ -198,7 +198,7 @@ async function scaffold(over = {}) {
     };
     const LIBRARY_FLOORS = {
         'aontu': '>=0.75.0',
-        'jostraca': '>=0.39.0',
+        'jostraca': '>=0.41.0',
     };
     const TILDE_RANGE_RE = /^~\d+\.\d+\.\d+$/;
     const atLeast = (version, min) => {
