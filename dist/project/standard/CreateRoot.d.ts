@@ -1,5 +1,5 @@
 declare const KEPT: string[];
 declare const SEEDS: string[];
 declare function sanitizeDefName(filename: string): string;
-declare const CreateRoot: import("jostraca").Component;
+declare const CreateRoot: import("jostraca").Component<any, never, never>;
 export { CreateRoot, KEPT, SEEDS, sanitizeDefName, };

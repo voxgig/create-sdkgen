@@ -104,7 +104,9 @@ describe('re-scaffold merge', () => {
     await assert.rejects(p.create(), /cannot take the incoming copy/)
 
     assert.equal(p.read(ROOT_TS), local)
-    assert.match(p.read('.sdk/log/scaffold-conflict/' + ROOT_TS), /<<<<<<< INCOMING/)
+    const preview = p.read('.sdk/log/scaffold-conflict/' + ROOT_TS)
+    assert.match(preview, /^<<<<<<< LOCAL$/m)
+    assert.match(preview, /^>>>>>>> INCOMING \(/m)
 
     await p.create({ keep: true })
     assert.equal(p.read(ROOT_TS), local)

@@ -61,7 +61,7 @@
     "@voxgig/util": "0.5.4",
     "aontu": ">=0.75.0",
     "chokidar": "5.0.0",
-    "jostraca": "0.31.2",
+    "jostraca": "0.41.0",
     "shape": ">=10"
   }
 }

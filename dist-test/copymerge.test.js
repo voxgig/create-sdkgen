@@ -107,7 +107,9 @@ async function project() {
         p.write(ROOT_TS, local);
         await node_assert_1.default.rejects(p.create(), /cannot take the incoming copy/);
         node_assert_1.default.equal(p.read(ROOT_TS), local);
-        node_assert_1.default.match(p.read('.sdk/log/scaffold-conflict/' + ROOT_TS), /<<<<<<< INCOMING/);
+        const preview = p.read('.sdk/log/scaffold-conflict/' + ROOT_TS);
+        node_assert_1.default.match(preview, /^<<<<<<< LOCAL$/m);
+        node_assert_1.default.match(preview, /^>>>>>>> INCOMING \(/m);
         await p.create({ keep: true });
         node_assert_1.default.equal(p.read(ROOT_TS), local);
     });
