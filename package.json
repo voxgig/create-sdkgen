@@ -58,7 +58,7 @@
     "typescript": "7.0.2"
   },
   "dependencies": {
-    "@voxgig/util": "0.5.4",
+    "@voxgig/util": "0.5.8",
     "aontu": ">=0.75.0",
     "chokidar": "5.0.0",
     "jostraca": "0.41.0",
