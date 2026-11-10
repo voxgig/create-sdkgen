@@ -4,7 +4,7 @@ const Path = require('node:path')
 const { statSync } = require('node:fs')
 const { parseArgs } = require('node:util')
 
-const { Shape, Fault, One } = require('shape')
+const { Shape, Fault } = require('shape')
 
 const Pkg = require('../package.json')
 

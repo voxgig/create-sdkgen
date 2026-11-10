@@ -59,9 +59,9 @@
   },
   "dependencies": {
     "@voxgig/util": "0.5.8",
-    "aontu": ">=0.75.0",
+    "aontu": ">=0.76.3",
     "chokidar": "5.0.0",
-    "jostraca": "0.41.0",
-    "shape": ">=10"
+    "jostraca": ">=0.42.0",
+    "shape": ">=12"
   }
 }
