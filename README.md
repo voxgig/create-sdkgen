@@ -97,7 +97,7 @@ scaffold. A project regenerated in full from the toolchain sets
 `main: kit: copies: 'overwrite'` in `.sdk/model/project.aontu`, and then a
 re-scaffold overwrites the scaffold files instead. sdkgen's adds follow the
 same setting for the templates and components they copy. The few scaffold
-files that apidef or the model build rewrite, such as
+files that `@voxgig/apidef` or the model build rewrite, such as
 `.sdk/model/entity/entity-index.aontu` and `.sdk/test/test.json`, are always
 overwritten, since a difference there is the build's.
 

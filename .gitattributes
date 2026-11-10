@@ -1,0 +1,3 @@
+# The scaffold is checked out as npm ships it, with LF, so a Windows run tests
+# the bytes a consumer installs rather than a CRLF conversion of them.
+project/** text=auto eol=lf
