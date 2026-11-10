@@ -34,8 +34,8 @@
     "@voxgig/sdkgen": "~4.41.0",
     "@voxgig/util": ">=0.5",
     "@voxgig/struct": ">=0.2",
-    "jostraca": ">=0.41.0",
-    "aontu": ">=0.75.0",
+    "jostraca": ">=0.42.0",
+    "aontu": ">=0.76.3",
     "@voxgig/docgen": "~0.30.9"
   }
 }
