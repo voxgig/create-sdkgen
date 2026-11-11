@@ -1,6 +1,6 @@
 {
   "name": "@voxgig/create-sdkgen",
-  "version": "0.31.6",
+  "version": "0.31.7",
   "main": "dist/create-sdkgen.js",
   "type": "commonjs",
   "types": "dist/create-sdkgen.d.ts",
