@@ -29,9 +29,9 @@
   "devDependencies": {
     "@types/node": ">=25.6",
     "typescript": ">=6.0",
-    "@voxgig/apidef": "~8.32.1",
+    "@voxgig/apidef": "~8.32.3",
     "@voxgig/model": "~12.0.2",
-    "@voxgig/sdkgen": "~4.44.0",
+    "@voxgig/sdkgen": "~4.44.3",
     "@voxgig/util": ">=0.5",
     "@voxgig/struct": ">=0.2",
     "jostraca": ">=0.42.0",
