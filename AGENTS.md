@@ -255,9 +255,11 @@ holds for this tool and for every SDK it generates.
 make publish V=x.y.z
 ```
 
-Bumps, builds, tests, commits, pushes `main`, waits for the remote to show the
-pushed SHA, then **dispatches** `.github/workflows/publish.yml`, which
-publishes to npm over GitHub OIDC trusted publishing and writes the tag. By
+Bumps, commits, pushes `main`, waits for the remote to show the pushed SHA,
+then **dispatches** `.github/workflows/publish.yml`, which builds and tests on
+CI, publishes to npm over GitHub OIDC trusted publishing and writes the tag.
+No suite runs on the workstation: the workflow's own build and test is the
+release gate. By
 hand, the same mechanism is
 `gh workflow run publish.yml --ref main -f expect_sha=$(git rev-parse HEAD)`.
 
