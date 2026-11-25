@@ -10,8 +10,11 @@
 #   make publish V=0.18.0
 #
 # Bumps package.json (and its lockfile) via `npm version
-# --no-git-tag-version`, runs the full suite, commits, pushes main, and
-# dispatches publish.yml — which publishes to npm and writes the v<V> tag.
+# --no-git-tag-version`, commits, pushes main, and dispatches publish.yml —
+# which builds and tests on CI, publishes to npm and writes the v<V> tag.
+#
+# NO SUITE RUNS HERE: the publish workflow's own build and test is the
+# release gate.
 #
 # Every guard runs BEFORE anything is written, because a release cannot be
 # taken back: npm never allows republishing a version.
@@ -48,7 +51,6 @@ publish:
 	@node build/toolchain.js --check || \
 	  echo "publish: releasing with the scaffold's toolchain pins as they are (npm run toolchain moves them)"
 	npm version --no-git-tag-version $(V)
-	npm ci && npm run build && npm test
 	git add package.json package-lock.json
 	git commit -m "$(V)"
 	git push origin main

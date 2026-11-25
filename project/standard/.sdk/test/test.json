@@ -1187,6 +1187,138 @@
                 "code": "point_action_invalid"
               }
             }
+          },
+          {
+            "ctx": {
+              "config": {
+                "entity": {
+                  "planet": {
+                    "op": {
+                      "list": {
+                        "points": [
+                          {
+                            "method": "DELETE",
+                            "path": [
+                              "api",
+                              "planet",
+                              "all"
+                            ],
+                            "select": {
+                              "$action": "purge"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "entity": {
+                "name": "planet"
+              },
+              "opname": "list",
+              "options": {
+                "allow": {
+                  "op": "list"
+                }
+              }
+            },
+            "match": {
+              "out": {
+                "code": "point_action_required"
+              }
+            }
+          },
+          {
+            "ctx": {
+              "config": {
+                "entity": {
+                  "planet": {
+                    "op": {
+                      "list": {
+                        "points": [
+                          {
+                            "method": "DELETE",
+                            "path": [
+                              "api",
+                              "planet",
+                              "all"
+                            ],
+                            "select": {
+                              "$action": "purge"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "entity": {
+                "name": "planet"
+              },
+              "opname": "list",
+              "options": {
+                "allow": {
+                  "op": "list"
+                }
+              },
+              "reqmatch": {
+                "$action": "purge"
+              }
+            },
+            "out": {
+              "method": "DELETE",
+              "path": [
+                "api",
+                "planet",
+                "all"
+              ],
+              "select": {
+                "$action": "purge"
+              }
+            }
+          },
+          {
+            "ctx": {
+              "config": {
+                "entity": {
+                  "planet": {
+                    "op": {
+                      "list": {
+                        "points": [
+                          {
+                            "method": "GET",
+                            "path": [
+                              "api",
+                              "planet"
+                            ],
+                            "select": {}
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "entity": {
+                "name": "planet"
+              },
+              "opname": "list",
+              "options": {
+                "allow": {
+                  "op": "list"
+                }
+              },
+              "reqmatch": {
+                "$action": "nope"
+              }
+            },
+            "match": {
+              "out": {
+                "code": "point_action_invalid"
+              }
+            }
           }
         ]
       }

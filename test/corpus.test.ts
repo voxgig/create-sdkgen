@@ -153,7 +153,8 @@ describe('shared test corpus', () => {
     const codes = set
       .map((e: any) => e.match?.out?.code)
       .filter((c: any) => null != c)
-    for (const code of ['point_op_allow', 'point_no_points', 'point_action_invalid']) {
+    for (const code of ['point_op_allow', 'point_no_points', 'point_action_invalid',
+      'point_action_required']) {
       assert.ok(codes.includes(code),
         `makePoint: the ${code} branch is not asserted`)
     }

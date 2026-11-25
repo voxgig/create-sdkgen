@@ -101,4 +101,45 @@ basic: set: [
     match: { out: { code: 'point_action_invalid' } }
   }
 
+  # A lone action route needs its action too: a call that names none is
+  # refused rather than sent to the action.
+  {
+    ctx: {
+      opname: 'list'
+      entity: { name: 'planet' }
+      options: { allow: { op: 'list' } }
+      config: { entity: { planet: { op: { list: { points: [
+        { method: 'DELETE', path: ['api', 'planet', 'all'], select: { '$action': 'purge' } }
+      ] } } } } }
+    }
+    match: { out: { code: 'point_action_required' } }
+  }
+
+  {
+    ctx: {
+      opname: 'list'
+      entity: { name: 'planet' }
+      options: { allow: { op: 'list' } }
+      reqmatch: { '$action': 'purge' }
+      config: { entity: { planet: { op: { list: { points: [
+        { method: 'DELETE', path: ['api', 'planet', 'all'], select: { '$action': 'purge' } }
+      ] } } } } }
+    }
+    out: { method: 'DELETE', path: ['api', 'planet', 'all'], select: { '$action': 'purge' } }
+  }
+
+  # A lone route without an action refuses an action the call names.
+  {
+    ctx: {
+      opname: 'list'
+      entity: { name: 'planet' }
+      options: { allow: { op: 'list' } }
+      reqmatch: { '$action': 'nope' }
+      config: { entity: { planet: { op: { list: { points: [
+        { method: 'GET', path: ['api', 'planet'], select: {} }
+      ] } } } } }
+    }
+    match: { out: { code: 'point_action_invalid' } }
+  }
+
 ]
