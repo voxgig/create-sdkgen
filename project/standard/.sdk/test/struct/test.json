@@ -15440,6 +15440,354 @@
               null,
               2
             ]
+          },
+          {
+            "err": "Unexpected keys at field <root>: 1, 2",
+            "in": {
+              "data": [
+                1,
+                2,
+                3
+              ],
+              "spec": [
+                "`$NUMBER`"
+              ]
+            }
+          },
+          {
+            "err": "Unexpected keys at field <root>: 2",
+            "in": {
+              "data": [
+                5,
+                6,
+                7
+              ],
+              "spec": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "err": "Unexpected keys at field l0: 2",
+            "in": {
+              "data": {
+                "l0": [
+                  1,
+                  "a",
+                  true
+                ]
+              },
+              "spec": {
+                "l0": [
+                  "`$NUMBER`",
+                  "`$STRING`"
+                ]
+              }
+            }
+          },
+          {
+            "err": "Unexpected keys at field <root>: 1",
+            "in": {
+              "data": [
+                [
+                  1,
+                  2
+                ],
+                [
+                  3
+                ]
+              ],
+              "spec": [
+                [
+                  "`$CHILD`",
+                  "`$NUMBER`"
+                ]
+              ]
+            }
+          },
+          {
+            "err": "Unexpected keys at field l2.b: 1",
+            "in": {
+              "data": {
+                "l2": {
+                  "a": [
+                    1
+                  ],
+                  "b": [
+                    2,
+                    3
+                  ]
+                }
+              },
+              "spec": {
+                "l2": {
+                  "`$CHILD`": [
+                    "`$NUMBER`"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "err": "Unexpected keys at field l3: 1, 2",
+            "in": {
+              "data": {
+                "l3": [
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "spec": {
+                "l3": [
+                  0
+                ]
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {
+                "l4": [
+                  1
+                ]
+              },
+              "spec": {
+                "l4": [
+                  0,
+                  9
+                ]
+              }
+            },
+            "out": {
+              "l4": [
+                1,
+                9
+              ]
+            }
+          },
+          {
+            "in": {
+              "data": [
+                1,
+                {
+                  "a": 2
+                }
+              ],
+              "spec": []
+            },
+            "out": [
+              1,
+              {
+                "a": 2
+              }
+            ]
+          },
+          {
+            "in": {
+              "data": {
+                "l1": [
+                  "x",
+                  "y"
+                ]
+              },
+              "spec": {
+                "l1": []
+              }
+            },
+            "out": {
+              "l1": [
+                "x",
+                "y"
+              ]
+            }
+          },
+          {
+            "err": "Unexpected keys at field <root>: b7, c7",
+            "in": {
+              "data": {
+                "a7": 1,
+                "b7": 2,
+                "c7": 3
+              },
+              "spec": {
+                "a7": "`$NUMBER`"
+              }
+            }
+          },
+          {
+            "err": "Unexpected keys at field <root>: b8",
+            "in": {
+              "data": {
+                "b8": 1
+              },
+              "spec": {
+                "a8": [
+                  "`$NOF`",
+                  1,
+                  "`$NUMBER`",
+                  "`$NIL`"
+                ]
+              }
+            }
+          },
+          {
+            "err": "Unexpected keys at field <root>: b9",
+            "in": {
+              "data": {
+                "a9": 1,
+                "b9": 1
+              },
+              "spec": {
+                "a9": [
+                  "`$NOF`",
+                  1,
+                  "`$NUMBER`",
+                  "`$NIL`"
+                ]
+              }
+            }
+          },
+          {
+            "err": "Unexpected keys at field <root>: b10",
+            "in": {
+              "data": {
+                "b10": 1
+              },
+              "spec": {
+                "a10": "`$ANY`"
+              }
+            }
+          },
+          {
+            "err": "Expected field a11 to be number, but found no value. | Unexpected keys at field <root>: b11",
+            "in": {
+              "data": {
+                "b11": 1
+              },
+              "spec": {
+                "a11": "`$NUMBER`"
+              }
+            }
+          },
+          {
+            "err": "Unexpected keys at field x12: b12",
+            "in": {
+              "data": {
+                "x12": {
+                  "b12": 1
+                }
+              },
+              "spec": {
+                "x12": {
+                  "a12": [
+                    "`$NOF`",
+                    1,
+                    "`$NUMBER`",
+                    "`$NIL`"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {},
+              "spec": {
+                "a13": [
+                  "`$NOF`",
+                  1,
+                  "`$NUMBER`",
+                  "`$NIL`"
+                ]
+              }
+            },
+            "out": {}
+          },
+          {
+            "in": {
+              "data": {
+                "b14": 1
+              },
+              "spec": {}
+            },
+            "out": {
+              "b14": 1
+            }
+          },
+          {
+            "err": "Expected field 0 to be integer, but found string: x. | Expected field 1 to be integer, but found string: y.",
+            "in": {
+              "data": [
+                "x",
+                "y"
+              ],
+              "spec": [
+                "`$CHILD`",
+                "`$INTEGER`"
+              ]
+            }
+          },
+          {
+            "err": "Expected field 0 to be integer, but found string: x. | Expected field 1 to be integer, but found string: y.",
+            "in": {
+              "data": [
+                "x",
+                "y"
+              ],
+              "spec": [
+                "`$INTEGER`",
+                "`$INTEGER`"
+              ]
+            }
+          },
+          {
+            "err": "/^[^|]*Expected field x15 to be string, but found no value\\.[^|]*$/",
+            "in": {
+              "data": {
+                "x15": null
+              },
+              "spec": {
+                "x15": "`$STRING`"
+              }
+            }
+          },
+          {
+            "err": "/^[^|]*Expected field x16 to be string, but found no value\\.[^|]*$/",
+            "in": {
+              "data": {
+                "x16": null,
+                "y16": 1
+              },
+              "spec": {
+                "x16": "`$STRING`",
+                "y16": "`$NUMBER`"
+              }
+            }
+          },
+          {
+            "err": "/^[^|]*Expected field 2 to be number, but found no value\\.[^|]*$/",
+            "in": {
+              "data": [
+                "a"
+              ],
+              "spec": [
+                "`$STRING`",
+                "`$ANY`",
+                "`$NUMBER`"
+              ]
+            }
+          },
+          {
+            "err": "/^[^|]*Expected field 1 to be string, but found no value\\.[^|]*$/",
+            "in": {
+              "data": [],
+              "spec": [
+                "`$ANY`",
+                "`$STRING`"
+              ]
+            }
           }
         ]
       },
@@ -19765,6 +20113,528 @@
           }
         ]
       },
+      "rest": {
+        "set": [
+          {
+            "in": {
+              "data": {
+                "age": 36,
+                "name": "Ada",
+                "rank": 2
+              },
+              "spec": {
+                "`$REST`": "`$INTEGER`",
+                "name": "`$STRING`"
+              }
+            },
+            "out": {
+              "age": 36,
+              "name": "Ada",
+              "rank": 2
+            }
+          },
+          {
+            "err": "Expected field nick to be integer, but found string: A.",
+            "in": {
+              "data": {
+                "name": "Ada",
+                "nick": "A"
+              },
+              "spec": {
+                "`$REST`": "`$INTEGER`",
+                "name": "`$STRING`"
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {
+                "name": "Ada"
+              },
+              "spec": {
+                "`$REST`": "`$INTEGER`",
+                "name": "`$STRING`"
+              }
+            },
+            "out": {
+              "name": "Ada"
+            }
+          },
+          {
+            "in": {
+              "data": {},
+              "spec": {
+                "`$REST`": "`$NUMBER`"
+              }
+            },
+            "out": {}
+          },
+          {
+            "in": {
+              "data": {
+                "a": {
+                  "b": {
+                    "x": 1,
+                    "y": 2
+                  }
+                }
+              },
+              "spec": {
+                "a": {
+                  "b": {
+                    "`$REST`": "`$NUMBER`"
+                  }
+                }
+              }
+            },
+            "out": {
+              "a": {
+                "b": {
+                  "x": 1,
+                  "y": 2
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {
+                "u": {
+                  "p": {
+                    "n": 1
+                  },
+                  "q": {
+                    "n": 2
+                  }
+                }
+              },
+              "spec": {
+                "u": {
+                  "`$REST`": {
+                    "n": "`$NUMBER`"
+                  }
+                }
+              }
+            },
+            "out": {
+              "u": {
+                "p": {
+                  "n": 1
+                },
+                "q": {
+                  "n": 2
+                }
+              }
+            }
+          },
+          {
+            "err": "Expected field u.p.n to be number, but found string: x.",
+            "in": {
+              "data": {
+                "u": {
+                  "p": {
+                    "n": "x"
+                  }
+                }
+              },
+              "spec": {
+                "u": {
+                  "`$REST`": {
+                    "n": "`$NUMBER`"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {
+                "u": {
+                  "p": {}
+                }
+              },
+              "spec": {
+                "u": {
+                  "`$REST`": {
+                    "n": 0
+                  }
+                }
+              }
+            },
+            "out": {
+              "u": {
+                "p": {
+                  "n": 0
+                }
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {
+                "name": "Ada",
+                "x": null
+              },
+              "spec": {
+                "`$REST`": "`$NIL`",
+                "name": "`$STRING`"
+              }
+            },
+            "out": {
+              "name": "Ada",
+              "x": null
+            }
+          },
+          {
+            "err": "/^[^|]*Expected field x to be string, but found no value\\.[^|]*$/",
+            "in": {
+              "data": {
+                "name": "Ada",
+                "x": null
+              },
+              "spec": {
+                "`$REST`": "`$STRING`",
+                "name": "`$STRING`"
+              }
+            }
+          },
+          {
+            "in": {
+              "data": [
+                "a"
+              ],
+              "spec": [
+                "`$STRING`",
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            },
+            "out": [
+              "a"
+            ]
+          },
+          {
+            "in": {
+              "data": [
+                "a",
+                1
+              ],
+              "spec": [
+                "`$STRING`",
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            },
+            "out": [
+              "a",
+              1
+            ]
+          },
+          {
+            "in": {
+              "data": [
+                "a",
+                1,
+                2,
+                3
+              ],
+              "spec": [
+                "`$STRING`",
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            },
+            "out": [
+              "a",
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "err": "Expected field 2 to be integer, but found string: b.",
+            "in": {
+              "data": [
+                "a",
+                1,
+                "b"
+              ],
+              "spec": [
+                "`$STRING`",
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            }
+          },
+          {
+            "err": "Expected field l.2 to be integer, but found string: b.",
+            "in": {
+              "data": {
+                "l": [
+                  "a",
+                  1,
+                  "b"
+                ]
+              },
+              "spec": {
+                "l": [
+                  "`$STRING`",
+                  [
+                    "`$REST`",
+                    "`$INTEGER`"
+                  ]
+                ]
+              }
+            }
+          },
+          {
+            "err": "Expected field 1 to be integer, but found string: x. | Expected field 2 to be integer, but found string: y.",
+            "in": {
+              "data": [
+                "a",
+                "x",
+                "y"
+              ],
+              "spec": [
+                "`$STRING`",
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            }
+          },
+          {
+            "in": {
+              "data": [
+                1,
+                {
+                  "n": 2
+                },
+                {
+                  "n": 3
+                }
+              ],
+              "spec": [
+                "`$NUMBER`",
+                [
+                  "`$REST`",
+                  {
+                    "n": "`$NUMBER`"
+                  }
+                ]
+              ]
+            },
+            "out": [
+              1,
+              {
+                "n": 2
+              },
+              {
+                "n": 3
+              }
+            ]
+          },
+          {
+            "in": {
+              "data": [
+                "a",
+                null
+              ],
+              "spec": [
+                "`$STRING`",
+                [
+                  "`$REST`",
+                  "`$NIL`"
+                ]
+              ]
+            },
+            "out": [
+              "a",
+              null
+            ]
+          },
+          {
+            "err": "Expected field 0 to be string, but found no value.",
+            "in": {
+              "data": [],
+              "spec": [
+                "`$STRING`",
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            }
+          },
+          {
+            "in": {
+              "data": [
+                1,
+                2
+              ],
+              "spec": [
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            },
+            "out": [
+              1,
+              2
+            ]
+          },
+          {
+            "in": {
+              "data": [],
+              "spec": [
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            },
+            "out": []
+          },
+          {
+            "err": "Expected field 1 to be integer, but found string: x.",
+            "in": {
+              "data": [
+                1,
+                "x"
+              ],
+              "spec": [
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            }
+          },
+          {
+            "err": "The $REST validator at field 0 must be the last element of an array.",
+            "in": {
+              "data": [
+                "a",
+                1
+              ],
+              "spec": [
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ],
+                "`$STRING`"
+              ]
+            }
+          },
+          {
+            "err": "The $REST validator at field a must be the last element of an array.",
+            "in": {
+              "data": {
+                "a": [
+                  1
+                ]
+              },
+              "spec": {
+                "a": [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              }
+            }
+          },
+          {
+            "err": "The $REST validator at field a must be the last element of an array.",
+            "in": {
+              "data": {
+                "a": 1
+              },
+              "spec": {
+                "a": "`$REST`"
+              }
+            }
+          },
+          {
+            "err": "The $REST validator at field 0 must have exactly one spec.",
+            "in": {
+              "data": [
+                1
+              ],
+              "spec": [
+                [
+                  "`$REST`"
+                ]
+              ]
+            }
+          },
+          {
+            "err": "The $REST validator at field <root> cannot be used with $CHILD.",
+            "in": {
+              "data": {
+                "a": 1
+              },
+              "spec": {
+                "`$CHILD`": "`$NUMBER`",
+                "`$REST`": "`$NUMBER`"
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {
+                "a": null
+              },
+              "spec": {
+                "`$REST`": null
+              }
+            },
+            "out": {
+              "a": null
+            }
+          },
+          {
+            "in": {
+              "data": [],
+              "spec": [
+                "`$ANY`",
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            },
+            "out": []
+          },
+          {
+            "in": {
+              "data": [
+                "x",
+                1
+              ],
+              "spec": [
+                "`$ANY`",
+                [
+                  "`$REST`",
+                  "`$INTEGER`"
+                ]
+              ]
+            },
+            "out": [
+              "x",
+              1
+            ]
+          }
+        ]
+      },
       "set": [],
       "special": {
         "set": [
@@ -20413,6 +21283,149 @@
                     "c": 4002
                   }
                 }
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {
+                "a20": {
+                  "x": 1,
+                  "y": 2
+                }
+              },
+              "spec": {
+                "a20": {
+                  "x": "`$NUMBER`",
+                  "y": [
+                    "`$REF`",
+                    ".x"
+                  ]
+                }
+              }
+            },
+            "out": {
+              "a20": {
+                "x": 1,
+                "y": 2
+              }
+            }
+          },
+          {
+            "err": "Expected field a21.y to be number, but found string: s.",
+            "in": {
+              "data": {
+                "a21": {
+                  "x": 1,
+                  "y": "s"
+                }
+              },
+              "spec": {
+                "a21": {
+                  "x": "`$NUMBER`",
+                  "y": [
+                    "`$REF`",
+                    ".x"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "err": "Expected field a22.y to be number, but found string: s.",
+            "in": {
+              "data": {
+                "a22": {
+                  "y": "s"
+                },
+                "x22": 1
+              },
+              "spec": {
+                "a22": {
+                  "y": [
+                    "`$REF`",
+                    "..x22"
+                  ]
+                },
+                "x22": "`$NUMBER`"
+              }
+            }
+          },
+          {
+            "err": "Expected field a23.1 to be number, but found string: s.",
+            "in": {
+              "data": {
+                "a23": [
+                  1,
+                  "s"
+                ]
+              },
+              "spec": {
+                "a23": [
+                  "`$NUMBER`",
+                  [
+                    "`$REF`",
+                    ".0"
+                  ]
+                ]
+              }
+            }
+          },
+          {
+            "err": "Unexpected keys at field a24: y",
+            "in": {
+              "data": {
+                "a24": {
+                  "y": 2
+                }
+              },
+              "spec": {
+                "a24": {
+                  "y": [
+                    "`$REF`",
+                    "...x"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "err": "Unexpected keys at field <root>: a25",
+            "in": {
+              "data": {
+                "a25": 1
+              },
+              "spec": {
+                "a25": [
+                  "`$REF`",
+                  "missing"
+                ]
+              }
+            }
+          },
+          {
+            "in": {
+              "data": {},
+              "spec": {
+                "a26": [
+                  "`$REF`",
+                  "missing"
+                ]
+              }
+            },
+            "out": {}
+          },
+          {
+            "err": "Unexpected keys at field <root>: a27",
+            "in": {
+              "data": {
+                "a27": 2
+              },
+              "spec": {
+                "a27": [
+                  "`$REF`",
+                  "a27"
+                ]
               }
             }
           }
