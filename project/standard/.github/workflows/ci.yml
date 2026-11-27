@@ -255,7 +255,8 @@ jobs:
         run: make -C scala test
 
   swift:
-    runs-on: ubuntu-latest
+    # setup-swift v2 refuses Ubuntu 26.04, which ubuntu-latest now is.
+    runs-on: ubuntu-24.04
     continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
